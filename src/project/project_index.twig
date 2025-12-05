@@ -50,6 +50,11 @@
         .timeline-body > p {
             margin-bottom: 0;
         }
+
+        .comment-function {
+            color: #999;
+            font-weight: bold;
+        }
     </style>
 
     <!--Summernote-->
@@ -379,21 +384,26 @@
                                                                 {% set currentDate = event.auditLog_timestamp|date("Y-m-d") %}
                                                             {% endif %}
                                                             <div>
-                                                                <i class="far fa-comment bg-blue"></i>s
+                                                                <i class="far fa-comment bg-blue"></i>
                                                                 <div class="timeline-item">
-                                                                    <span class="time"><i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}</span>
+                                                                    <span class="time">
+                                                                        <span style="margin-right: 5px">
+                                                                            <a href="#"
+                                                                            class="comment-function deleteQuickCommentButton"
+                                                                            data-comment-id="{{ event.auditLog_id }}">
+                                                                                Delete
+                                                                            </a>
+                                                                            <a href="#"
+                                                                            class="comment-function editQuickCommentButton"
+                                                                            data-comment-id="{{ event.auditLog_id }}"
+                                                                            data-comment-text="{{ event.auditLog_actionData|raw }}">
+                                                                                Edit
+                                                                            </a>
+                                                                        </span>
+                                                                        <i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}
+                                                                    </span>
                                                                     <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a> commented
                                                                     </h3>
-                                                                    {{ event.auditLog_id }}
-                                                                    <button class="btn btn-danger btn-sm deleteQuickCommentButton"
-                                                                            data-comment-id="{{ event.auditLog_id }}">
-                                                                        Delete
-                                                                    </button>
-                                                                    <button class="btn btn-warning btn-sm editQuickCommentButton"
-                                                                            data-comment-id="{{ event.auditLog_id }}"
-                                                                            data-comment-text="{{ event.auditLog_text|escape('js') }}">
-                                                                        Edit
-                                                                    </button>
                                                                     <div class="timeline-body">{{ event.auditLog_actionData|raw }}</div>
                                                                 </div>
                                                             </div>
@@ -912,6 +922,82 @@
                     }
                 });
             });
+            $(document).on("click", ".editQuickCommentButton", function () {
+                let commentId = $(this).data("comment-id");
+                let oldText   = $(this).data("comment-text");
+
+                bootbox.dialog({
+                    title: "Edit Comment",
+                    size: 'large',
+                    message: '<div id="editCommentEditor"></div>',
+                    buttons: {
+                        save: {
+                            label: "Save Changes",
+                            className: "btn btn-info",
+                            callback: function () {
+                                let newContent = $('#editCommentEditor').summernote('code');
+                                if (newContent) {
+                                    ajaxcall("projects/editQuickComment.php", {
+                                        "comment_id": commentId,
+                                        "text": newContent
+                                    }, function (data) {
+                                        location.reload();
+                                    });
+                                }
+                            }
+                        },
+                        cancel: {
+                            label: "Cancel",
+                            className: "btn btn-danger"
+                        }
+                    }
+                });
+
+                $('#editCommentEditor').summernote({
+                    minHeight: 300,
+                    maxHeight: null,
+                    focus: true,
+                    disableDragAndDrop: true,
+                    toolbar: [
+                        ['oops', ['undo', 'redo']],
+                        ['font', ['style', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['insert', ['link','hr']],
+                        ['view', ['codeview']]
+                    ]
+                });
+
+                $('#editCommentEditor').summernote('code', oldText);
+            });
+
+            $(".deleteQuickCommentButton").click(function (e) {
+                e.preventDefault();
+                var commentId = $(this).data("comment-id");        
+
+                bootbox.confirm({
+                    message: "Are you sure you want to delete this comment?",
+                    buttons: {
+                        confirm: {
+                            label: 'Yes',
+                            className: 'btn-danger'
+                        },
+                        cancel: {
+                            label: 'No',
+                            className: 'btn-success'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            ajaxcall("projects/deleteQuickComment.php", {
+                                "comment_id": commentId
+                            }, function (data) {
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+            });
+
             {% if "CLIENTS:CREATE"|instancePermissions %}
             $("#newClientButton").click(function () {
                 bootbox.prompt("Enter Client Name", function (result) {
