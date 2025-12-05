@@ -379,11 +379,21 @@
                                                                 {% set currentDate = event.auditLog_timestamp|date("Y-m-d") %}
                                                             {% endif %}
                                                             <div>
-                                                                <i class="far fa-comment bg-blue"></i>
+                                                                <i class="far fa-comment bg-blue"></i>s
                                                                 <div class="timeline-item">
                                                                     <span class="time"><i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}</span>
                                                                     <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a> commented
                                                                     </h3>
+                                                                    {{ event.auditLog_id }}
+                                                                    <button class="btn btn-danger btn-sm deleteQuickCommentButton"
+                                                                            data-comment-id="{{ event.auditLog_id }}">
+                                                                        Delete
+                                                                    </button>
+                                                                    <button class="btn btn-warning btn-sm editQuickCommentButton"
+                                                                            data-comment-id="{{ event.auditLog_id }}"
+                                                                            data-comment-text="{{ event.auditLog_text|escape('js') }}">
+                                                                        Edit
+                                                                    </button>
                                                                     <div class="timeline-body">{{ event.auditLog_actionData|raw }}</div>
                                                                 </div>
                                                             </div>
@@ -876,6 +886,7 @@
                         }
                     }
                 });
+            
 
                 $('#editor').summernote({
                     minHeight: 300,             // set minimum height of editor
