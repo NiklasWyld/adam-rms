@@ -440,6 +440,12 @@ ignoreURLs: ['searchUser.php'] // Ignore user searches
 										</a>
 									</li>
 								{% endif %}
+								<li class="nav-item">
+									<a href="{{ CONFIG.ROOTURL}}/personal_calendar.php" class="nav-link">
+										<i class="nav-icon fas fa-calendar"></i>
+										<p>Personal Calendar</p>
+									</a>
+								</li>
 								{% if USERDATA.instances|length > 0 %}
 									<li class="nav-item has-treeview">
 										<a href="#" class="nav-link">
