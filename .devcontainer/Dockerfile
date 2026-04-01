@@ -1,10 +1,11 @@
 # [Choice] PHP version (use -bullseye variants on local arm64/Apple Silicon): 8, 8.1, 8.0, 7, 7.4, 7.3, 8-bullseye, 8.1-bullseye, 8.0-bullseye, 7-bullseye, 7.4-bullseye, 7.3-bullseye, 8-buster, 8.1-buster, 8.0-buster, 7-buster, 7.4-buster
 ARG VARIANT=8-bullseye
-FROM mcr.microsoft.com/vscode/devcontainers/php:0-${VARIANT}
+FROM mcr.microsoft.com/devcontainers/php:1-${VARIANT}-bookworm
 
 # Install extensions - these should be the same as the ones in the main dockerfile
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get install -y mariadb-client libicu-dev libzip-dev libpng-dev \ 
+RUN rm -f /etc/apt/sources.list.d/yarn.list \
+    && apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get install -y mariadb-client libicu-dev libzip-dev libpng-dev \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # Install php-mysql driver
