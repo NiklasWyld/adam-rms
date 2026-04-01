@@ -396,7 +396,7 @@
                                                                             <a href="#"
                                                                             class="comment-function editQuickCommentButton"
                                                                             data-comment-id="{{ event.auditLog_id }}"
-                                                                            data-comment-text="{{ event.auditLog_actionData|raw }}">
+                                                                            data-comment-text="{{ event.auditLog_actionData|e('html_attr') }}">
                                                                                 Edit
                                                                             </a>
                                                                         </span>
