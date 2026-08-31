@@ -5425,44 +5425,6 @@ paths:
                 properties:
                   result: { description: 'Whether the request was successful', type: boolean }
                 type: object
-  /manufacturer/edit.php:
-    post:
-      tags:
-        - manufacturers
-      summary: 'Edit Manufacturer'
-      description: "Edit a Manufacturer  \nRequires Instance Permission ASSETS:MANUFACTURERS:EDIT"
-      operationId: editManufacturer
-      requestBody:
-        description: 'The manufacturer data, wrapped in a formData array of name/value pairs'
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              properties:
-                formData:
-                  description: 'Array of form fields, each with a name and value (e.g. manufacturers_id, manufacturers_name, manufacturers_website, manufacturers_notes)'
-                  type: array
-                  items: { properties: { name: { description: 'Field name (one of: manufacturers_id, manufacturers_name, manufacturers_website, manufacturers_notes)', type: string }, value: { description: 'Value for the given field', type: string } }, type: object }
-              type: object
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                properties:
-                  result: { description: 'Whether the request was successful', type: boolean }
-                  response: { description: 'A null Array', type: array }
-                type: object
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                properties:
-                  result: { description: 'Whether the request was successful', type: boolean }
-                  error: { description: 'An Array containing an error code and a message', type: array }
-                type: object
   /instances/editUser.php:
     post:
       tags:
@@ -7057,6 +7019,35 @@ paths:
                 type: object
         '403':
           description: 'Permission Error'
+  /server/configPropertyValue.php:
+    post:
+      tags:
+        - server
+      summary: 'Update Config value'
+      description: 'Update a single property value. Only specific keys are accepted'
+      operationId: updateConfigValue
+      parameters:
+        -
+          name: property_key
+          in: query
+          description: undefined
+          required: 'true'
+          schema:
+            type: string
+        -
+          name: property_value
+          in: query
+          description: undefined
+          required: 'true'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
 components:
   schemas:
     SimpleResponse:
