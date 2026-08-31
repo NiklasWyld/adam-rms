@@ -50,6 +50,11 @@
         .timeline-body > p {
             margin-bottom: 0;
         }
+
+        .comment-function {
+            color: #999;
+            font-weight: bold;
+        }
     </style>
 
     <!--Summernote-->
@@ -151,85 +156,68 @@
                                                         <p class="text-muted">{{ project.projects_description|nl2br }}</p>
                                                         <hr/>
                                                     {% endif %}
-                                                    <div class="text-muted d-flex flex-column" style="gap: 8px;">
-                                                        <div id="projectClientContainer">
-                                                            {% if "PROJECTS:EDIT:CLIENT"|instancePermissions and project.projectsTypes_config_client == 1 %}
-                                                                <div class="d-flex flex-row">
-                                                                    <p class="text-sm">Client</p>
-                                                                    {% if "CLIENTS:CREATE"|instancePermissions and "PROJECTS:EDIT:CLIENT"|instancePermissions %}
-                                                                    <button type="button" class="btn btn-link btn-sm ml-auto" id="newClientButton">Create Client</button>
+                                                    <div class="text-muted">
+                                                        {% if "PROJECTS:EDIT:CLIENT"|instancePermissions and project.projectsTypes_config_client == 1 %}
+                                                            <p class="text-sm">Client</p>
+                                                            <select class="form-control select2bs4" multiple id="editProjectClient">
+                                                                {% if project.clients_id == "" %}
+                                                                    <option value="" disabled selected>No Client Selected....</option>
+                                                                {% endif %}
+                                                                {% for client in clients %}
+                                                                    {% if client.clients_archived == 0 or ((client.clients_archived == 1) and (project.clients_id == client.clients_id) ) %}
+                                                                        <option value="{{ client.clients_id }}" {{ project.clients_id == client.clients_id ? 'selected' }} {{ client.clients_archived == 1 ? 'disabled' }}>{{ client.clients_archived == 1 ? '[Archived] ' }}{{ client.clients_name }}</option>
                                                                     {% endif %}
-                                                                </div>
-                                                                <select class="form-control select2bs4" multiple id="editProjectClient">
-                                                                    {% if project.clients_id == "" %}
-                                                                        <option value="" disabled selected>No Client Selected....</option>
-                                                                    {% endif %}
-                                                                    {% for client in clients %}
-                                                                        {% if client.clients_archived == 0 or ((client.clients_archived == 1) and (project.clients_id == client.clients_id) ) %}
-                                                                            <option value="{{ client.clients_id }}" {{ project.clients_id == client.clients_id ? 'selected' }} {{ client.clients_archived == 1 ? 'disabled' }}>{{ client.clients_archived == 1 ? '[Archived] ' }}{{ client.clients_name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% elseif project.projectsTypes_config_client == 1  %}
+                                                            <p class="text-sm">Client
+                                                                <b class="d-block">
+                                                                    <a  style="color: inherit; text-decoration: inherit;"  {% if "CLIENTS:VIEW"|instancePermissions %}href="{{ CONFIG.ROOTURL }}/clients.php"{% endif %}>
+                                                                        {{ project.clients_name }}</a>
+                                                                </b>
+                                                            </p>
+                                                        {% endif %}
+                                                        {% if "PROJECTS:EDIT:LEAD"|instancePermissions %}
+                                                            <p class="text-sm">Project Manager</p>
+                                                            <select class="form-control select2bs4" multiple id="editProjectManager">
+                                                                {% for user in potentialProjectManagers %}
+                                                                    <option value="{{ user.users_userid }}" {{ project.users_userid == user.users_userid ? 'selected' }}>{{ (user.users_name1 ~ " " ~ user.users_name2) }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% else %}
+                                                            <p class="text-sm">Project Manager
+                                                                <b class="d-block">
+                                                                    {% if "BUSINESS:USERS:VIEW:INDIVIDUAL_USER"|instancePermissions %}
+                                                                    <a style="color: inherit; text-decoration: inherit;" href="{{ CONFIG.ROOTURL }}/user.php?id={{ project.projects_manager }}">
                                                                         {% endif %}
-                                                                    {% endfor %}
-                                                                </select>
-                                                            {% elseif project.projectsTypes_config_client == 1  %}
-                                                                <p class="text-sm">Client
-                                                                    <b class="d-block">
-                                                                        <a  style="color: inherit; text-decoration: inherit;"  {% if "CLIENTS:VIEW"|instancePermissions %}href="{{ CONFIG.ROOTURL }}/clients.php"{% endif %}>
-                                                                            {{ project.clients_name }}</a>
-                                                                    </b>
-                                                                </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div id="projectManagerContainer">
-                                                            {% if "PROJECTS:EDIT:LEAD"|instancePermissions %}
-                                                                <p class="text-sm">Project Manager</p>
-                                                                <select class="form-control select2bs4" multiple id="editProjectManager">
-                                                                    {% for user in potentialProjectManagers %}
-                                                                        <option value="{{ user.users_userid }}" {{ project.users_userid == user.users_userid ? 'selected' }}>{{ (user.users_name1 ~ " " ~ user.users_name2) }}</option>
-                                                                    {% endfor %}
-                                                                </select>
-                                                            {% else %}
-                                                                <p class="text-sm">Project Manager
-                                                                    <b class="d-block">
+                                                                        {{project.users_name1 ~ " " ~ project.users_name2 ~ " (" ~ project.users_email ~ ")" }}
                                                                         {% if "BUSINESS:USERS:VIEW:INDIVIDUAL_USER"|instancePermissions %}
-                                                                        <a style="color: inherit; text-decoration: inherit;" href="{{ CONFIG.ROOTURL }}/user.php?id={{ project.projects_manager }}">
-                                                                            {% endif %}
-                                                                            {{project.users_name1 ~ " " ~ project.users_name2 ~ " (" ~ project.users_email ~ ")" }}
-                                                                            {% if "BUSINESS:USERS:VIEW:INDIVIDUAL_USER"|instancePermissions %}
-                                                                        </a>
-                                                                        {% endif %}
-                                                                    </b>
-                                                                </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div id="projectVenueContainer">
-                                                            {% if "PROJECTS:EDIT:ADDRESS"|instancePermissions and project.projectsTypes_config_venue == 1  %}
-                                                                <div class="d-flex flex-row">
-                                                                    <p class="text-sm">Venue</p>
-                                                                    {% if "LOCATIONS:CREATE"|instancePermissions %}
-                                                                        <button type="button" class="btn btn-link btn-sm ml-auto" data-toggle="modal" data-target="#createLocationModal">Create Location</button>
+                                                                    </a>
                                                                     {% endif %}
-                                                                </div>
-                                                                <select class="form-control select2bs4" multiple id="editProjectAddress">
-                                                                    {% if project.locations_id == "" %}
-                                                                        <option value="" disabled selected>No Location Selected....</option>
-                                                                    {% endif %}
-                                                                    {% for location in locations %}
-                                                                        <option value="{{ location.locations_id }}" {{ project.locations_id == location.locations_id ? 'selected' }} {{ location.locations_archived == 1 ? 'disabled' }}>{{ location.locations_archived == 1 ? '[Archived] ' }}{{ location.locations_name }}</option>
-                                                                        {% for subLocation in location.linkedToThis %}
-                                                                            <option value="{{ subLocation.locations_id }}" {{ project.locations_id == subLocation.locations_id ? 'selected' }}  {{ subLocation.locations_archived == 1 ? 'disabled' }} title="{% for i in range(1, subLocation['tier']) %}{% if loop.last %}&#8627;{% else %}&nbsp;&nbsp;{% endif %}{% endfor %}">
-                                                                                {{ subLocation.locations_archived == 1 ? '[Archived] ' }}{{ subLocation.locations_name }}
-                                                                            </option>
-                                                                        {% endfor %}
+                                                                </b>
+                                                            </p>
+                                                        {% endif %}
+                                                        {% if "PROJECTS:EDIT:ADDRESS"|instancePermissions and project.projectsTypes_config_venue == 1  %}
+                                                            <p class="text-sm">Venue</p>
+                                                            <select class="form-control select2bs4" multiple id="editProjectAddress">
+                                                                {% if project.locations_id == "" %}
+                                                                    <option value="" disabled selected>No Location Selected....</option>
+                                                                {% endif %}
+                                                                {% for location in locations %}
+                                                                    <option value="{{ location.locations_id }}" {{ project.locations_id == location.locations_id ? 'selected' }} {{ location.locations_archived == 1 ? 'disabled' }}>{{ location.locations_archived == 1 ? '[Archived] ' }}{{ location.locations_name }}</option>
+                                                                    {% for subLocation in location.linkedToThis %}
+                                                                        <option value="{{ subLocation.locations_id }}" {{ project.locations_id == subLocation.locations_id ? 'selected' }}  {{ subLocation.locations_archived == 1 ? 'disabled' }} title="{% for i in range(1, subLocation['tier']) %}{% if loop.last %}&#8627;{% else %}&nbsp;&nbsp;{% endif %}{% endfor %}">
+                                                                            {{ subLocation.locations_archived == 1 ? '[Archived] ' }}{{ subLocation.locations_name }}
+                                                                        </option>
                                                                     {% endfor %}
-                                                                </select>
-                                                            {% elseif project.projectsTypes_config_venue == 1 %}
-                                                                <p class="text-sm">Venue
-                                                                    <b class="d-block"><a  style="color: inherit; text-decoration: inherit;"  {% if "LOCATIONS:VIEW"|instancePermissions %}href="{{ CONFIG.ROOTURL }}/location/"{% endif %}>{{ project.locations_name }}</a></b>
-                                                                </p>
-                                                            {% endif %}
-                                                        </div>
-                                                        <div id="projectDatesContainer">
-                                                            <p class="text-sm">Dates</p>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% elseif project.projectsTypes_config_venue == 1 %}
+                                                            <p class="text-sm">Venue
+                                                                <b class="d-block"><a  style="color: inherit; text-decoration: inherit;"  {% if "LOCATIONS:VIEW"|instancePermissions %}href="{{ CONFIG.ROOTURL }}/location/"{% endif %}>{{ project.locations_name }}</a></b>
+                                                            </p>
+                                                        {% endif %}
+                                                        <p class="text-sm">Dates
                                                             {% if "PROJECTS:EDIT:DATES"|instancePermissions %}
                                                             <div class="input-group">
                                                                 <div class="input-group-prepend">
@@ -382,7 +370,22 @@
                                                             <div>
                                                                 <i class="far fa-comment bg-blue"></i>
                                                                 <div class="timeline-item">
-                                                                    <span class="time"><i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}</span>
+                                                                    <span class="time">
+                                                                        <span style="margin-right: 5px">
+                                                                            <a href="#"
+                                                                            class="comment-function deleteQuickCommentButton"
+                                                                            data-comment-id="{{ event.auditLog_id }}">
+                                                                                Delete
+                                                                            </a>
+                                                                            <a href="#"
+                                                                            class="comment-function editQuickCommentButton"
+                                                                            data-comment-id="{{ event.auditLog_id }}"
+                                                                            data-comment-text="{{ event.auditLog_actionData|e('html_attr') }}">
+                                                                                Edit
+                                                                            </a>
+                                                                        </span>
+                                                                        <i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}
+                                                                    </span>
                                                                     <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a> commented
                                                                     </h3>
                                                                     <div class="timeline-body">{{ event.auditLog_actionData|raw }}</div>
@@ -873,6 +876,7 @@
                         }
                     }
                 });
+            
 
                 $('#editor').summernote({
                     minHeight: 300,             // set minimum height of editor
@@ -898,24 +902,6 @@
                     }
                 });
             });
-            {% if "CLIENTS:CREATE"|instancePermissions and "PROJECTS:EDIT:CLIENT"|instancePermissions %}
-            $("#newClientButton").click(function () {
-                bootbox.prompt("Enter Client Name", function (result) {
-                    if (result) {
-                        ajaxcall("clients/new.php", {"clients_name": result}, function (data) {
-                            if (data.result && data.response.clients_id) {
-                                ajaxcall("projects/changeClient.php", {
-                                    "clients_id": data.response.clients_id,
-                                    "projects_id": "{{ project.projects_id }}"
-                                }, function (data) {
-                                    location.reload();
-                                }); 
-                            }
-                        });
-                    }
-                });
-            });
-            {% endif %}
             {% if "PROJECTS:EDIT:CLIENT"|instancePermissions %}
             $('#editProjectClient').select2({
                 tags: false,
