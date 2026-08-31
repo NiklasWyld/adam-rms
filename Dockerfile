@@ -44,9 +44,8 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \ 
     libzip-dev \
     libpng-dev \
-    libonig-dev \
     && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql mysqli intl zip mbstring
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql mysqli intl zip
 
 # Copy our php.ini file
 

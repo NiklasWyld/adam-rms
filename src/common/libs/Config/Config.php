@@ -123,9 +123,6 @@ class Config
         } catch (ConfigValueNotSet) {
           $currentValue = null;
         }
-        if ($value['form']['type'] === 'secret' and $currentValue !== null and $currentValue !== false and strlen($formInput[$key]) < 1) {
-          continue;
-        }
         if ($formInput[$key] !== $currentValue) {
           unset($matchVerify);
           if ($value['form']['required'] || strlen($formInput[$key]) > 0) {

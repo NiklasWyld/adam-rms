@@ -49,7 +49,7 @@
     "mailpit:8083"
   ],
 
-  "postCreateCommand": "composer update",
+  "postCreateCommand": "composer install",
 
   "postStartCommand": "php vendor/bin/phinx migrate && php vendor/bin/phinx seed:run",
 

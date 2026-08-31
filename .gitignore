@@ -3,24 +3,14 @@
 *.swp
 
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 vendor/
-node_modules/
+
+.idea
 
 .idea/
-**/.idea
 
 /s3files/
 
+**/.idea
 .qodo
-
-# Website (Docusaurus)
-/website/build
-/website/.docusaurus
-/website/.cache-loader
-/website/api-docs
-npm-debug.log*
