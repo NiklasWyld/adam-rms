@@ -170,8 +170,8 @@ class Config
         $currentValue = null;
       }
       if (isset($property_value) and $property_value !== $currentValue) {
-        $this->DBLIB->where("config_key", $property_key);
-        $this->DBLIB->update('config', ["config_value" => $property_value]);
+        if (!is_scalar($property_value)) return false;
+        if (!$this->DBLIB->replace('config', ["config_key" => $property_key, "config_value" => $property_value])) return false;
       }
       $this->_setupCache();
       return true;

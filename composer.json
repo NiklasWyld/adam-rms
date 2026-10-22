@@ -7,10 +7,10 @@
   ],
   "require": {
     "adam-rms/mysqli-database-class": "dev-main",
-    "twig/twig": "v3.7.*",
+    "twig/twig": "^3.27",
     "ezyang/htmlpurifier": "v4.18.*",
     "sendgrid/sendgrid": "v8.1.*",
-    "phpoffice/phpspreadsheet": "1.29.*",
+    "phpoffice/phpspreadsheet": "^5.10",
     "ext-zip": "*",
     "ext-mysqli": "*",
     "ext-intl": "*",
@@ -18,14 +18,14 @@
     "eluceo/ical": "^0.18.0",
     "aws/aws-sdk-php": "^3.173",
     "sentry/sdk": "3.6.*",
-    "firebase/php-jwt": "^6.0",
+    "firebase/php-jwt": "^7.0",
     "moneyphp/money": "^3.3",
     "picqer/php-barcode-generator": "^2.0",
     "twig/string-extra": "^3.0",
     "hybridauth/hybridauth": "^3.7",
     "robmorgan/phinx": "^0.13.4",
     "loilo/fuse": "^6.5",
-    "php": "^8.0.0",
+    "php": "^8.3",
     "zircote/swagger-php": "^3.3.7",
     "stripe/stripe-php": "^14.5",
     "bacon/bacon-qr-code": "^3.0",
@@ -42,9 +42,6 @@
   "config": {
     "allow-plugins": {
       "php-http/discovery": true
-    },
-    "audit": {
-      "block-insecure": false
     }
   }
 }

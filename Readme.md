@@ -12,6 +12,10 @@ It is available as a [hosted solution](https://dash.adam-rms.com) or can be [sel
 
 🌐 **Website**: [adam-rms.com](https://adam-rms.com) · 📖 **Docs**: [User Guide](https://adam-rms.com/docs/v1) · 📊 **Usage Stats**: [Telemetry Dashboard](https://telemetry.bithell.studio/projects/adam-rms)
 
+## This fork and GitHub Codespaces
+
+See [the fork upgrade and Codespaces guide](FORK-UPGRADE.md) for the preserved custom features, backup branch, tested setup, development login and validation limits. A new Codespace installs the committed Composer lockfile and starts AdamRMS automatically on port 8080.
+
 ## Key Features
 
 - **Asset Management** — Track equipment with barcode/QR code scanning support, categorisation, and maintenance scheduling
@@ -91,7 +95,7 @@ For full self-hosting instructions, including required environment variables and
 
 ## Contributing
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?ref=main&repo=217888995)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?ref=main&repo=1107225802)
 
 Contributions are very welcome! Please see the [contributing guide](https://adam-rms.com/contributing) for full details.
 

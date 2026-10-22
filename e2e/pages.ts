@@ -29,6 +29,7 @@ export const businessPages: PageCase[] = [
   { url: (t) => `/cms/log.php?p=${t.cmsPageId}` },
   { url: (t) => `/cms/stats.php?p=${t.cmsPageId}` },
   { url: () => "/instances/billing.php" },
+  { url: () => "/personal_calendar.php" },
   { url: () => "/instances/calendar.php" },
   { url: () => "/instances/calendarSettings.php" },
   { url: () => "/instances/configuration/asset-status.php" },

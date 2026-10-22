@@ -21,9 +21,9 @@ Take extra care with, and call out in the PR description, any change that touche
 
 ### Backend
 
-- **PHP 8.3** (production runtime): Object-oriented patterns with some procedural code. Do not run on PHP 8.4 — Twig 3.7 compiles closure names that 8.4 formats differently, producing a parse error on logged-in pages
+- **PHP 8.3** (production runtime): Object-oriented patterns with some procedural code. Keep development and CI on the same PHP minor as production.
 - **MySQL Database**: Via custom `adam-rms/mysqli-database-class` wrapper
-- **Twig v3.7**: Templating engine for all views
+- **Twig v3 (currently 3.30 in composer.lock)**: Templating engine for all views
 - **Composer**: Dependency management
 
 ### Frontend (CDN-loaded, no build step)
@@ -365,7 +365,7 @@ npx playwright install chromium   # not needed where a browser is pre-installed
 npm test                          # set PHP_BINARY=php8.3 if `php` on your PATH isn't 8.3
 ```
 
-`e2e/globalSetup.ts` migrates and seeds the database, then `e2e/setup/seed.php` writes the config the first-run setup form would ask for and makes sure the test super admin `test@example.com` / `password!` exists (resetting its password if it has been changed), so the suite also works against a used devcontainer database. The server runs with `DEV_MODE=true` (as the devcontainer does), so pages that require login show the auth error and a login link instead of redirecting.
+`e2e/globalSetup.ts` migrates and seeds the database, then `e2e/setup/seed.php` writes the config the first-run setup form would ask for and makes sure the test super admin `test@example.com` / `password!` exists (resetting its password if it has been changed), so the suite also works against a used devcontainer database. Inside the devcontainer, the suite automatically uses the separate `adamrms_e2e` database created by `.devcontainer/db-init/01-e2e.sql`. `E2E_DB_DATABASE` overrides the test database explicitly. Never run the suite against production or a development database whose fixtures must be preserved. The server runs with `DEV_MODE=true` (as the devcontainer does), so pages that require login show the auth error and a login link instead of redirecting.
 
 ### Writing E2E tests
 

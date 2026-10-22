@@ -219,7 +219,9 @@ const writeCases: WriteCase[] = [
   { endpoint: "/api/instances/addUser.php", params: (t, self) => ({ rolegroup: t.positions.limited, rolename: "e2e", users: [self.users.deleted.id] }) },
   // These only ever change the caller's own business, whatever is sent
   { endpoint: "/api/instances/editInstance.php", params: () => ({ formData: formData({ instances_phone: "01234 567890" }) }) },
-  { endpoint: "/api/instances/editCalendarSettings.php", params: () => ({ formData: formData({ defaultView: "timeGridWeek" }) }) },
+  // This endpoint always edits the current business. Use a different value for the
+  // control so an idempotent second request still proves that A can change its settings.
+  { endpoint: "/api/instances/editCalendarSettings.php", params: (target, self) => ({ formData: formData({ defaultView: target.instanceId === self.instanceId ? "timeGridDay" : "timeGridWeek" }) }) },
   { endpoint: "/api/instances/editInstancePublicSite.php", params: () => ({ formData: formData({ enabled: "on" }) }) },
   { endpoint: "/api/permissions/newInstancePosition.php", params: () => ({ name: "Role by e2e" }) },
   // Maintenance jobs read fields from the top level of the request too, as the app sends them

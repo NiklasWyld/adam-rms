@@ -84,3 +84,25 @@ test.describe("billing", () => {
     }
   });
 });
+
+for (const malformedPayload of [false, true]) {
+  test(`webhook rejects ${malformedPayload ? 'malformed payloads' : 'invalid signatures'} before sending response headers`, async ({ request }) => {
+    const keys = ['STRIPE_KEY', 'STRIPE_WEBHOOK_SECRET'];
+    const saved = keys.map(key => dbQuery<{ config_value: string }>('SELECT config_value FROM config WHERE config_key = ?', [key]));
+    dbQuery("REPLACE INTO config (config_key, config_value) VALUES ('STRIPE_KEY', 'sk_test_e2e'), ('STRIPE_WEBHOOK_SECRET', 'whsec_local_e2e')");
+    try {
+      const payload = malformedPayload ? '{broken-json' : '{}';
+      const timestamp = Math.floor(Date.now() / 1000);
+      const signature = createHmac('sha256', malformedPayload ? 'whsec_local_e2e' : 'wrong-local-test-secret').update(`${timestamp}.${payload}`).digest('hex');
+      const response = await request.post('/api/instances/billing/webhooks.php', {
+        headers: { 'Stripe-Signature': `t=${timestamp},v1=${signature}`, 'Content-Type': 'application/json' }, data: payload,
+      });
+      expect(response.status()).toBe(400);
+    } finally {
+      for (const [index, key] of keys.entries()) {
+        dbQuery('DELETE FROM config WHERE config_key = ?', [key]);
+        if (saved[index].length) dbQuery('INSERT INTO config (config_key, config_value) VALUES (?, ?)', [key, saved[index][0].config_value]);
+      }
+    }
+  });
+}

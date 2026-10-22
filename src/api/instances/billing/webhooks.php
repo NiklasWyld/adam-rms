@@ -3,8 +3,8 @@ require_once __DIR__ . '/../../apiHead.php';
 
 // Without a signing secret an attacker can sign events with an empty key, so refuse everything.
 if (!$CONFIGCLASS->get('STRIPE_WEBHOOK_SECRET')) {
-  echo 'Webhook error: no signing secret is configured.';
   http_response_code(400);
+  echo 'Webhook error: no signing secret is configured.';
   exit();
 }
 
@@ -80,13 +80,13 @@ try {
   );
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
   // Invalid signature
-  echo 'Webhook error while validating signature.';
   http_response_code(400);
+  echo 'Webhook error while validating signature.';
   exit();
 } catch (\UnexpectedValueException $e) {
   // Invalid payload
-  echo 'Webhook error while parsing basic request.';
   http_response_code(400);
+  echo 'Webhook error while parsing basic request.';
   exit();
 }
 
@@ -106,5 +106,5 @@ switch ($event->type) {
     break;
   default:
     // Unexpected event type
-    continue;
+    break;
 }

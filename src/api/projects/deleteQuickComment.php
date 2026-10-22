@@ -1,28 +1,23 @@
 <?php
 require_once __DIR__ . '/../apiHeadSecure.php';
+require_once __DIR__ . '/../../common/libs/projectComment.php';
 
-if (
-    !$AUTH->instancePermissionCheck("PROJECTS:VIEW") ||
-    !isset($_POST['comment_id'])
-) {
-    finish(false, "missing_permissions_or_id");
+if (!isset($_POST['comment_id'])) {
+    finish(false, ["code" => "PARAM-ERROR", "message" => "Comment ID is required"]);
 }
-
-$DBLIB->where("auditLog.auditLog_id", $_POST['comment_id']);
-$DBLIB->where("auditLog.auditLog_deleted", 0);
-$comment = $DBLIB->getOne("auditLog");
-
-if (!$comment) {
-    finish(false, "comment_not_found");
+$comment = editableProjectComment($_POST['comment_id']);
+$DBLIB->where("auditLog_id", $comment['auditLog_id']);
+$DBLIB->where("auditLog_deleted", 0);
+if (!$DBLIB->update("auditLog", ["auditLog_deleted" => 1])) {
+    finish(false, ["code" => "UPDATE-FAIL", "message" => "Could not delete comment"]);
 }
+$bCMS->auditLog("DELETE-QUICKCOMMENT", "projects", json_encode(["comment_id" => $comment['auditLog_id']]), $AUTH->data['users_userid'], null, $comment['projects_id']);
+finish(true, null, ["deleted_id" => (int) $comment['auditLog_id']]);
 
-$DBLIB->where("auditLog.auditLog_id", $_POST['comment_id']);
-$deleted = $DBLIB->update("auditLog", [
-    "auditLog_deleted" => 1
-]);
-
-if (!$deleted) {
-    finish(false, "delete_failed");
-}
-
-finish(true, null, ["deleted_id" => $_POST['comment_id']]);
+/**
+ * @OA\Post(path="/projects/deleteQuickComment.php", summary="Soft-delete a project quick comment", operationId="deleteQuickComment", tags={"projects"},
+ *   description="Authors or users with PROJECTS:PROJECT_NOTES:EDIT:NOTES may delete comments in the current business. Requires PROJECTS:VIEW.",
+ *   @OA\Parameter(name="comment_id", in="query", required=true, @OA\Schema(type="integer")),
+ *   @OA\Response(response="200", description="Result", @OA\JsonContent(ref="#/components/schemas/SimpleResponse"))
+ * )
+ */

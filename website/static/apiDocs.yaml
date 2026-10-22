@@ -4780,7 +4780,7 @@ paths:
       tags:
         - manufacturers
       summary: 'Edit Manufacturer'
-      description: "Edit a Manufacturer  \nRequires Instance Permission ASSETS:MANUFACTURERS:EDIT"
+      description: "Edit a Manufacturer\nRequires Instance Permission ASSETS:MANUFACTURERS:EDIT"
       operationId: editManufacturer
       requestBody:
         description: 'The manufacturer data, wrapped in a formData array of name/value pairs'
@@ -6499,6 +6499,27 @@ paths:
                 type: object
         '404':
           description: 'Permission Error'
+  /projects/deleteQuickComment.php:
+    post:
+      tags:
+        - projects
+      summary: 'Soft-delete a project quick comment'
+      description: 'Authors or users with PROJECTS:PROJECT_NOTES:EDIT:NOTES may delete comments in the current business. Requires PROJECTS:VIEW.'
+      operationId: deleteQuickComment
+      parameters:
+        -
+          name: comment_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
   /projects/editNote.php:
     post:
       tags:
@@ -6539,6 +6560,33 @@ paths:
                 type: object
         '404':
           description: 'Permission Error'
+  /projects/editQuickComment.php:
+    post:
+      tags:
+        - projects
+      summary: 'Edit a project quick comment'
+      description: 'Authors or users with PROJECTS:PROJECT_NOTES:EDIT:NOTES may edit comments in the current business. Requires PROJECTS:VIEW.'
+      operationId: editQuickComment
+      parameters:
+        -
+          name: comment_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        -
+          name: text
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
   /projects/followParentStatus.php:
     post:
       tags:
@@ -7035,6 +7083,35 @@ paths:
                 properties:
                   result: { description: 'Whether the request was successful', type: boolean }
                 type: object
+  /server/configPropertyValue.php:
+    post:
+      tags:
+        - server
+      summary: 'Update Config value'
+      description: 'Update a single property value. Only specific keys are accepted'
+      operationId: updateConfigValue
+      parameters:
+        -
+          name: property_key
+          in: query
+          description: undefined
+          required: 'true'
+          schema:
+            type: string
+        -
+          name: property_value
+          in: query
+          description: undefined
+          required: 'true'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
   /server/users.php:
     post:
       tags:

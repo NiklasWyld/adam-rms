@@ -38,7 +38,7 @@ function resolveChromiumExecutable(): string | undefined {
 const chromiumExecutable = resolveChromiumExecutable();
 // Route the browser through HTTPS_PROXY when one is set (e.g. network-restricted
 // sandboxes) so the CDN-hosted jQuery/Bootstrap the app depends on can load. Those
-// proxies re-sign TLS, so certificate errors are only ignored in that case.
+// proxies re-sign TLS; trust their CA through the runtime certificate store.
 const httpsProxy = process.env.HTTPS_PROXY ?? process.env.https_proxy;
 const launchOptions = {
   ...(chromiumExecutable && {
@@ -68,7 +68,6 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
-    ignoreHTTPSErrors: !!httpsProxy,
     trace: "retain-on-failure",
     video: "retain-on-failure",
     screenshot: "on",
