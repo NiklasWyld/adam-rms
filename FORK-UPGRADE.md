@@ -72,7 +72,7 @@ Validation includes:
 - A Docker build of the shipped devcontainer image and a Dev Containers CLI lifecycle run against a clean source copy without `vendor` and a fresh database. Login, HTTPS root URL construction, business creation and authenticated rendering are checked. A repeated lifecycle run preserves users and the signing key. Container recreation and recovery from a stale PID file are also checked.
 - The migration-50-to-53 data preservation test described above.
 
-The final complete Playwright run passed **845 tests**, with no failed or skipped tests. An additional XLSX export/read-back compatibility test passed separately after that full run. No test is disabled to make the update pass. TLS validation and frontend SRI checks remain enabled; managed builders can supply a CA secret rather than disable verification.
+The final complete Playwright run passed **845 tests**, with no failed or skipped tests. An additional XLSX export/read-back compatibility test passed separately after that full run. The first GitHub run also passed (845 immediate passes and one retry), exposing a pre-existing role-deletion test that assumed an old fixture manager ID. That test now establishes its manager explicitly, checks the API refusal and always restores its fixtures; it is also repeated locally. No test is disabled to make the update pass. TLS validation and frontend SRI checks remain enabled; managed builders can supply a CA secret rather than disable verification.
 
 ## Remaining limits
 

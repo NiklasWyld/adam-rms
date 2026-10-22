@@ -391,11 +391,18 @@ test.describe("a deleted account that is still a member", () => {
 
 test.describe("a member whose role has been deleted", () => {
   test("can't be made a project manager", async ({ asA, tenants: { a } }) => {
+    // Earlier account tests can change the fixture user's natural email key.
+    // Establish this test's manager explicitly instead of assuming a prior seed's IDs.
+    dbQuery("UPDATE projects SET projects_manager = ? WHERE projects_id = ?", [a.users.full.id, a.projectId]);
     dbQuery("UPDATE instancePositions SET instancePositions_deleted = 1 WHERE instancePositions_id = ?", [a.positions.limited]);
-    await asA.api("/api/projects/changeProjectManager.php", { projects_id: a.projectId, users_userid: a.users.limited.id });
-    const [project] = dbQuery<{ projects_manager: number }>("SELECT projects_manager FROM projects WHERE projects_id = ?", [a.projectId]);
-    seedTenants();
-    expect(project.projects_manager).toBe(a.users.full.id);
+    try {
+      const response = await asA.api("/api/projects/changeProjectManager.php", { projects_id: a.projectId, users_userid: a.users.limited.id });
+      expect(succeeded(response)).toBe(false);
+      const [project] = dbQuery<{ projects_manager: number }>("SELECT projects_manager FROM projects WHERE projects_id = ?", [a.projectId]);
+      expect(project.projects_manager).toBe(a.users.full.id);
+    } finally {
+      seedTenants();
+    }
   });
 });
 
