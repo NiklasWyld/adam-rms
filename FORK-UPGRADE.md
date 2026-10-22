@@ -76,7 +76,7 @@ The final complete Playwright run passed **845 tests**, with no failed or skippe
 
 ## Remaining limits
 
-- A hosted GitHub Codespace has not been provisioned from this cloud session. The container image, lifecycle and forwarded-address generation were tested locally through the Dev Containers CLI; GitHub's hosted port routing remains the final platform check after opening a Codespace.
+- Creating a hosted GitHub Codespace was attempted for the repair branch, but GitHub returned `403 Resource not accessible by integration`. No hosted Codespace was created. The container image, lifecycle and forwarded-address generation were tested locally through the Dev Containers CLI; GitHub's hosted port routing remains the final platform check when the repository owner opens a Codespace.
 - External calendar providers may require access/login and may restrict iframe embedding. The application validates and renders the configured URL; tests do not authenticate to a real Google account.
 - Real S3 uploads, outgoing mail, OAuth providers and live Stripe subscriptions need their respective configuration and were not exercised against external accounts. Optional sidecars are not required by the default workflow.
 - Composer still reports `doctrine/annotations` and `php-http/message-factory` as abandoned. They remain compatibility dependencies of the existing OpenAPI/email stack; the current locked versions have no reported vulnerability advisory. The unmodified `composer audit --locked` command therefore exits with status 2 for the two abandoned packages, not for security advisories. Replacing that stack is a separate change.
