@@ -4,8 +4,11 @@
     var data = JSON.parse(document.getElementById('shopping-pdf-data').textContent), list = data.list;
     var meta = data.meta;
     function text(value) { return value == null ? '' : String(value); }
-    // Long unbroken article numbers/URLs must wrap inside their table column.
     function wrap(value) { return text(value).replace(/(\S{28})(?=\S)/g, '$1\u200b'); }
+    function amount(value) {
+        value = text(value);
+        return { text: value, fontSize: value.length > 16 ? 6 : (value.length > 12 ? 7 : 9) };
+    }
     var heading = ['No.', 'Item / manufacturer / model', 'Quantity', 'Unit price', 'Line total', 'Necessity'];
     var body = [heading.map(function (label) { return { text: label, bold: true, color: '#ffffff', fillColor: '#34495e', margin: [0, 4, 0, 4] }; })];
     list.items.forEach(function (item, index) {
@@ -15,15 +18,10 @@
                 { text: wrap(item.shoppingListItems_name), bold: true },
                 { text: wrap([item.manufacturer, item.shoppingListItems_model].filter(Boolean).join(' / ')), color: '#586574', fontSize: 8 },
                 { text: wrap(item.category), color: '#586574', fontSize: 8 },
-                { text: wrap(item.shoppingListItems_description), margin: [0, 3, 0, 0] },
-                { text: 'Justification: ' + (wrap(item.shoppingListItems_reason) || 'Not specified'), margin: [0, 5, 0, 0] },
-                { text: 'Status: ' + meta.itemStatuses[item.shoppingListItems_status] + (item.shoppingListItems_status === 'rejected' ? ' (excluded from estimate)' : ''), fontSize: 8, margin: [0, 5, 0, 0] },
-                { text: wrap([item.shoppingListItems_supplier, item.shoppingListItems_sku].filter(Boolean).join(' / ')), fontSize: 8 },
-                { text: wrap(item.shoppingListItems_url), link: item.shoppingListItems_url || undefined, color: '#315a85', fontSize: 8 },
-                { text: wrap(item.shoppingListItems_notes), fontSize: 8, margin: [0, 3, 0, 0] }
+                { text: meta.itemStatuses[item.shoppingListItems_status] + (item.shoppingListItems_status === 'rejected' ? ' (excluded)' : ''), color: '#586574', fontSize: 8, margin: [0, 3, 0, 0] }
             ] },
-            text(item.shoppingListItems_quantity).replace(/\.?0+$/, '') + (item.shoppingListItems_unit ? ' ' + wrap(item.shoppingListItems_unit) : ''),
-            text(item.unitPriceFormatted), text(item.totalFormatted), meta.priorities[item.shoppingListItems_priority]
+            { text: text(item.shoppingListItems_quantity).replace(/\.?0+$/, '') + (item.shoppingListItems_unit ? '\n' + text(item.shoppingListItems_unit).replace(/(\S{8})(?=\S)/g, '$1\u200b') : ''), fontSize: 8 },
+            amount(item.unitPriceFormatted), amount(item.totalFormatted), meta.priorities[item.shoppingListItems_priority]
         ]);
     });
     if (!list.items.length) body.push([{ text: 'No items in this list.', colSpan: 6, margin: [0, 8, 0, 8] }, {}, {}, {}, {}, {}]);
@@ -37,7 +35,8 @@
         { text: 'Created: ' + list.shoppingLists_created + ' | By: ' + list.creator + '\nExported: ' + data.exported + '\nStatus: ' + meta.statuses[list.shoppingLists_status] + ' | Currency: ' + list.shoppingLists_currency, fontSize: 9, margin: [0, 0, 0, 12] }
     );
     if (list.budgetFormatted !== null) content.push({ text: 'Budget: ' + list.budgetFormatted, bold: true, margin: [0, 0, 0, 12] });
-    content.push({ table: { headerRows: 1, widths: [20, '*', 48, 60, 60, 52], body: body },
+    // Compact rows stay together; long descriptions/justifications flow freely in the details section.
+    content.push({ table: { headerRows: 1, dontBreakRows: true, widths: [20, '*', 48, 60, 60, 52], body: body },
         layout: { fillColor: function (row) { return row > 0 && row % 2 === 0 ? '#f3f5f7' : null; },
             hLineColor: function () { return '#dde2e6'; }, vLineWidth: function () { return 0; },
             paddingTop: function () { return 7; }, paddingBottom: function () { return 7; } }, margin: [0, 4, 0, 16] });
@@ -46,11 +45,26 @@
         { text: list.budgetFormatted !== null ? 'Budget: ' + list.budgetFormatted + ' | Remaining: ' + list.remainingFormatted : 'No budget specified', alignment: 'right', color: list.overBudget ? '#a32323' : '#586574' },
         { text: list.missingPrices + ' unpriced items; ' + list.excludedItems + ' rejected items excluded.\nEach line is quantity × unit price, rounded half up to the currency subunit. All other statuses are included. Taxes and delivery are included only if entered in the prices or as separate items.', fontSize: 8, color: '#586574', margin: [0, 10, 0, 0] }
     ] });
-    if (list.shoppingLists_comment) content.push({ text: 'General comment', bold: true, margin: [0, 18, 0, 5] }, { text: wrap(list.shoppingLists_comment) });
+    if (list.shoppingLists_comment) content.push({ text: 'General comment', bold: true, headlineLevel: 1, margin: [0, 18, 0, 5] }, { text: wrap(list.shoppingLists_comment) });
+    if (list.items.length) content.push({ text: 'Justifications and item details', fontSize: 16, bold: true, pageBreak: 'before', margin: [0, 0, 0, 14] });
+    list.items.forEach(function (item, index) {
+        content.push(
+            { text: text(index + 1) + '. ' + wrap(item.shoppingListItems_name), bold: true, headlineLevel: 1, margin: [0, index ? 14 : 0, 0, 5] },
+            { text: 'Necessity: ' + meta.priorities[item.shoppingListItems_priority] + ' | Status: ' + meta.itemStatuses[item.shoppingListItems_status], color: '#586574', margin: [0, 0, 0, 5] },
+            { text: 'Justification: ' + (wrap(item.shoppingListItems_reason) || 'Not specified'), margin: [0, 0, 0, 5] }
+        );
+        if (item.shoppingListItems_description) content.push({ text: wrap(item.shoppingListItems_description), margin: [0, 0, 0, 5] });
+        var supplier = [item.shoppingListItems_supplier, item.shoppingListItems_sku].filter(Boolean).join(' / ');
+        if (supplier) content.push({ text: 'Supplier / article number: ' + wrap(supplier), fontSize: 8, margin: [0, 0, 0, 4] });
+        if (item.shoppingListItems_url) content.push({ text: wrap(item.shoppingListItems_url), link: item.shoppingListItems_url, color: '#315a85', fontSize: 8, margin: [0, 0, 0, 4] });
+        if (item.shoppingListItems_notes) content.push({ text: 'Notes: ' + wrap(item.shoppingListItems_notes), fontSize: 8, margin: [0, 0, 0, 4] });
+    });
     var definition = {
         pageSize: 'A4', pageMargins: [36, 42, 36, 48], defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.15 },
         info: { title: list.shoppingLists_name, author: data.business, subject: 'Planned procurement - independent of inventory' },
         content: content,
+        // Keep section/item headings with following content without making long justifications unbreakable.
+        pageBreakBefore: function (node, following) { return node.headlineLevel === 1 && following.length === 0; },
         footer: function (page, pages) { return { columns: [
             { text: 'AdamRMS | Shopping list #' + list.shoppingLists_id, width: '*' },
             { text: page + ' / ' + pages, alignment: 'right', width: 60 }
@@ -58,7 +72,7 @@
     };
     window.shoppingPdfDefinition = definition;
     function createPdf() {
-        if (typeof pdfMake === 'undefined') throw new Error('The PDF library could not be loaded. Check your connection and try again.');
+        if (typeof pdfMake === 'undefined' || !pdfMake.vfs || !pdfMake.vfs['Roboto-Regular.ttf']) throw new Error('The PDF library or fonts could not be loaded. Check your connection and try again.');
         return pdfMake.createPdf(definition);
     }
     function failed(error) { document.getElementById('pdf-error').textContent = error.message || 'Unable to generate PDF. Please reload and try again.'; }
