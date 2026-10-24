@@ -1,6 +1,13 @@
 <?php
 require_once __DIR__ . '/../../apiHead.php';
 
+// Without a signing secret an attacker can sign events with an empty key, so refuse everything.
+if (!$CONFIGCLASS->get('STRIPE_WEBHOOK_SECRET')) {
+  http_response_code(400);
+  echo 'Webhook error: no signing secret is configured.';
+  exit();
+}
+
 \Stripe\Stripe::setApiKey($CONFIGCLASS->get('STRIPE_KEY'));
 $stripe = new \Stripe\StripeClient($CONFIGCLASS->get('STRIPE_KEY'));
 
@@ -14,6 +21,11 @@ function handleWebhook($subscription)  // contains a \Stripe\Subscription
   $instance = $DBLIB->getOne('instances', ['instances_id', 'instances_name', 'instances_planStripeCustomerId']);
   if (!$instance) throw new Exception("Instance not found in database.");
   $instanceUpdateData = [];
+  // Determine if this subscription has ever had a trial, based on trial_start/trial_end.
+  $hadTrial = (
+    (isset($subscription->trial_start) && $subscription->trial_start) ||
+    (isset($subscription->trial_end) && $subscription->trial_end)
+  );
   if ($instance['instances_planStripeCustomerId'] !== $subscription->customer) {
     // Change the customer over - TODO this is not ideal - we ideally need to figure out why the customer id has changed.
     $instanceUpdateData['instances_planStripeCustomerId'] = $subscription->customer;
@@ -50,13 +62,17 @@ function handleWebhook($subscription)  // contains a \Stripe\Subscription
     $instanceUpdateData['instances_userLimit'] = 1;
     $instanceUpdateData['instances_projectLimit'] = 1;
   }
+  // If the subscription indicates a trial has occurred, persist that fact regardless of current status.
+  if ($hadTrial) {
+    $instanceUpdateData['instances_hadTrial'] = 1;
+  }
   $DBLIB->where('instances_id', $instanceid);
   if (!$DBLIB->update('instances', $instanceUpdateData, 1)) throw new Exception("Failed to update instance in database.");
 }
 
 try {
   $payload = @file_get_contents('php://input');
-  $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+  $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
   $event = \Stripe\Webhook::constructEvent(
     $payload,
     $sig_header,
@@ -64,13 +80,13 @@ try {
   );
 } catch (\Stripe\Exception\SignatureVerificationException $e) {
   // Invalid signature
-  echo 'Webhook error while validating signature.';
   http_response_code(400);
+  echo 'Webhook error while validating signature.';
   exit();
 } catch (\UnexpectedValueException $e) {
   // Invalid payload
-  echo 'Webhook error while parsing basic request.';
   http_response_code(400);
+  echo 'Webhook error while parsing basic request.';
   exit();
 }
 
@@ -90,5 +106,5 @@ switch ($event->type) {
     break;
   default:
     // Unexpected event type
-    continue;
+    break;
 }

@@ -2,6 +2,7 @@
   "name": "AdamRMS",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
+  "runServices": ["app", "db"],
   "workspaceFolder": "/workspace",
 
   // Configure tool-specific properties.
@@ -41,33 +42,27 @@
 
   "shutdownAction": "stopCompose",
 
-  "forwardPorts": [
-    8080,
-    "db:3306",
-    "s3filestore:8081",
-    "phpmyadmin:8082",
-    "mailpit:8083"
-  ],
+  "forwardPorts": [8080],
 
-  "postCreateCommand": "composer install",
+  "postCreateCommand": "bash .devcontainer/scripts/install.sh",
 
-  "postStartCommand": "php vendor/bin/phinx migrate && php vendor/bin/phinx seed:run",
+  "postStartCommand": "bash .devcontainer/scripts/start.sh",
 
   "remoteUser": "vscode",
   "portsAttributes": {
     "8080": {
       "label": "PHP Web Server",
-      "onAutoForward": "ignore",
+      "onAutoForward": "notify",
       "protocol": "http"
     },
-    "8081": {
+    "9090": {
       "label": "S3 Emulator (s3mock)"
     },
-    "8082": {
+    "80": {
       "label": "phpMyAdmin",
-      "protocol": "https"
+      "protocol": "http"
     },
-    "8083": {
+    "8025": {
       "label": "Mailpit (Emails)",
       "protocol": "http"
     },

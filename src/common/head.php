@@ -56,7 +56,7 @@ try {
         'db' => getenv('DB_DATABASE'),
         'port' => getenv('DB_PORT') ?: 3306,
         //'prefix' => 'adamrms_',
-        'charset' => 'utf8'
+        'charset' => 'utf8mb4'
     ]);
 } catch (Exception $e) {
     // TODO use twig for this
@@ -76,7 +76,8 @@ if (count($CONFIGCLASS->CONFIG_MISSING_VALUES) > 0) {
     if (isset($_POST['settingUpConfigUsingConfigFormTwig']) and $_POST['settingUpConfigUsingConfigFormTwig'] == "true") {
         $update = $CONFIGCLASS->formArrayProcess($_POST);
     }
-    if ($update !== true) die($TWIG->render('common/libs/Config/configForm.twig', ["form" => $CONFIGCLASS->formArrayBuild(), "errors" => is_array($update) ? $update : []]));
+    if ($update !== true)
+        die($TWIG->render('common/libs/Config/configForm.twig', ["form" => $CONFIGCLASS->formArrayBuild(), "errors" => is_array($update) ? $update : []]));
     else {
         header("Location: " . $CONFIG['ROOTURL'] . "?");
         exit;
@@ -102,31 +103,35 @@ if (getenv('DEV_MODE') != "true" and $CONFIG['ERRORS_PROVIDERS_SENTRY'] and strl
 function generateNewTag()
 {
     global $DBLIB;
-    //Get highest current tag
-    $DBLIB->orderBy("assets_tag", "DESC");
+    //Get highest current tag - sort numerically so A-10000 ranks above A-9999
+    $DBLIB->orderBy("CAST(SUBSTRING(assets_tag, 3) AS UNSIGNED)", "DESC");
     $DBLIB->where("assets_tag", 'A-%', 'like');
     $tag = $DBLIB->getone("assets", ["assets_tag"]);
     if ($tag) {
         if (is_numeric(str_replace("A-", "", $tag["assets_tag"]))) {
             $value = intval(str_replace("A-", "", $tag["assets_tag"])) + 1;
-            if ($value <= 9999) $value = sprintf('%04d', $value);
+            if ($value <= 9999)
+                $value = sprintf('%04d', $value);
             return "A-" . $value;
-        } else return "A-0001";
-    } else return "A-0001";
+        } else
+            return "A-0001";
+    } else
+        return "A-0001";
 }
 function assetFlagsAndBlocks($assetid)
 {
     global $DBLIB;
     $DBLIB->where("maintenanceJobs.maintenanceJobs_deleted", 0);
     $DBLIB->where("(maintenanceJobs.maintenanceJobs_blockAssets = 1 OR maintenanceJobs.maintenanceJobs_flagAssets = 1)");
-    $DBLIB->where("(FIND_IN_SET(" . $assetid . ", maintenanceJobs.maintenanceJobs_assets) > 0)");
+    $DBLIB->where("(FIND_IN_SET(?, maintenanceJobs.maintenanceJobs_assets) > 0)", [$assetid]);
     $DBLIB->join("maintenanceJobsStatuses", "maintenanceJobs.maintenanceJobsStatuses_id=maintenanceJobsStatuses.maintenanceJobsStatuses_id", "LEFT");
     //$DBLIB->join("users AS userCreator", "userCreator.users_userid=maintenanceJobs.maintenanceJobs_user_creator", "LEFT");
     //$DBLIB->join("users AS userAssigned", "userAssigned.users_userid=maintenanceJobs.maintenanceJobs_user_assignedTo", "LEFT");
     $DBLIB->orderBy("maintenanceJobs.maintenanceJobs_priority", "DESC");
     $jobs = $DBLIB->get('maintenanceJobs', null, ["maintenanceJobs.maintenanceJobs_id", "maintenanceJobs.maintenanceJobs_faultDescription", "maintenanceJobs.maintenanceJobs_title", "maintenanceJobs.maintenanceJobs_faultDescription", "maintenanceJobs.maintenanceJobs_flagAssets", "maintenanceJobs.maintenanceJobs_blockAssets", "maintenanceJobsStatuses.maintenanceJobsStatuses_name"]);
     $return = ["BLOCK" => [], "FLAG" => [], "COUNT" => ["BLOCK" => 0, "FLAG" => 0]];
-    if (!$jobs) return $return;
+    if (!$jobs)
+        return $return;
     foreach ($jobs as $job) {
         if ($job["maintenanceJobs_blockAssets"] == 1) {
             $return['BLOCK'][] = $job;
@@ -141,7 +146,8 @@ function assetFlagsAndBlocks($assetid)
 }
 function assetLatestScan($assetid)
 {
-    if ($assetid == null) return false;
+    if ($assetid == null)
+        return false;
     global $DBLIB;
     $DBLIB->orderBy("assetsBarcodesScans.assetsBarcodesScans_timestamp", "DESC");
     $DBLIB->where("assetsBarcodes.assets_id", $assetid);
@@ -153,6 +159,104 @@ function assetLatestScan($assetid)
     $DBLIB->join("locations", "locations.locations_id=locationsBarcodes.locations_id", "LEFT");
     $DBLIB->join("users", "users.users_userid=assetsBarcodesScans.users_userid");
     return $DBLIB->getone("assetsBarcodesScans", ["assetsBarcodesScans.*", "users.users_name1", "users.users_name2", "locations.locations_name", "locations.locations_id", "assets.assetTypes_id", "assetTypes.assetTypes_name", "assets.assets_tag"]);
+}
+/**
+ * Build the asset dispatch board columns for an instance.
+ * Asset assignment statuses are soft-deleted, so a status that's been deleted can still be referenced
+ * by assets that were assigned to it before deletion (matched here by ID, so a later reorder of the
+ * active statuses can never collide with a deleted one). An asset with no status at all (NULL) is
+ * always shown in whichever status currently has order 0 - if that status has been deleted, it's
+ * included here too, so those assets aren't lost from the board.
+ * Columns are keyed by assetsAssignmentsStatus_id.
+ * @param int $instancesId The instance that owns the statuses
+ * @param array $assetsList The assigned assets to place onto the board, grouped by assetType (as built in projects/data.php)
+ * @return array Board columns keyed by assetsAssignmentsStatus_id, each including an "assets" key
+ */
+function buildAssetsAssignmentsBoard($instancesId, $assetsList)
+{
+    global $DBLIB;
+
+    $DBLIB->where("instances_id", $instancesId);
+    $DBLIB->where("assetsAssignmentsStatus_deleted", 0);
+    $DBLIB->orderBy("assetsAssignmentsStatus_order", "ASC");
+    $statuses = $DBLIB->get("assetsAssignmentsStatus");
+    $statusIds = array_column($statuses, 'assetsAssignmentsStatus_id');
+    $defaultStatusId = null; //the single column NULL-status assets are placed into
+    foreach ($statuses as $status) {
+        if ((int)$status['assetsAssignmentsStatus_order'] === 0) {
+            $defaultStatusId = $status['assetsAssignmentsStatus_id'];
+            break;
+        }
+    }
+
+    $missingIds = [];
+    $needsDefaultColumn = false;
+    foreach ($assetsList as $assetType) {
+        foreach ($assetType['assets'] as $asset) {
+            $statusId = $asset['assetsAssignmentsStatus_id'];
+            if ($statusId !== null) {
+                if (!in_array($statusId, $statusIds)) $missingIds[$statusId] = true;
+            } elseif ($defaultStatusId === null) {
+                $needsDefaultColumn = true;
+            }
+        }
+    }
+
+    if (!empty($missingIds)) {
+        $DBLIB->where("instances_id", $instancesId);
+        $DBLIB->where("assetsAssignmentsStatus_id", array_keys($missingIds), "IN");
+        foreach ($DBLIB->get("assetsAssignmentsStatus") as $deletedStatus) {
+            $statuses[] = $deletedStatus;
+            $statusIds[] = $deletedStatus['assetsAssignmentsStatus_id'];
+        }
+    }
+    if ($needsDefaultColumn) {
+        $DBLIB->where("instances_id", $instancesId);
+        $DBLIB->where("assetsAssignmentsStatus_order", 0);
+        $DBLIB->orderBy("assetsAssignmentsStatus_id", "ASC");
+        $defaultStatus = $DBLIB->getOne("assetsAssignmentsStatus");
+        if ($defaultStatus) {
+            $defaultStatusId = $defaultStatus['assetsAssignmentsStatus_id'];
+            if (!in_array($defaultStatusId, $statusIds)) $statuses[] = $defaultStatus;
+        }
+    }
+    usort($statuses, function ($a, $b) {
+        return $a['assetsAssignmentsStatus_order'] <=> $b['assetsAssignmentsStatus_order'];
+    });
+
+    $board = [];
+    foreach ($statuses as $status) {
+        $tempAssets = [];
+        foreach ($assetsList as $assetType) {
+            foreach ($assetType['assets'] as $asset) {
+                if ($asset['assetsAssignmentsStatus_id'] !== null) {
+                    if ($asset['assetsAssignmentsStatus_id'] == $status['assetsAssignmentsStatus_id']) $tempAssets[] = $asset;
+                } elseif ($status['assetsAssignmentsStatus_id'] == $defaultStatusId) { //assets with no status at all go in the one default column
+                    $tempAssets[] = $asset;
+                }
+            }
+        }
+        $status['assets'] = $tempAssets;
+        $board[$status['assetsAssignmentsStatus_id']] = $status;
+    }
+    return $board;
+}
+/**
+ * Strip the "assets" key from each column of a board built by buildAssetsAssignmentsBoard().
+ * Used for the copy of the board that's JSON-encoded into the page for JavaScript, which only
+ * needs the status metadata - the assets themselves are already rendered from the full board and
+ * would otherwise be duplicated in full in the page's HTML and in client memory for no purpose.
+ * @param array $board A board as returned by buildAssetsAssignmentsBoard()
+ * @return array The same board with each column's "assets" key removed
+ */
+function stripBoardAssets($board)
+{
+    $slim = [];
+    foreach ($board as $key => $status) {
+        unset($status['assets']);
+        $slim[$key] = $status;
+    }
+    return $slim;
 }
 
 // Setup the "PAGEDATA" array which is used by Twig
@@ -200,7 +304,6 @@ $CSP = [
         ["value" => "https://static.cloudflareinsights.com", "comment" => ""],
         ["value" => "https://www.youtube.com", "comment" => "Training modules allow youtube embed"],
         ["value" => "https://*.ytimg.com", "comment" => "Training modules allow youtube embed"],
-        ["value" => "https://*.freshstatus.io", "comment" => ""],
         ["value" => "https://js.stripe.com", "comment" => "Stripe payment pricing table"]
     ],
     "style-src" => [
@@ -237,11 +340,11 @@ $CSP = [
         ["value" => "https://sentry.io", "comment" => ""],
         ["value" => "https://cloudflareinsights.com", "comment" => ""],
         ["value" => "https://*.amazonaws.com", "comment" => "To allow S3 uploads"],
-        ["value" => "https://*.freshstatus.io", "comment" => ""]
+        ["value" => "https://*.r2.cloudflarestorage.com", "comment" => "Cloudflare R2 bucket uploads"],
+        ["value" => "https://cdnjs.cloudflare.com", "comment" => "Browser fetches source maps from CDN scripts"],
     ],
     "frame-src" => [
         ["value" => "https://www.youtube.com", "comment" => "Training modules allow youtube embed"],
-        ["value" => "https://*.freshstatus.io", "comment" => "Training modules allow youtube embed"],
         ["value" => "https://js.stripe.com", "comment" => "Stripe payment pricing table"]
     ],
     "object-src" => [
@@ -259,15 +362,25 @@ $CSP = [
         ["value" => "https://o83272.ingest.sentry.io/api/5204912/security/?sentry_key=3937ab95cc404dfa95b0e0cb91db5fc6", "comment" => "Report to sentry"]
     ]
 ];
-$CSPString = "Content-Security-Policy: ";
-foreach ($CONFIG['CSP'] as $key => $value) {
-    $CSPString .= $key;
-    foreach ($value as $subvalue) {
-        $CSPString .= " " . $subvalue['value'];
-    }
-    $CSPString .= ";";
+if (!empty($CONFIG['ANALYTICS_CLARITY_PROJECT_ID'])) {
+    // https://learn.microsoft.com/en-us/clarity/setup-and-installation/clarity-csp
+    $CSP['script-src'][] = ["value" => "https://*.clarity.ms", "comment" => "Microsoft Clarity analytics"];
+    $CSP['connect-src'][] = ["value" => "https://*.clarity.ms", "comment" => "Microsoft Clarity analytics"];
+    $CSP['connect-src'][] = ["value" => "https://c.bing.com", "comment" => "Microsoft Clarity telemetry"];
+    $CSP['img-src'][] = ["value" => "https://*.clarity.ms", "comment" => "Microsoft Clarity"];
 }
-header($CSPString);
+
+if ($CONFIG['CSP_ENABLED'] === "Enabled") {
+    $CSPString = "Content-Security-Policy: ";
+    foreach ($CSP as $key => $value) {
+        $CSPString .= $key;
+        foreach ($value as $subvalue) {
+            $CSPString .= " " . $subvalue['value'];
+        }
+        $CSPString .= ";";
+    }
+    header($CSPString);
+}
 
 
 // Include the Auth class

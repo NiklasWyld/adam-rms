@@ -65,9 +65,97 @@ class bCMS
     }
     return $_GET;
   }
+  /** Sensitive keys that are stripped from logged payloads before storage. */
+  private const SENSITIVE_KEYS = ['password', 'pass', 'newpass', 'oldpass', 'token', 'secret', 'key'];
+
+  private function isSensitiveAuditLogKey(string $key): bool
+  {
+    $keyLower = strtolower($key);
+    foreach (self::SENSITIVE_KEYS as $sensitiveKey) {
+      $needle = strtolower($sensitiveKey);
+      if (
+        $keyLower === $needle ||
+        str_starts_with($keyLower, $needle . '_') ||
+        str_ends_with($keyLower, '_' . $needle) ||
+        str_contains($keyLower, '_' . $needle . '_')
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /** Recursively remove sensitive keys (case-insensitive) from an array. */
+  private function redactSensitiveData(array $data): array
+  {
+    foreach ($data as $key => $value) {
+      if ($this->isSensitiveAuditLogKey((string)$key)) {
+        unset($data[$key]);
+        continue;
+      }
+
+      if (is_array($value)) {
+        $data[$key] = $this->redactSensitiveData($value);
+      } elseif (is_object($value)) {
+        $data[$key] = $this->redactSensitiveData((array)$value);
+      }
+    }
+    return $data;
+  }
+
+  private function encodeAuditLogArray(array $data): ?string
+  {
+    $data = $this->redactSensitiveData($data);
+    $encoded = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    return ($encoded !== false) ? $encoded : null;
+  }
+
+  private function sanitizeJsonAuditLogString(string $data): ?string
+  {
+    $decoded = json_decode($data, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+      return null;
+    }
+
+    return $this->encodeAuditLogArray($decoded);
+  }
+
+  /** Prefer descriptive strings; arrays and JSON strings are redacted before storage.
+   *  Never pass raw request payloads unless you explicitly want the remaining non-sensitive fields logged.
+   */
+  public function sanitizeLoggedPayload($payload)
+  {
+    if (is_array($payload)) {
+      return $this->encodeAuditLogArray($payload);
+    }
+    if (!is_string($payload)) {
+      return $payload;
+    }
+
+    $sanitizedPayload = $this->sanitizeJsonAuditLogString($payload);
+    if ($sanitizedPayload !== null) {
+      return $sanitizedPayload;
+    }
+
+    foreach (['{', '['] as $jsonOpeningCharacter) {
+      $jsonStart = strpos($payload, $jsonOpeningCharacter);
+      if ($jsonStart === false) {
+        continue;
+      }
+
+      $sanitizedJsonPayload = $this->sanitizeJsonAuditLogString(substr($payload, $jsonStart));
+      if ($sanitizedJsonPayload !== null) {
+        return substr($payload, 0, $jsonStart) . $sanitizedJsonPayload;
+      }
+    }
+    return $payload;
+  }
+
   function auditLog($actionType = null, $table = null, $revelantData = null, $userid = null, $useridTo = null, $projectid = null, $targetid = null)
   { //Keep an audit trail of actions - $userid is this user, and $useridTo is who this action was done to if it was at all
     global $DBLIB;
+    $revelantData = $this->sanitizeLoggedPayload($revelantData);
     $data = [
       "auditLog_actionType" => $actionType,
       "auditLog_actionTable" => $table,
@@ -90,6 +178,38 @@ class bCMS
     $DBLIB->where("s3files_meta_physicallyStored", 1);
     return $DBLIB->getValue("s3files", "SUM(s3files_meta_size)");
   }
+  function s3SubTypeIsInInstance($typeid, $subtype)
+  { //Files are listed by type and subtype (the record they're attached to) whatever business uploaded them, so an uploaded file may only be attached to the current business's records
+    global $DBLIB, $AUTH;
+    if (!is_numeric($typeid) or !in_array((int) $typeid, [2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22])) return false; //Only the file types AdamRMS uses (see the files docs)
+    if ($subtype === null or $subtype === "") return true; //Not attached to anything
+    if (!is_numeric($subtype)) return false;
+    $instanceId = $AUTH->data['instance']['instances_id'];
+    if (in_array($typeid, [5, 10, 15, 16, 17])) return $subtype == $instanceId; //The business's own branding and public site
+    if ($typeid == 9) return $subtype == $AUTH->data['users_userid'] or $AUTH->serverPermissionCheck("USERS:EDIT:THUMBNAIL"); //User thumbnails
+    $records = [ // type => [table, id column, SQL limiting the table to the business]
+      2 => ["assetTypes", "assetTypes_id", "(assetTypes.instances_id IS NULL OR assetTypes.instances_id = ?)"], //Shared types too
+      3 => ["assetTypes", "assetTypes_id", "(assetTypes.instances_id IS NULL OR assetTypes.instances_id = ?)"],
+      4 => ["assets", "assets_id", "assets.instances_id = ?"],
+      7 => ["projects", "projects_id", "projects.instances_id = ?"],
+      8 => ["maintenanceJobs", "maintenanceJobs_id", "maintenanceJobs.instances_id = ?"],
+      11 => ["locations", "locations_id", "locations.instances_id = ?"],
+      12 => ["modules", "modules_id", "modules.instances_id = ?"],
+      13 => ["modulesSteps", "modulesSteps_id", "modulesSteps.modules_id IN (SELECT modules_id FROM modules WHERE instances_id = ?)"],
+      14 => ["payments", "payments_id", "payments.projects_id IN (SELECT projects_id FROM projects WHERE instances_id = ?)"],
+      18 => ["projectsVacantRoles", "projectsVacantRoles_id", "projectsVacantRoles.projects_id IN (SELECT projects_id FROM projects WHERE instances_id = ?)"],
+      19 => ["cmsPages", "cmsPages_id", "cmsPages.instances_id = ?"],
+      20 => ["projects", "projects_id", "projects.instances_id = ?"],
+      21 => ["projects", "projects_id", "projects.instances_id = ?"],
+      22 => ["projects", "projects_id", "projects.instances_id = ?"],
+    ];
+    if (!isset($records[$typeid])) return false; //Unknown types can't be attached to anything
+    [$table, $idColumn, $inBusiness] = $records[$typeid];
+    $DBLIB->where($idColumn, $subtype);
+    //Server admins can edit any business's (and shared) asset types
+    if (!in_array($typeid, [2, 3]) or !$AUTH->serverPermissionCheck("ASSETS:EDIT:ANY_ASSET_TYPE")) $DBLIB->where($inBusiness, [$instanceId]);
+    return (bool) $DBLIB->getOne($table, [$idColumn]);
+  }
   function s3List($typeid, $subTypeid = false, $sort = 's3files_meta_uploaded', $sortOrder = 'ASC', $limit = null)
   {
     global $DBLIB, $CONFIG;
@@ -98,7 +218,10 @@ class bCMS
     $DBLIB->where("(s3files_meta_deleteOn >= '" . date("Y-m-d H:i:s") . "' OR s3files_meta_deleteOn IS NULL)"); //If the file is to be deleted soon or has been deleted don't let them download it
     $DBLIB->where("s3files_meta_physicallyStored", 1); //If we've lost the file or deleted it we can't actually let them download it
     $DBLIB->orderBy($sort, $sortOrder);
-    return $DBLIB->get("s3files", $limit, ["s3files_id", "s3files_extension", "s3files_name", "s3files_meta_size", "s3files_meta_uploaded", "s3files_shareKey"]);
+    $files = $DBLIB->get("s3files", $limit, ["s3files_id", "s3files_extension", "s3files_name", "s3files_meta_size", "s3files_meta_uploaded", "s3files_shareKey"]);
+    //The key a share link carries is a hash of the stored one (see share.php and s3URL)
+    foreach ($files as &$file) $file['s3files_shareKeyHash'] = empty($file['s3files_shareKey']) ? null : hash('sha256', $file['s3files_shareKey'] . "|" . $file['s3files_id']);
+    return $files;
   }
   function s3DataUri($fileid)
   {
@@ -142,7 +265,7 @@ class bCMS
       "url" => $url
     ];
   }
-  function s3URL($fileid, $forceDownload = false, $expire = '+10 minutes', $shareKey = false)
+  function s3URL($fileid, $forceDownload = false, $expire = '+10 minutes', $shareKey = false, $size = null)
   {
     global $DBLIB, $CONFIG, $AUTH, $CONFIGCLASS;
     /*
@@ -175,13 +298,20 @@ class bCMS
     $requireInstance = !in_array($file['s3files_meta_type'], [1, 2, 5, 9, 10, 15, 16, 17]);
     $secure = !in_array($file['s3files_meta_type'], [1, 2, 5, 10, 15, 16, 17]);
 
-    //File has been shared publicly, and the key matches?
-    if ($shareKey and ($shareKey == hash('sha256', $file['s3files_shareKey'] . "|" . $file['s3files_id']))) $secure = false; 
+    //File has been shared publicly, and the key matches? An unshared file has no share key, so never accept one for it
+    if ($shareKey and !empty($file['s3files_shareKey']) and is_string($shareKey) and hash_equals(hash('sha256', $file['s3files_shareKey'] . "|" . $file['s3files_id']), $shareKey)) $secure = false;
 
     if ($secure and !$GLOBALS['AUTH']->login) return false;
     elseif ($secure and $requireInstance and $file["instances_id"] != $AUTH->data['instance']['instances_id']) return false;
 
     //Generate the url
+    // Determine if this image will be routed through Cloudflare Image Transformation.
+    // If so, omit the response-content-disposition parameter as it causes 403 errors
+    // when Cloudflare fetches the origin URL.
+    // Bypass Cloudflare when a download is forced so the response-content-disposition
+    // attachment header is preserved and the documented `d` parameter keeps working.
+    $useCloudflareTransform = (!$forceDownload && $this->isCloudflareImageTransformable($file['s3files_extension']));
+
     if ($CONFIGCLASS->get('AWS_CLOUDFRONT_ENABLED') === 'Enabled') {
       // Create a CloudFront Client to sign the string
       $CloudFrontClient = new Aws\CloudFront\CloudFrontClient([
@@ -190,17 +320,20 @@ class bCMS
         'region' => 'us-east-2'
       ]);
 
-      $ResponseContentDisposition = "?response-content-disposition=" . rawurlencode(
-        ($forceDownload ? 'attachment' : 'inline') . '; filename=' . utf8_encode(preg_replace('/[^A-Za-z0-9 _\-]/', '_', $file['s3files_name']) . '.' . $file['s3files_extension'])
-      );
+      $cloudFrontUrl = $CONFIGCLASS->get("AWS_CLOUDFRONT_ENDPOINT") . "/" . $file['s3files_path'] . "/" . $file['s3files_filename'] . '.' . $file['s3files_extension'];
+      if (!$useCloudflareTransform) {
+        $cloudFrontUrl .= "?response-content-disposition=" . rawurlencode(
+          ($forceDownload ? 'attachment' : 'inline') . '; filename=' . utf8_encode(preg_replace('/[^A-Za-z0-9 _\-]/', '_', $file['s3files_name']) . '.' . $file['s3files_extension'])
+        );
+      }
 
       $signedUrlCannedPolicy = $CloudFrontClient->getSignedUrl([
-        'url' => $CONFIGCLASS->get("AWS_CLOUDFRONT_ENDPOINT") . "/" . $file['s3files_path'] . "/" . $file['s3files_filename'] . '.' . $file['s3files_extension'] . $ResponseContentDisposition,
+        'url' => $cloudFrontUrl,
         'expires' => strtotime($file['expiry']),
         'private_key' => str_replace(["BEGIN\nRSA\nPRIVATE\nKEY", "END\nRSA\nPRIVATE\nKEY"], ["BEGIN RSA PRIVATE KEY", "END RSA PRIVATE KEY"], str_replace(" ", "\n", $CONFIGCLASS->get('AWS_CLOUDFRONT_PRIVATEKEY'))),
         'key_pair_id' => $CONFIGCLASS->get('AWS_CLOUDFRONT_KEYPAIRID')
       ]);
-      return $signedUrlCannedPolicy;
+      return $this->applyCloudflareImageTransform($signedUrlCannedPolicy, $file['s3files_extension'], $size);
     } else {
       //Download direct from S3
       $s3Client = new Aws\S3\S3Client([
@@ -218,13 +351,59 @@ class bCMS
         'Bucket' => $CONFIGCLASS->get('AWS_S3_BUCKET'),
         'Key' => $file['s3files_path'] . "/" . $file['s3files_filename'] . '.' . $file['s3files_extension'],
       ];
-      $parameters['ResponseContentDisposition'] = ($forceDownload ? 'attachment' : 'inline') . '; filename="' . preg_replace('/[^A-Za-z0-9 _\-]/', '_', $file['s3files_name']) . '.' . $file['s3files_extension'] . '"';
+      if (!$useCloudflareTransform) {
+        $parameters['ResponseContentDisposition'] = ($forceDownload ? 'attachment' : 'inline') . '; filename="' . preg_replace('/[^A-Za-z0-9 _\-]/', '_', $file['s3files_name']) . '.' . $file['s3files_extension'] . '"';
+      }
 
       $cmd = $s3Client->getCommand('GetObject', $parameters);
       $request = $s3Client->createPresignedRequest($cmd, $file['expiry']);
       $presignedUrl = (string)$request->getUri();
-      return $presignedUrl;
+      return $this->applyCloudflareImageTransform($presignedUrl, $file['s3files_extension'], $size);
     }
+  }
+
+  /**
+   * Check if a file extension is an image type that can be processed by Cloudflare
+   * Image Transformation, and if the transformation is configured.
+   *
+   * @param string $extension The file extension
+   * @return bool Whether Cloudflare Image Transformation should be applied
+   */
+  private function isCloudflareImageTransformable($extension)
+  {
+    global $CONFIGCLASS;
+    $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'tiff', 'tif', 'ico'];
+    return $CONFIGCLASS->get('CLOUDFLARE_IMAGE_TRANSFORM_DOMAIN') && in_array(strtolower($extension), $imageExtensions);
+  }
+
+  /**
+   * Apply Cloudflare Image Transformation to image URLs if configured.
+   * The resulting URL format is: {DOMAIN}/cdn-cgi/image/onerror=redirect{SIZE_OPTIONS}/{ORIGINAL_URL}
+   * The source URL is NOT encoded — Cloudflare expects a plain absolute URL.
+   *
+   * @param string $url The original file URL (S3 or CloudFront signed URL)
+   * @param string $extension The file extension
+   * @param string|null $size Optional named size (tiny, small, medium, large) for Cloudflare resizing
+   * @return string The original URL, or a Cloudflare-wrapped URL for image files
+   */
+  private function applyCloudflareImageTransform($url, $extension, $size = null)
+  {
+    global $CONFIGCLASS;
+    if ($this->isCloudflareImageTransformable($extension)) {
+      $cfDomain = rtrim($CONFIGCLASS->get('CLOUDFLARE_IMAGE_TRANSFORM_DOMAIN'), '/');
+      $sizeOptions = '';
+      $sizeMap = [
+        'tiny' => ',width=50,fit=scale-down',
+        'small' => ',width=100,fit=scale-down',
+        'medium' => ',width=500,fit=scale-down',
+        'large' => ',width=1000,fit=scale-down',
+      ];
+      if ($size !== null && isset($sizeMap[strtolower($size)])) {
+        $sizeOptions = $sizeMap[strtolower($size)];
+      }
+      return $cfDomain . '/cdn-cgi/image/onerror=redirect' . $sizeOptions . '/' . $url;
+    }
+    return $url;
   }
   function aTag($id)
   {
@@ -258,6 +437,15 @@ class bCMS
       $configReturn[$type['id']] = $type;
     }
     return ["userData" => $user, "settings" => $configReturn];
+  }
+  function positionIsInInstance($positionid, $instanceid)
+  { //Whether the role (instance position) exists and belongs to the business
+    global $DBLIB;
+    if (!is_numeric($positionid)) return false;
+    $DBLIB->where("instancePositions_id", $positionid);
+    $DBLIB->where("instances_id", $instanceid);
+    $DBLIB->where("instancePositions_deleted", 0);
+    return $DBLIB->getValue("instancePositions", "COUNT(*)") > 0;
   }
   function usersWatchingGroup($groupid)
   {
@@ -298,6 +486,19 @@ class bCMS
     if ($userCapacity > 0 and $userUsed >= $userCapacity)
       return false;
     return true;
+  }
+  function userIsInInstance($userid, $instanceid)
+  { //Whether the user is a current (not deleted, removed or archived) member of the business
+    global $DBLIB;
+    $DBLIB->join("instancePositions", "userInstances.instancePositions_id=instancePositions.instancePositions_id", "LEFT");
+    $DBLIB->join("users", "userInstances.users_userid=users.users_userid", "LEFT");
+    $DBLIB->where("users.users_deleted", 0); //Deleting an account leaves its memberships in place
+    $DBLIB->where("userInstances.users_userid", $userid);
+    $DBLIB->where("instancePositions.instances_id", $instanceid);
+    $DBLIB->where("userInstances.userInstances_deleted", 0);
+    $DBLIB->where("instancePositions.instancePositions_deleted", 0);
+    $DBLIB->where("(userInstances.userInstances_archived IS NULL OR userInstances.userInstances_archived >= '" . date('Y-m-d H:i:s') . "')");
+    return $DBLIB->getValue("userInstances", "COUNT(*)") > 0;
   }
   function instanceHasProjectCapacity($instanceid)
   {

@@ -56,12 +56,13 @@
                     </div>
                     <hr>
                     <div class="form-group py-2">
-                        <label for="googleCalendarEmbedUrl">Personal Calendar Embed URL (u.g. Google Calendar)</label>
+                        <label for="googleCalendarEmbedUrl">Personal Calendar Embed URL (e.g. Google Calendar)</label>
                         <input type="url"
                                class="form-control"
                                id="googleCalendarEmbedUrl"
                                name="googleCalendarEmbedUrl"
                                placeholder="https://calendar.google.com/calendar/embed?src=..."
+                               pattern="https://.*"
                                value="{{ calendarSettings.googleCalendarEmbedUrl ?? '' }}">
                     </div>
                 </div>

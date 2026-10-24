@@ -123,6 +123,9 @@ class Config
         } catch (ConfigValueNotSet) {
           $currentValue = null;
         }
+        if ($value['form']['type'] === 'secret' and $currentValue !== null and $currentValue !== false and strlen($formInput[$key]) < 1) {
+          continue;
+        }
         if ($formInput[$key] !== $currentValue) {
           unset($matchVerify);
           if ($value['form']['required'] || strlen($formInput[$key]) > 0) {
@@ -167,8 +170,8 @@ class Config
         $currentValue = null;
       }
       if (isset($property_value) and $property_value !== $currentValue) {
-        $this->DBLIB->where("config_key", $property_key);
-        $this->DBLIB->update('config', ["config_value" => $property_value]);
+        if (!is_scalar($property_value)) return false;
+        if (!$this->DBLIB->replace('config', ["config_key" => $property_key, "config_value" => $property_value])) return false;
       }
       $this->_setupCache();
       return true;

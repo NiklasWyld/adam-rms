@@ -50,11 +50,6 @@
         .timeline-body > p {
             margin-bottom: 0;
         }
-
-        .comment-function {
-            color: #999;
-            font-weight: bold;
-        }
     </style>
 
     <!--Summernote-->
@@ -161,7 +156,7 @@
                                                             {% if "PROJECTS:EDIT:CLIENT"|instancePermissions and project.projectsTypes_config_client == 1 %}
                                                                 <div class="d-flex flex-row">
                                                                     <p class="text-sm">Client</p>
-                                                                    {% if "CLIENTS:CREATE"|instancePermissions %}
+                                                                    {% if "CLIENTS:CREATE"|instancePermissions and "PROJECTS:EDIT:CLIENT"|instancePermissions %}
                                                                     <button type="button" class="btn btn-link btn-sm ml-auto" id="newClientButton">Create Client</button>
                                                                     {% endif %}
                                                                 </div>
@@ -369,14 +364,15 @@
                                                         <i class="fas fa-plus"></i></button>
                                                 </div>
                                             </div>
-                                            <div class="card-body">
+                                                <div class="card-body">
                                                 <!-- The time line -->
-                                                <div class="timeline">
-                                                    {% set currentDate = '' %}
-                                                    {% set comments = false %}
-                                                    {% for event in project.auditLog %}
-                                                        {% if event.auditLog_actionType in ['QUICKCOMMENT'] %}
-                                                            {% set comments = true %}
+                                                {% set commentEvents = project.auditLog|filter(event => event.auditLog_actionType in ['QUICKCOMMENT']) %}
+                                                {% if commentEvents|length == 0 %}
+                                                    <i>Nobody has commented on this project</i>
+                                                {% else %}
+                                                    <div class="timeline">
+                                                        {% set currentDate = '' %}
+                                                        {% for event in commentEvents %}
                                                             {% if event.auditLog_timestamp|date("Y-m-d") != currentDate %}
                                                                 <div class="time-label">
                                                                     <span class="bg-red">{{ event.auditLog_timestamp|date("D jS M Y") }}</span>
@@ -385,21 +381,12 @@
                                                             {% endif %}
                                                             <div>
                                                                 <i class="far fa-comment bg-blue"></i>
-                                                                <div class="timeline-item">
+                                                                <div class="timeline-item" data-comment-id="{{ event.auditLog_id }}">
                                                                     <span class="time">
-                                                                        <span style="margin-right: 5px">
-                                                                            <a href="#"
-                                                                            class="comment-function deleteQuickCommentButton"
-                                                                            data-comment-id="{{ event.auditLog_id }}">
-                                                                                Delete
-                                                                            </a>
-                                                                            <a href="#"
-                                                                            class="comment-function editQuickCommentButton"
-                                                                            data-comment-id="{{ event.auditLog_id }}"
-                                                                            data-comment-text="{{ event.auditLog_actionData|e('html_attr') }}">
-                                                                                Edit
-                                                                            </a>
-                                                                        </span>
+                                                                        {% if event.users_userid == USERDATA.users_userid or "PROJECTS:PROJECT_NOTES:EDIT:NOTES"|instancePermissions %}
+                                                                            <a href="#" class="editQuickCommentButton mr-2" data-comment-id="{{ event.auditLog_id }}">Edit</a>
+                                                                            <a href="#" class="deleteQuickCommentButton mr-2" data-comment-id="{{ event.auditLog_id }}">Delete</a>
+                                                                        {% endif %}
                                                                         <i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}
                                                                     </span>
                                                                     <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a> commented
@@ -407,16 +394,12 @@
                                                                     <div class="timeline-body">{{ event.auditLog_actionData|raw }}</div>
                                                                 </div>
                                                             </div>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    {% if comments %}
-                                                    <div>
-                                                        <i class="fas fa-clock bg-gray"></i>
+                                                        {% endfor %}
+                                                        <div>
+                                                            <i class="fas fa-clock bg-gray"></i>
+                                                        </div>
                                                     </div>
-                                                    {% else %}
-                                                        <i>Nobody has commented on this project</i>
-                                                    {% endif %}
-                                                </div>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     {% endif %}
@@ -829,7 +812,7 @@
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="paymentTerms" checked>
-                                    <label class="form-check-label">Payment Terms</label>
+                                    <label class="form-check-label">Invoice/Quotation Footer</label>
                                 </div>
                             {% endif %}
                         </div>
@@ -869,141 +852,59 @@
             $("#assetAssignmentCheckboxAll").click(function () {
                 $(".assetAssignmentCheckbox").prop('checked', $(this).prop('checked'));
             });
-            $(".quickAddCommentButton").click(function () {
-                bootbox.dialog({
-                    title: "Enter comment",
+            function quickCommentEditor(commentId, content) {
+                var editor = $('<div></div>');
+                var dialog = bootbox.dialog({
+                    title: commentId ? "Edit comment" : "Enter comment",
                     size: 'large',
-                    message: '<div id="editor"></div>',
+                    message: editor,
                     buttons: {
+                        cancel: { label: "Cancel", className: "btn-default" },
                         ok: {
                             label: "Save",
-                            className: "btn btn-info",
+                            className: "btn-info",
                             callback: function () {
-                                let content = $('#editor').summernote('code');
-                                if (content){
-                                    ajaxcall("projects/newQuickComment.php", {
-                                        "text": content,
-                                        "projects_id": "{{ project.projects_id }}"
-                                    }, function (data) {
-                                        location.reload();
-                                    });
-                                }
+                                if (editor.summernote('isEmpty')) return false;
+                                var data = { text: editor.summernote('code'), projects_id: {{ project.projects_id|json_encode|raw }} };
+                                if (commentId) data.comment_id = commentId;
+                                ajaxcall(commentId ? "projects/editQuickComment.php" : "projects/newQuickComment.php", data, function () {
+                                    location.reload();
+                                });
                             }
-                        },
-                        cancel:{
-                            label: "Cancel",
-                            className: "btn btn-danger",
                         }
                     }
                 });
-            
-
-                $('#editor').summernote({
-                    minHeight: 300,             // set minimum height of editor
-                    maxHeight: null,             // set maximum height of editor
-                    focus: true,
-                    disableDragAndDrop: true, //We're using fineuploader for that
-                    toolbar: [
-                        ['oops', ['undo', 'redo']],
-                        ['font', ['style', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-                        ['para', ['ul', 'ol', 'paragraph']],
-                        ['insert', ['link','hr']],
-                        ['view', ['codeview']]
-                    ],
-                    popover: {
-                        image: [
-                            ['imagesize', ['imageSize100', 'imageSize50', 'imageSize25']],
-                            ['float', ['floatLeft', 'floatRight', 'floatNone']],
-                            ['remove', ['removeMedia']]
-                        ],
-                        link: [
-                            ['link', ['unlink']]
-                        ],
-                    }
+                dialog.on('shown.bs.modal', function () {
+                    editor.summernote({ minHeight: 300 });
+                    editor.summernote('code', content || '');
+                });
+                dialog.on('hidden.bs.modal', function () { editor.summernote('destroy'); });
+            }
+            $(".quickAddCommentButton").click(function () { quickCommentEditor(null, ''); });
+            $(".editQuickCommentButton").click(function (event) {
+                event.preventDefault();
+                quickCommentEditor($(this).data('comment-id'), $(this).closest('.timeline-item').find('.timeline-body').html());
+            });
+            $(".deleteQuickCommentButton").click(function (event) {
+                event.preventDefault();
+                var commentId = $(this).data('comment-id');
+                bootbox.confirm("Delete this comment?", function (confirmed) {
+                    if (confirmed) ajaxcall("projects/deleteQuickComment.php", { comment_id: commentId }, function () { location.reload(); });
                 });
             });
-            $(document).on("click", ".editQuickCommentButton", function () {
-                let commentId = $(this).data("comment-id");
-                let oldText   = $(this).data("comment-text");
-
-                bootbox.dialog({
-                    title: "Edit Comment",
-                    size: 'large',
-                    message: '<div id="editCommentEditor"></div>',
-                    buttons: {
-                        save: {
-                            label: "Save Changes",
-                            className: "btn btn-info",
-                            callback: function () {
-                                let newContent = $('#editCommentEditor').summernote('code');
-                                if (newContent) {
-                                    ajaxcall("projects/editQuickComment.php", {
-                                        "comment_id": commentId,
-                                        "text": newContent
-                                    }, function (data) {
-                                        location.reload();
-                                    });
-                                }
-                            }
-                        },
-                        cancel: {
-                            label: "Cancel",
-                            className: "btn btn-danger"
-                        }
-                    }
-                });
-
-                $('#editCommentEditor').summernote({
-                    minHeight: 300,
-                    maxHeight: null,
-                    focus: true,
-                    disableDragAndDrop: true,
-                    toolbar: [
-                        ['oops', ['undo', 'redo']],
-                        ['font', ['style', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-                        ['para', ['ul', 'ol', 'paragraph']],
-                        ['insert', ['link','hr']],
-                        ['view', ['codeview']]
-                    ]
-                });
-
-                $('#editCommentEditor').summernote('code', oldText);
-            });
-
-            $(".deleteQuickCommentButton").click(function (e) {
-                e.preventDefault();
-                var commentId = $(this).data("comment-id");        
-
-                bootbox.confirm({
-                    message: "Are you sure you want to delete this comment?",
-                    buttons: {
-                        confirm: {
-                            label: 'Yes',
-                            className: 'btn-danger'
-                        },
-                        cancel: {
-                            label: 'No',
-                            className: 'btn-success'
-                        }
-                    },
-                    callback: function (result) {
-                        if (result) {
-                            ajaxcall("projects/deleteQuickComment.php", {
-                                "comment_id": commentId
-                            }, function (data) {
-                                location.reload();
-                            });
-                        }
-                    }
-                });
-            });
-
-            {% if "CLIENTS:CREATE"|instancePermissions %}
+            {% if "CLIENTS:CREATE"|instancePermissions and "PROJECTS:EDIT:CLIENT"|instancePermissions %}
             $("#newClientButton").click(function () {
                 bootbox.prompt("Enter Client Name", function (result) {
                     if (result) {
                         ajaxcall("clients/new.php", {"clients_name": result}, function (data) {
-                            location.reload();
+                            if (data.result && data.response.clients_id) {
+                                ajaxcall("projects/changeClient.php", {
+                                    "clients_id": data.response.clients_id,
+                                    "projects_id": "{{ project.projects_id }}"
+                                }, function (data) {
+                                    location.reload();
+                                });
+                            }
                         });
                     }
                 });
