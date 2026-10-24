@@ -57,4 +57,3 @@ const {request} = require('../../e2e/node_modules/@playwright/test');
     console.log('PASS: non-login SSH startup, HTTPS URLs, login, dashboard and repeated startup');
   } finally { await api.dispose(); }
 })().catch(error => { console.error(error.message); process.exit(1); });
-
