@@ -44,6 +44,11 @@
                 <span id="channel-save-status" role="status" aria-live="polite" class="mr-3">Loading plan…</span>
                 <button class="btn btn-default btn-sm mr-2" id="channel-configuration" disabled>Configuration</button>
                 <button class="btn btn-primary btn-sm mr-2" id="channel-save" disabled>Save</button>
+                <label class="sr-only" for="channel-export-layout">PDF layout</label>
+                <select class="form-control form-control-sm mr-2" style="width:auto" id="channel-export-layout">
+                    <option value="detail">Detail</option>
+                    <option value="single">All on one sheet (A4 portrait)</option>
+                </select>
                 <button class="btn btn-default btn-sm" id="channel-export" data-url="{{ CONFIG.ROOTURL }}/project/channelPlanningExport.php?id={{ project.projects_id }}" disabled>Export PDF</button>
             </div>
             <div class="card-body">

@@ -12,7 +12,7 @@ PROJECTS:VIEW permits reading/searching and exporting a plan. Grant the new PROJ
 
 projectChannelPlans stores the canonical document as validated JSON plus typed configuration, revision, project and business fields. A unique project index enforces one main plan. Every lookup and mutation checks the current business and a non-deleted project. Mutations lock the project and commit the plan and audit record in one transaction.
 
-Export PDF downloads an A4 landscape PDF using AdamRMS's existing pdfMake 0.2.6 and embedded Roboto fonts. It includes every channel/use, saved revision, project, business, export date and optional business logo. Tables repeat their headers. Long cells are split into bounded continuation rows, so each row and its channel/use label stay together across page breaks. The PDF is generated from the saved database document and is not automatically stored as a project file.
+Export PDF offers two layouts using AdamRMS's existing pdfMake 0.2.6 and embedded Roboto fonts: Detail uses A4 landscape and multiple pages when needed; All on one sheet uses exactly one portrait A4 page. Choose the layout beside Export PDF or change it on the export page. The one-sheet layout retains every channel, use and field, and automatically scales the body text to fit; large plans therefore use smaller text. It includes every channel/use, saved revision, project, business, export date and optional business logo. In Detail, tables repeat their headers. Long cells are split into bounded continuation rows, so each row and its channel/use label stay together across page breaks. The PDF is generated from the saved database document and is not automatically stored as a project file.
 
 ## Stage Planning and Shift Planning
 

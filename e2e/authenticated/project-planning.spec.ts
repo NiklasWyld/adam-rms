@@ -288,3 +288,69 @@ test("first opening configures a new project and viewers can read without editin
   await expect(page.locator("#channel-export")).toBeEnabled();
   expect(await page.getByRole("button", { name: "Add use to CH1", exact: true }).count()).toBe(0);
 });
+
+for (const count of [0, 32, 70]) {
+  test("one-sheet export fits all " + count + " inputs and outputs onto one portrait A4 page", async ({ page, asA, tenants }, testInfo) => {
+    test.setTimeout(120_000);
+    const id = tenants.a.projectId, plan = await reset(asA, id, count, 10);
+    for (let n = 0; n < count; n++) plan.inputs[n][0] = { scene: "Bigband", label: "Signal " + (n + 1) + " Bühne ÄÖÜ ß",
+      connection: "Anschluss-" + (n + 1), notes: count === 70 && n === 0 ? "Längere Notizen für Bühne und Übertragung. ".repeat(90) :
+        count === 70 && n === 1 ? "X".repeat(3500) : "Notiz-" + (n + 1) };
+    if (count) plan.inputs[0].push({ scene: "Chor", label: "Mikro Mitte Links", connection: "Mikrofon", notes: "Schüler" });
+    plan.outputs[0][0] = { scene: "", label: "Main L", connection: "PA links", notes: "Ausgang prüfen" };
+    plan.outputs[9][0] = { scene: "Theater", label: "Monitor 10", connection: "Bühnenmonitor", notes: "Letzter Ausgang" };
+    const saved = await save(asA, id, plan);
+    expect(saved.json?.result, saved.body).toBe(true);
+    await browser(page, asA);
+    const errors: string[] = []; page.on("pageerror", error => errors.push(error.message));
+    const downloaded = page.waitForEvent("download");
+    await page.goto("/project/channelPlanningExport.php?id=" + id + "&layout=single");
+    const file = testInfo.outputPath("channel-single-" + count + ".pdf");
+    await (await downloaded).saveAs(file);
+    const info = execFileSync("pdfinfo", [file], { encoding: "utf8" });
+    expect(info).toMatch(/Pages:\s+1\b/);
+    expect(info).toContain("595.28 x 841.89 pts (A4)");
+    const text = execFileSync("pdftotext", ["-layout", file, "-"], { encoding: "utf8" }).replace(/\u200b/g, "");
+    expect(text).toContain("Inputs (" + count + ")");
+    expect(text).toContain("Outputs (10)");
+    expect(text).toContain("Main L");
+    expect(text).toContain("Letzter Ausgang");
+    if (count) {
+      expect(text).toContain("CH" + count);
+      expect(text).toContain("Anschluss-" + count);
+      expect(text).toContain("Notiz-" + count);
+      expect(text).toContain("Chor");
+      expect(text).toContain("Schüler");
+    }
+    if (count === 70) {
+      expect((text.match(/X/g) || []).length).toBe(3500);
+      expect((text.match(/Längere/g) || []).length).toBe(90);
+    }
+    await expect(page.locator("#channel-pdf-error")).toBeEmpty();
+    expect(errors).toEqual([]);
+    await testInfo.attach("One-sheet PDF", { path: file, contentType: "application/pdf" });
+    if (count === 32) {
+      // Switching layouts must replace the ready download, preserving the detailed export.
+      await page.getByLabel("PDF layout", { exact: true }).selectOption("detail");
+      await expect(page.locator("#channel-pdf-status")).toHaveText("Your detailed PDF is ready.");
+      const detail = page.waitForEvent("download");
+      await page.locator("#channel-pdf-download").click();
+      const detailFile = testInfo.outputPath("channel-detail-after-single.pdf");
+      await (await detail).saveAs(detailFile);
+      const detailInfo = execFileSync("pdfinfo", [detailFile], { encoding: "utf8" });
+      expect(detailInfo).toContain("841.89 x 595.28 pts (A4)");
+      expect(detailInfo).not.toMatch(/Pages:\s+1\b/);
+      await testInfo.attach("Detailed PDF", { path: detailFile, contentType: "application/pdf" });
+      await page.goto("/project/?id=" + id + "#channel-planning-view");
+      await expect(page.locator("#channel-save-status")).toHaveText("Saved");
+      await page.getByLabel("PDF layout", { exact: true }).selectOption("single");
+      const popupPromise = page.context().waitForEvent("page");
+      await page.locator("#channel-export").click();
+      const popup = await popupPromise;
+      await popup.waitForURL(/layout=single/);
+      await expect(popup.locator("#channel-pdf-layout")).toHaveValue("single");
+      await expect(popup.locator("#channel-pdf-status")).toHaveText("Your one-page A4 portrait PDF is ready.");
+      await popup.close();
+    }
+  });
+}

@@ -164,7 +164,7 @@
         };
         search.addEventListener('input', filter);
         saveButton.onclick = save;
-        exportButton.onclick = function () { if (!exportButton.disabled) window.open(exportButton.dataset.url, '_blank', 'noopener'); };
+        exportButton.onclick = function () { if (!exportButton.disabled) window.open(exportButton.dataset.url + '&layout=' + encodeURIComponent(document.getElementById('channel-export-layout').value), '_blank', 'noopener'); };
         root.addEventListener('keydown', function (event) { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); save(); } });
         window.addEventListener('beforeunload', function (event) { if (dirty || saving) { event.preventDefault(); event.returnValue = ''; } });
         async function load() {

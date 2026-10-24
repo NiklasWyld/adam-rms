@@ -4,9 +4,12 @@
 <title>Channel Planning - {{ project.projects_name }}</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js" integrity="sha512-7BzHjLXs8xehClrkJEtJtAwXxcbLast87k+XekuItHxrMr/v6POWkoKS2/8CU6DHdIjY+A4NwvsBQ8PxoRH7xQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/vfs_fonts.min.js" integrity="sha512-P0bOMePRS378NwmPDVPU455C/TuxDS+8QwJozdc7PGgN8kLqR4ems0U/3DeJkmiE31749vYWHvBOtR+37qDCZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<style>body{font:16px/1.6 system-ui,sans-serif;color:#263238;background:#f4f6f9;padding:32px}main{max-width:700px;margin:32px auto;background:white;border:1px solid #dee2e6;border-radius:6px;padding:32px}h1{font-size:24px;overflow-wrap:anywhere}button{font:inherit;padding:8px 16px;cursor:pointer}#channel-pdf-error{color:#a32323}</style>
+<style>body{font:16px/1.6 system-ui,sans-serif;color:#263238;background:#f4f6f9;padding:32px}main{max-width:700px;margin:32px auto;background:white;border:1px solid #dee2e6;border-radius:6px;padding:32px}h1{font-size:24px;overflow-wrap:anywhere}button{font:inherit;padding:8px 16px;cursor:pointer}label{display:block}select{font:inherit;max-width:100%;padding:6px;margin:8px 0}#channel-pdf-error{color:#a32323}</style>
 </head><body><main>
 <h1>Channel Planning</h1><p>{{ project.projects_name }}</p>
+<label for="channel-pdf-layout">PDF layout</label>
+<select id="channel-pdf-layout"><option value="detail">Detail (multiple pages if needed)</option><option value="single">All on one sheet (A4 portrait)</option></select>
+<p style="font-size:14px;color:#586574">The one-sheet layout scales all content to fit. Choose Detail for larger text.</p>
 <p id="channel-pdf-status" role="status">Preparing your PDF…</p>
 <p id="channel-pdf-error" role="alert"></p>
 <button id="channel-pdf-download" disabled>Download PDF</button>
