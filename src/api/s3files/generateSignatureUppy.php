@@ -4,6 +4,9 @@ if ($CONFIG['FILES_ENABLED'] !== "Enabled") {
     finish(false, ["code" => null, "message" => "File uploads are disabled"]);
 }
 
+require_once __DIR__ . '/../../common/libs/PlanningFiles.php';
+validatePlanningUpload();
+
 $DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']);
 $storageCapacity = $DBLIB->getvalue("instances", "instances_storageLimit");
 $storageUsed = $bCMS->s3StorageUsed($AUTH->data['instance']['instances_id']);

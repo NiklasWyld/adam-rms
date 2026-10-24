@@ -3,6 +3,8 @@ require_once __DIR__ . '/../apiHeadSecure.php';
 if ($CONFIG['FILES_ENABLED'] !== "Enabled") {
     finish(false, ["code" => null, "message" => "File uploads are disabled"]);
 }
+require_once __DIR__ . '/../../common/libs/PlanningFiles.php';
+validatePlanningUpload();
 if (!$bCMS->s3SubTypeIsInInstance($_POST['typeid'], $_POST['subtype'] ?? null)) finish(false, ["code" => null, "message" => "Record not found"]);
 $fileData = [
     "s3files_extension" => pathinfo($bCMS->sanitizeString($_POST['name']), PATHINFO_EXTENSION),
@@ -17,6 +19,7 @@ $fileData = [
     "s3files_meta_public" => $bCMS->sanitizeString($_POST['public']),
     "instances_id" => $AUTH->data['instance']['instances_id']
 ];
+if (isset($_POST['planningCategory']) && $_POST['planningCategory'] !== '') $fileData['s3files_planningCategory'] = $_POST['planningCategory'];
 $id = $DBLIB->insert("s3files",$fileData);
 echo $DBLIB->getLastError();
 if (!$id) finish(false, ["code" => null, "message" => "Error"]);

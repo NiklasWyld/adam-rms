@@ -15,6 +15,19 @@ $PAGEDATA['project']['auditLog'] = $DBLIB->get("auditLog",null, ["auditLog.*", "
 
 $PAGEDATA['pageConfig'] = ["TITLE" => $PAGEDATA["project"]['projects_name'], "BREADCRUMB" => false];
 
+// Planning files use the existing project attachment type and S3 store.
+if (empty($_SESSION['planningFilesCsrf'])) $_SESSION['planningFilesCsrf'] = bin2hex(random_bytes(32));
+$PAGEDATA['planningCsrf'] = $_SESSION['planningFilesCsrf'];
+$PAGEDATA['stagePlanningFiles'] = [];
+$PAGEDATA['shiftPlanningFiles'] = [];
+if ($CONFIG['FILES_ENABLED'] === 'Enabled' && $AUTH->data['instance']['instances_storageEnabled'] && $PAGEDATA['project']['projectsTypes_config_files']) {
+    foreach (['stage', 'shift'] as $category) {
+        $DBLIB->where('instances_id', $AUTH->data['instance']['instances_id']);
+        $DBLIB->where('s3files_planningCategory', $category);
+        $PAGEDATA[$category . 'PlanningFiles'] = $bCMS->s3List(7, $PAGEDATA['project']['projects_id']);
+    }
+}
+
 //Edit Options - Client List
 if ($AUTH->instancePermissionCheck("PROJECTS:EDIT:CLIENT")) {
     $DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']);

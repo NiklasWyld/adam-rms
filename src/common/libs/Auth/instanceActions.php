@@ -1695,6 +1695,12 @@ $instanceActions = [
     'LEGACY-ID' => 104,
     'LEGACY-Sort Rank' => 32,
   ],
+  'PROJECTS:CHANNEL_PLANNING:EDIT' => [
+    'Category' => 'Projects', 'Table' => 'Channel Planning', 'Type' => 'Edit',
+    'Detail' => null, 'Combined Text Description' => 'Projects - Channel Planning: Edit',
+    'Dependencies' => ['PROJECTS:VIEW'], 'Comment' => 'Configure and edit the project channel plan.',
+    'Supported Token Types' => ['web-session'], 'Caution' => null,
+  ],
   'PROJECTS:VIEW' => [
     'Category' => 'Projects',
     'Table' => 'Projects',

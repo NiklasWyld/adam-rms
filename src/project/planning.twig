@@ -1,0 +1,81 @@
+{% for kind, title in {'stage': 'Stage Planning', 'shift': 'Shift Planning'} %}
+<div class="tab-pane" id="{{ kind }}-planning-view">
+    <div class="card">
+        <div class="card-header d-flex flex-wrap align-items-center">
+            <h3 class="card-title mr-auto">{{ title }} <small class="text-muted ml-2">{{ project.projects_name }}</small></h3>
+            <a class="btn btn-primary btn-sm" href="{{ kind == 'stage' ? 'https://ridermaker.com' : 'https://www.onlinegantt.com/#/gantt' }}" target="_blank" rel="noopener noreferrer">Open in new tab <i class="fas fa-external-link-alt ml-1"></i></a>
+        </div>
+        <div class="card-body">
+            {% if kind == 'stage' %}
+                <h4>Plan your stage with Ridermaker</h4>
+                <p>Ridermaker does not allow its editor to be embedded. Open it in a new tab, export your stage plot or technical rider, then upload it below.</p>
+            {% else %}
+                <h4>Plan your shifts with Online Gantt</h4>
+                <p>Online Gantt offers official embeds with a Pro subscription. Open the editor in a new tab, save your plan as a <strong>.gantt</strong> file or export a PDF, then upload it below.</p>
+            {% endif %}
+            <p class="text-muted mb-0">Files uploaded here are saved with this project and also appear in the project's Files tab. Changes made in the external editor are not automatically saved to AdamRMS.</p>
+        </div>
+    </div>
+    <div class="card" id="{{ kind }}-planning-files">
+        <div class="card-header"><h3 class="card-title">{{ title }} Files</h3></div>
+        <div class="card-body">
+            {% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and project.projectsTypes_config_files == 1 %}
+                {% set planningItems = kind == 'stage' ? stagePlanningFiles : shiftPlanningFiles %}
+                {% if planningItems %}
+                    {% include 'assets/templates/fileBox.twig' with {'files': planningItems, 'readOnly': project.projects_archived == 1} %}
+                {% else %}<p class="text-muted">No {{ title|lower }} files yet.</p>{% endif %}
+                {% if "PROJECTS:PROJECT_FLIE_ATTACHMENTS:CREATE"|instancePermissions and project.projects_archived != 1 %}
+                    {% embed 'assets/templates/uppy.twig' with {'type': 'PROJECT-FILE', 'typeId': 7, 'subTypeId': project.projects_id, 'imagesOnly': false, 'planningCategory': kind, 'planningCsrf': planningCsrf} %}
+                        {% block success %}{# The uploader waits for every file registration before refreshing. #}{% endblock %}
+                    {% endembed %}
+                {% endif %}
+            {% else %}
+                <p class="text-muted mb-0">Project file storage is disabled. Enable file storage for this business and project type to upload planning files.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+<div class="tab-pane" id="channel-planning-view">
+    <div id="channel-planning" data-endpoint="{{ CONFIG.ROOTURL }}/api/projects/channelPlanning.php" data-project="{{ project.projects_id }}" data-editable="{{ ('PROJECTS:CHANNEL_PLANNING:EDIT'|instancePermissions and project.projects_archived != 1) ? '1' : '0' }}">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center">
+                <h3 class="card-title mr-auto">Channel Planning <small class="text-muted ml-2">{{ project.projects_name }}</small></h3>
+                <span id="channel-save-status" role="status" aria-live="polite" class="mr-3">Loading plan…</span>
+                <button class="btn btn-default btn-sm mr-2" id="channel-configuration" disabled>Configuration</button>
+                <button class="btn btn-primary btn-sm mr-2" id="channel-save" disabled>Save</button>
+                <button class="btn btn-default btn-sm" id="channel-export" data-url="{{ CONFIG.ROOTURL }}/project/channelPlanningExport.php?id={{ project.projects_id }}" disabled>Export PDF</button>
+            </div>
+            <div class="card-body">
+                <div id="channel-error" role="alert" class="alert alert-danger" hidden></div>
+                <form id="channel-config" class="border rounded p-3 mb-3" hidden>
+                    <p id="channel-first-use">Choose your input and output counts to create the project plan.</p>
+                    <div class="form-row align-items-end">
+                        <div class="form-group col-sm-3"><label for="channel-input-count">Inputs</label><input type="number" class="form-control" id="channel-input-count" min="0" max="512" value="32" required></div>
+                        <div class="form-group col-sm-3"><label for="channel-output-count">Outputs</label><input type="number" class="form-control" id="channel-output-count" min="0" max="256" value="10" required></div>
+                        <div class="form-group col-sm-3"><label for="channel-output-labels">Output numbering</label><select class="form-control" id="channel-output-labels"><option value="alphabetic">A, B, C…</option><option value="numeric">OUT1, OUT2…</option></select></div>
+                        <div class="form-group col-sm-3"><button class="btn btn-primary" type="submit">Apply configuration</button></div>
+                    </div>
+                    <small class="text-muted">Up to 512 inputs, 256 outputs and 20 uses per channel. Reducing populated channels asks for confirmation.</small>
+                </form>
+                <label for="channel-search">Find a channel, signal or programme</label>
+                <input type="search" class="form-control mb-3" id="channel-search" placeholder="Search inputs and outputs" disabled>
+                <p class="text-muted small" id="channel-edit-help">Enter a signal name to use a channel. Add another use for a different programme or scene. Changes save automatically.</p>
+                <div id="channel-tables"></div>
+                <p id="channel-no-results" class="text-muted" hidden>No matching channels.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+#channel-planning .channel-table{min-width:760px;table-layout:fixed}
+#channel-planning .channel-table th{position:sticky;top:0;z-index:1;background:var(--light,#f4f6f9);color:#343a40}
+#channel-planning .channel-table td{vertical-align:top;padding:.45rem}
+#channel-planning .channel-number{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+#channel-planning .channel-use{display:grid;grid-template-columns:1fr 1.2fr 1fr 1.2fr auto;gap:.5rem;align-items:start;margin-bottom:.45rem}
+#channel-planning textarea{resize:vertical;min-height:38px}
+#channel-planning .channel-scroll{max-height:68vh;overflow:auto}
+#channel-planning .channel-actions{white-space:nowrap}
+#channel-planning [hidden]{display:none!important}
+</style>
+<script src="{{ CONFIG.ROOTURL }}/project/channelPlanning.js"></script>

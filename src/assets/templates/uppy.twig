@@ -25,6 +25,7 @@ x-amz-meta-size
             var extension = re.exec(fileName)[1];
             return extension.toLowerCase();
         }
+        {% if planningCategory is defined %}var {{ thisElementID }}Registrations = [];{% endif %}
         {{ thisElementID }} = new Uppy.Core({
             debug: true,
             allowMultipleUploads: true,
@@ -32,6 +33,9 @@ x-amz-meta-size
             restrictions: {
                 {% if fileLimit is defined %}
                 maxNumberOfFiles: {{  fileLimit }},
+                {% endif %}
+                {% if planningCategory is defined %}
+                allowedFileTypes: ['.pdf','.png','.jpg','.jpeg','.gif','.webp','.doc','.docx','.xls','.xlsx','.txt','.csv','.gantt'],
                 {% endif %}
                 {% if imagesOnly is defined and imagesOnly %}
                 allowedFileTypes: ['image/gif', 'image/jpeg', 'image/png','image/jpg']
@@ -98,7 +102,13 @@ x-amz-meta-size
                     },
                     body: JSON.stringify({
                         filename: file.name,
-                        contentType: file.type
+                        contentType: file.type{% if planningCategory is defined %},
+                        size: file.size,
+                        planningCategory: "{{ planningCategory }}",
+                        planningCsrf: "{{ planningCsrf }}",
+                        typeid: "{{ typeId }}",
+                        subtype: "{{ subTypeId }}"
+                        {% endif %}
                     })
                 }).then((response) => {
                     // Parse the JSON response.
@@ -144,7 +154,7 @@ x-amz-meta-size
                 'video-audio'
             ]
         }).on('upload-success', (file, response) => {
-            $.ajax({
+            var registration = $.ajax({
                 url: "{{ CONFIG.ROOTURL }}/api/s3files/uploadSuccess.php",
                 type: "JSON",
                 method: "POST",
@@ -154,7 +164,10 @@ x-amz-meta-size
                     "size": file.size,
                     "typeid": file.meta.typeid,
                     "subtype":  file.meta.subtype,
-                    "originalName": file.data.name
+                    "originalName": file.data.name{% if planningCategory is defined %},
+                    "planningCategory": "{{ planningCategory }}",
+                    "planningCsrf": "{{ planningCsrf }}"
+                    {% endif %}
                 },
                 success: function (result) {
                     if (!result.result) {
@@ -177,7 +190,19 @@ x-amz-meta-size
                     });
                 }
             });
+            {% if planningCategory is defined %}{{ thisElementID }}Registrations.push(registration);{% endif %}
         })
+        {% if planningCategory is defined %}
+        .on('complete', (result) => {
+            Promise.all({{ thisElementID }}Registrations).then((registrations) => {
+                if (result.failed.length || registrations.some((entry) => !entry.result)) return;
+                if (result.successful.length) {
+                    window.location.hash = "{{ planningCategory }}-planning-view";
+                    window.location.reload();
+                }
+            }).catch(() => {});
+        })
+        {% endif %}
 
         //Update the theme when a themChange is triggered.
         $(document).on('themeChange', function(event, theme) {

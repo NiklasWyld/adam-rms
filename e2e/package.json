@@ -4,7 +4,8 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "test:planning": "node ci/planning-s3.cjs --project=authenticated authenticated/project-planning.spec.ts authenticated/planning-files.spec.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",
