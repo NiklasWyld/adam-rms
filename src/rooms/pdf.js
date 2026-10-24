@@ -24,7 +24,7 @@
         if(plan.request.eventDates)content.push({text:'Veranstaltungsdatum: '+plan.request.eventDates,margin:[0,0,0,5]});
         content.push({text:'Zeitzone: '+plan.timeZone,fontSize:9,color:'#596575',margin:[0,0,0,15]});
         if(request)content.push({text:'Für die Veranstaltung werden folgende Räume benötigt. Bitte prüfen Sie die Verfügbarkeit und bestätigen Sie die Reservierung.',margin:[0,0,0,13]});
-        else content.push({text:plan.summary.rooms+' Räume · '+plan.summary.confirmed+' bestätigt · '+plan.summary.open+' offen · '+plan.summary.conflicts+' Überschneidungen',margin:[0,0,0,13],fontSize:10});
+        else content.push({text:plan.summary.rooms+(plan.summary.rooms===1?' Raum':' Räume')+' · '+plan.summary.confirmed+' bestätigt · '+plan.summary.open+' offen · '+plan.summary.conflicts+(plan.summary.conflicts===1?' Überschneidung':' Überschneidungen'),margin:[0,0,0,13],fontSize:10});
         if(reservations.length)content.push({table:{headerRows:1,widths:request?[95,132,'*']:[85,126,'*',62],body},layout:{
             hLineWidth:(i)=>i===0?0:0.5,vLineWidth:()=>0,hLineColor:()=>'#dce1e6',
             paddingTop:()=>9,paddingBottom:()=>9,paddingLeft:()=>7,paddingRight:()=>7,
