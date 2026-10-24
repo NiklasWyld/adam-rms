@@ -8,6 +8,21 @@
  */
 
 $instanceActions = [
+  'ROOMS:VIEW' => [
+    'Category' => 'Rooms', 'Table' => 'Rooms', 'Type' => 'View', 'Detail' => null,
+    'Combined Text Description' => 'Rooms: View catalogue and business overview', 'Dependencies' => null,
+    'Comment' => 'The business overview also requires Projects: View.', 'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
+  'ROOMS:MANAGE' => [
+    'Category' => 'Rooms', 'Table' => 'Rooms', 'Type' => 'Manage', 'Detail' => null,
+    'Combined Text Description' => 'Rooms: Manage rooms and business timezone', 'Dependencies' => ['ROOMS:VIEW'],
+    'Comment' => null, 'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
+  'PROJECTS:ROOM_PLANNING:EDIT' => [
+    'Category' => 'Projects', 'Table' => 'Room Planning', 'Type' => 'Edit', 'Detail' => null,
+    'Combined Text Description' => 'Projects - Room Planning: Edit reservations', 'Dependencies' => ['PROJECTS:VIEW'],
+    'Comment' => 'Viewing project room planning uses Projects: View.', 'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
   'SHOPPING_LISTS:VIEW' => [
     'Category' => 'Assets', 'Table' => 'Shopping Lists', 'Type' => 'View',
     'Detail' => null, 'Combined Text Description' => 'Assets - Shopping Lists: View',

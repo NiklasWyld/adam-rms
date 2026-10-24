@@ -1,0 +1,115 @@
+<link rel="stylesheet" href="{{ CONFIG.ROOTURL }}/rooms/planning.css">
+<div id="room-planning" data-endpoint="{{ CONFIG.ROOTURL }}/api/rooms/action.php" data-project="{{ roomGlobal ? '' : project.projects_id }}" data-global="{{ roomGlobal ? '1' : '0' }}" data-export="{{ CONFIG.ROOTURL }}/rooms/export.php" data-project-url="{{ CONFIG.ROOTURL }}/project/">
+    <div id="room-error" class="alert alert-danger" role="alert" hidden></div>
+    <div id="room-status" role="status" aria-live="polite" class="text-muted mb-2">Loading room planning…</div>
+    <div id="room-planner-content" {% if roomGlobal and not ("PROJECTS:VIEW"|instancePermissions) %}hidden{% endif %}>
+        <div class="card">
+            <div class="card-header rp-toolbar">
+                <h3 class="card-title mr-auto">{{ roomGlobal ? 'All room bookings' : 'Room Planning' }}{% if not roomGlobal %} <small class="text-muted">{{ project.projects_name }}</small>{% endif %}</h3>
+                {% if not roomGlobal %}
+                    <button id="room-add-booking" class="btn btn-primary btn-sm" disabled>Add Room</button>
+                    <button id="room-generate-request" class="btn btn-default btn-sm" disabled>Generate Room Request</button>
+                    <a id="room-export" href="{{ CONFIG.ROOTURL }}/rooms/export.php?id={{ project.projects_id }}&type=plan" class="btn btn-default btn-sm" target="_blank" rel="noopener">Export PDF</a>
+                    {% if "ROOMS:VIEW"|instancePermissions %}<a href="{{ CONFIG.ROOTURL }}/rooms/" class="btn btn-default btn-sm">Manage rooms</a>{% endif %}
+                {% endif %}
+                <button class="btn btn-default btn-sm" id="room-refresh">Refresh</button>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-2">Confirmed is a manual planning status. It does not register a reservation in the school's official system.</p>
+                <p id="room-empty-rooms" class="text-muted" hidden>No active rooms yet. Add a room in the central Rooms catalogue first; a business administrator can grant room management access.</p>
+                <p id="room-readonly" class="text-muted mb-0" hidden>Your role can view this plan. Project room planning edit access is required to add or change bookings. Archived projects are read-only.</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Rooms planned</div><strong class="h3" id="room-count">0</strong></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Confirmed bookings</div><strong class="h3" id="room-confirmed">0</strong></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Open requests</div><strong class="h3" id="room-open">0</strong><small id="room-requested" class="d-block text-muted"></small></div></div></div>
+            <div class="col-6 col-lg-3"><div class="card"><div class="card-body"><div class="text-muted">Overlaps</div><strong class="h3" id="room-conflicts">0</strong></div></div></div>
+        </div>
+        <div class="card">
+            <div class="card-header rp-toolbar">
+                <div class="btn-group" role="group" aria-label="Room planning view"><button id="room-list-view" class="btn btn-primary" aria-pressed="true">List View</button><button id="room-timeline-view" class="btn btn-default" aria-pressed="false">Timeline View</button></div>
+                <label class="sr-only" for="room-filter">Filter room</label><select id="room-filter" class="form-control w-auto"><option value="">All rooms</option></select>
+                <label class="sr-only" for="room-status-filter">Filter status</label><select id="room-status-filter" class="form-control w-auto"><option value="">All statuses</option></select>
+                <div class="d-flex align-items-center"><label for="room-filter-from" class="mb-0 mr-2">From</label><input type="date" id="room-filter-from" class="form-control w-auto"></div>
+                <div class="d-flex align-items-center"><label for="room-filter-to" class="mb-0 mr-2">Through</label><input type="date" id="room-filter-to" class="form-control w-auto"></div>
+                <button id="room-clear-filters" class="btn btn-link btn-sm">Clear filters</button>
+            </div>
+            <div class="card-body pb-2"><small id="room-zone" class="text-muted"></small><small id="room-shown" class="text-muted ml-3"></small></div>
+            <div id="room-list-panel" class="table-responsive">
+                <table class="table table-hover mb-0" id="room-bookings-table"><thead><tr><th>Room</th><th>Period</th><th>Purpose / notes</th><th>Status</th><th>Overlaps</th>{% if roomGlobal %}<th>Project</th>{% endif %}<th>Actions</th></tr></thead><tbody></tbody></table>
+            </div>
+            <div id="room-timeline-panel" class="card-body" hidden>
+                <div class="rp-toolbar mb-3">
+                    <button id="room-period-previous" class="btn btn-default btn-sm" aria-label="Previous period">‹</button>
+                    <button id="room-period-today" class="btn btn-default btn-sm">Today</button>
+                    <button id="room-period-next" class="btn btn-default btn-sm" aria-label="Next period">›</button>
+                    <label class="sr-only" for="room-timeline-date">Timeline date</label><input type="date" class="form-control w-auto" id="room-timeline-date">
+                    <label class="sr-only" for="room-timeline-scale">Timeline scale</label><select class="form-control w-auto" id="room-timeline-scale"><option value="day">Day</option><option value="week" selected>Week</option><option value="month">Month</option></select>
+                    <strong id="room-timeline-range"></strong>
+                </div>
+                <div id="room-timeline" class="rp-timeline" aria-label="Room booking timeline"></div>
+                <div id="room-legend" class="rp-toolbar mt-3"></div>
+            </div>
+        </div>
+    </div>
+    {% if roomGlobal and not ("PROJECTS:VIEW"|instancePermissions) %}<p class="text-muted">Project viewing permission is required to see the business-wide booking overview.</p>{% endif %}
+</div>
+
+<div class="modal fade" id="room-booking-modal" tabindex="-1" role="dialog" aria-labelledby="room-booking-title">
+<div class="modal-dialog modal-lg"><form class="modal-content" id="room-booking-form">
+    <div class="modal-header"><h4 class="modal-title" id="room-booking-title">Add Room</h4><button class="close" type="button" data-dismiss="modal" aria-label="Close">×</button></div>
+    <div class="modal-body">
+        <div id="room-booking-error" class="alert alert-danger" role="alert" hidden></div>
+        <div class="form-group"><label for="booking-room">Room</label><select id="booking-room" class="form-control" required></select><small id="booking-room-details" class="text-muted"></small></div>
+        <div class="form-row">
+            <div class="form-group col-sm-6"><label for="booking-start">Start date and time</label><input id="booking-start" type="datetime-local" class="form-control" min="2000-01-01T00:00" max="2200-12-31T23:59" required></div>
+            <div class="form-group col-sm-6"><label for="booking-end">End date and time</label><input id="booking-end" type="datetime-local" class="form-control" min="2000-01-01T00:00" max="2200-12-31T23:59" required></div>
+        </div>
+        <div class="form-group"><label for="booking-purpose">Purpose</label><input id="booking-purpose" class="form-control" maxlength="1000" required></div>
+        <div class="form-group"><label for="booking-status">Reservation status</label><select id="booking-status" class="form-control"></select></div>
+        <div class="form-group"><label for="booking-notes">Notes (optional)</label><textarea id="booking-notes" class="form-control" rows="3" maxlength="8000"></textarea></div>
+        <small id="booking-zone" class="text-muted"></small>
+        <div id="room-preview" class="mt-3" role="status" aria-live="polite"></div>
+    </div>
+    <div class="modal-footer"><a id="booking-project-link" class="btn btn-default" hidden>Open project</a><button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="submit" class="btn btn-primary" id="booking-save">Save booking</button></div>
+</form></div></div>
+
+{% if roomGlobal and "ROOMS:MANAGE"|instancePermissions %}
+<div class="modal fade" id="room-master-modal" tabindex="-1" role="dialog" aria-labelledby="room-master-title">
+<div class="modal-dialog modal-lg"><form class="modal-content" id="room-master-form">
+    <div class="modal-header"><h4 id="room-master-title" class="modal-title">Add Room</h4><button class="close" type="button" data-dismiss="modal" aria-label="Close">×</button></div>
+    <div class="modal-body">
+        <div id="room-master-error" class="alert alert-danger" role="alert" hidden></div>
+        <div class="form-row">
+            <div class="form-group col-sm-8"><label for="master-name">Room name</label><input class="form-control" id="master-name" maxlength="255" required></div>
+            <div class="form-group col-sm-4"><label for="master-number">Room number (optional)</label><input class="form-control" id="master-number" maxlength="64"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-sm-6"><label for="master-building">Building / site</label><input class="form-control" id="master-building" maxlength="255"></div>
+            <div class="form-group col-sm-6"><label for="master-location">Existing Location (optional)</label><select class="form-control" id="master-location"><option value="">No linked Location</option></select></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-sm-6"><label for="master-capacity">Maximum capacity (optional)</label><input type="number" class="form-control" id="master-capacity" min="1" max="1000000"></div>
+            <div class="form-group col-sm-6"><label for="master-active">Availability</label><select class="form-control" id="master-active"><option value="1">Active</option><option value="0">Inactive</option></select></div>
+        </div>
+        <div class="form-group"><label for="master-description">Description (optional)</label><textarea class="form-control" id="master-description" rows="2" maxlength="4000"></textarea></div>
+        <div class="form-group"><label for="master-equipment">Equipment (optional)</label><textarea class="form-control" id="master-equipment" rows="2" maxlength="4000"></textarea></div>
+        <div class="form-group"><label for="master-notes">General notes (optional)</label><textarea class="form-control" id="master-notes" rows="2" maxlength="8000"></textarea></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary" id="master-save">Save room</button></div>
+</form></div></div>
+{% endif %}
+
+<div class="modal fade" id="room-request-modal" tabindex="-1" role="dialog" aria-labelledby="room-request-title">
+<div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h4 id="room-request-title" class="modal-title">Generate Room Request</h4><button class="close" type="button" data-dismiss="modal" aria-label="Close">×</button></div>
+    <div class="modal-body">
+        <p class="text-muted">Includes Planned and Requested bookings. Generating or copying this draft does not change any reservation status.</p>
+        <label for="room-request-subject">Email subject</label><input id="room-request-subject" class="form-control mb-3" readonly>
+        <label for="room-request-body">Email draft</label><textarea id="room-request-body" rows="16" class="form-control" readonly></textarea>
+        <div id="room-copy-status" class="text-muted mt-2" role="status"></div>
+    </div>
+    <div class="modal-footer"><button id="room-copy-request" class="btn btn-primary">Copy email text</button><a id="room-open-mail" class="btn btn-default">Open mail app</a><a id="room-request-pdf" class="btn btn-default" target="_blank" rel="noopener">Download request PDF</a><button class="btn btn-default" data-dismiss="modal">Close</button></div>
+</div></div></div>
+<script src="{{ CONFIG.ROOTURL }}/rooms/planning.js"></script>

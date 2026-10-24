@@ -101,6 +101,7 @@ const writeCases: ApiCase[] = [
 
 // Pages the limited user must get the 404 page for
 const refusedPages: { file: string; url: string | ((a: Tenant) => string); permission: string }[] = [
+  { file: "rooms/index.php", url: "/rooms/", permission: "ROOMS:VIEW" },
   { file: "project/new.php", url: "/project/new.php", permission: "PROJECTS:CREATE" },
   { file: "newAsset.php", url: "/newAsset.php", permission: "ASSETS:CREATE" },
   { file: "ledger.php", url: "/ledger.php", permission: "FINANCE:PAYMENTS_LEDGER:VIEW" },

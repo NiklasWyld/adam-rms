@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ exportType == 'request' ? 'Room Request' : 'Room Planning' }} - {{ roomPlan.project.projects_name }}</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js" integrity="sha512-7BzHjLXs8xehClrkJEtJtAwXxcbLast87k+XekuItHxrMr/v6POWkoKS2/8CU6DHdIjY+A4NwvsBQ8PxoRH7xQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/vfs_fonts.min.js" integrity="sha512-P0bOMePRS378NwmPDVPU455C/TuxDS+8QwJozdc7PGgN8kLqR4ems0U/3DeJkmiE31749vYWHvBOtR+37qDCZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>body{font:16px/1.6 system-ui,sans-serif;color:#263238;background:#f4f6f9;padding:24px}main{max-width:700px;margin:24px auto;background:white;border:1px solid #dee2e6;border-radius:6px;padding:32px}h1{font-size:24px;overflow-wrap:anywhere}button{font:inherit;padding:8px 16px;cursor:pointer;margin:4px 4px 4px 0}#room-pdf-error{color:#a32323}</style>
+</head><body><main>
+<h1>{{ exportType == 'request' ? 'Room Request' : 'Room Planning' }}</h1>
+<p>{{ roomPlan.project.projects_name }}</p>
+<p>{{ exportType == 'request' ? 'Includes Planned and Requested reservations. Generating this document does not change any reservation status.' : 'All saved project reservations, including their current status and overlap warnings.' }}</p>
+<p id="room-pdf-status" role="status">Preparing your PDF…</p>
+<p id="room-pdf-error" role="alert"></p>
+<button id="room-pdf-download" disabled>Download PDF</button>
+<button id="room-pdf-open" disabled>Open PDF</button>
+<p><a href="{{ CONFIG.ROOTURL }}/project/?id={{ roomPlan.project.projects_id }}#room-planning-view">Back to room planning</a></p>
+</main>
+<script type="application/json" id="room-pdf-data">{{ {plan: roomPlan, type: exportType, business: USERDATA.instance.instances_name, logo: INSTANCELOGO, date: "now"|date('d M Y, H:i T')}|json_encode(15)|raw }}</script>
+<script src="{{ CONFIG.ROOTURL }}/rooms/pdf.js"></script>
+</body></html>

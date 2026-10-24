@@ -105,6 +105,7 @@
                                 <li class="nav-item"><a class="nav-link" href="#stage-planning-view" data-toggle="tab"><i class="fas fa-map"></i> Stage Planning</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#shift-planning-view" data-toggle="tab"><i class="fas fa-calendar-alt"></i> Shift Planning</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#channel-planning-view" data-toggle="tab"><i class="fas fa-plug"></i> Channel Planning</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#room-planning-view" data-toggle="tab"><i class="fas fa-door-open"></i> Room Planning</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#file-view" data-toggle="tab"><i class="fas fa-file-alt"></i> {% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and project.projectsTypes_config_files == 1 %}Files, {% endif %}{% if project.projectsTypes_config_notes == 1 %}Notes, {% endif %} Invoices & Quotes</a></li>
                                 {% if "PROJECTS:PROJECT_PAYMENTS:VIEW"|instancePermissions and project.projectsTypes_config_finance == 1 %}
                                     <li class="nav-item"><a class="nav-link" href="#payments-view" data-toggle="tab"><i class="fas fa-pound-sign"></i> Finance</a></li>
@@ -420,6 +421,7 @@
                             {% endif %}
                         </div>
                         {% include 'project/planning.twig' %}
+                        <div class="tab-pane" id="room-planning-view">{% include "rooms/planner.twig" with {"roomGlobal": false} %}</div>
                         <div class="tab-pane" id="file-view">
                             {% embed 'project/project_files.twig' %}{% endembed %}
                         </div>

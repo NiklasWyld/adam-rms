@@ -496,6 +496,9 @@ ignoreURLs: ['searchUser.php'] // Ignore user searches
 												</li>
 											{% endif %}
 
+											{% if "ROOMS:VIEW"|instancePermissions %}
+												<li class="nav-item"><a href="{{ CONFIG.ROOTURL }}/rooms/" class="nav-link{{ roomsActive ? ' active' : '' }}"><i class="fas fa-door-open nav-icon"></i><p>Rooms</p></a></li>
+											{% endif %}
 											{% if "LOCATIONS:VIEW"|instancePermissions %}
 												<li class="nav-item">
 													<a href="{{ CONFIG.ROOTURL }}/location/" class="nav-link">

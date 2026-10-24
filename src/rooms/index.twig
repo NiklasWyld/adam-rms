@@ -1,0 +1,31 @@
+{% extends "assets/template.twig" %}
+{% block content %}
+<div class="container-fluid">
+    <div class="card" id="room-catalogue">
+        <div class="card-header d-flex flex-wrap align-items-center">
+            <h2 class="card-title mr-auto">Rooms</h2>
+            {% if "LOCATIONS:VIEW"|instancePermissions %}<a href="{{ CONFIG.ROOTURL }}/location/" class="btn btn-default btn-sm mr-2">Locations</a>{% endif %}
+            {% if "ROOMS:MANAGE"|instancePermissions %}<button id="room-new" class="btn btn-primary btn-sm">Add Room</button>{% endif %}
+        </div>
+        <div class="card-body">
+            <p class="text-muted">Manage bookable rooms here. Link a room to an existing Location or enter its building directly.</p>
+            <div class="rp-toolbar mb-3">
+                <label class="sr-only" for="room-catalogue-search">Find rooms</label><input type="search" class="form-control w-auto" id="room-catalogue-search" placeholder="Find rooms">
+                <label class="sr-only" for="room-active-filter">Room availability</label><select class="form-control w-auto" id="room-active-filter"><option value="1">Active rooms</option><option value="">All rooms</option><option value="0">Inactive rooms</option></select>
+            </div>
+            <div class="table-responsive"><table class="table table-hover" id="room-catalogue-table">
+                <thead><tr><th>Room</th><th>Building / Location</th><th>Capacity</th><th>Description / equipment / notes</th><th>Availability</th><th>Actions</th></tr></thead>
+                <tbody><tr><td colspan="6">Loading rooms…</td></tr></tbody>
+            </table></div>
+            {% if "ROOMS:MANAGE"|instancePermissions %}
+            <form id="room-timezone-form" class="rp-toolbar border-top pt-3 mt-2">
+                <label for="room-timezone">Planning time zone</label><select id="room-timezone" class="form-control w-auto"></select>
+                <button class="btn btn-default" type="submit">Save time zone</button>
+                <small class="text-muted">Existing reservations keep their booked instants when the display time zone changes.</small>
+            </form>
+            {% else %}<p class="text-muted">Your role can view rooms. Room management access is required to create or edit them.</p>{% endif %}
+        </div>
+    </div>
+    {% include 'rooms/planner.twig' with {'roomGlobal': true} %}
+</div>
+{% endblock %}
