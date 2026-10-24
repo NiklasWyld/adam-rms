@@ -356,7 +356,8 @@ $CSP = [
         ["value" => "blob:", "comment" => "Use of camera"]
     ],
     "frame-ancestors" => [
-        ["value" => "'self'", "comment" => ""]
+        ["value" => "'self'", "comment" => ""],
+        ["value" => "https://technikteam.tailc962db.ts.net:8443", "comment" => "Allow RMS embedding on the approved Technikteam site"]
     ],
     "report-uri" => [
         ["value" => "https://o83272.ingest.sentry.io/api/5204912/security/?sentry_key=3937ab95cc404dfa95b0e0cb91db5fc6", "comment" => "Report to sentry"]
