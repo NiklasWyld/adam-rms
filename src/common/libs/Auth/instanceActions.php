@@ -8,6 +8,36 @@
  */
 
 $instanceActions = [
+  'SHOPPING_LISTS:VIEW' => [
+    'Category' => 'Assets', 'Table' => 'Shopping Lists', 'Type' => 'View',
+    'Detail' => null, 'Combined Text Description' => 'Assets - Shopping Lists: View',
+    'Dependencies' => null, 'Comment' => null,
+    'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
+  'SHOPPING_LISTS:CREATE' => [
+    'Category' => 'Assets', 'Table' => 'Shopping Lists', 'Type' => 'Create',
+    'Detail' => null, 'Combined Text Description' => 'Assets - Shopping Lists: Create',
+    'Dependencies' => ['SHOPPING_LISTS:VIEW'], 'Comment' => null,
+    'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
+  'SHOPPING_LISTS:EDIT' => [
+    'Category' => 'Assets', 'Table' => 'Shopping Lists', 'Type' => 'Edit',
+    'Detail' => null, 'Combined Text Description' => 'Assets - Shopping Lists: Edit',
+    'Dependencies' => ['SHOPPING_LISTS:VIEW'], 'Comment' => null,
+    'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
+  'SHOPPING_LISTS:ARCHIVE' => [
+    'Category' => 'Assets', 'Table' => 'Shopping Lists', 'Type' => 'Archive',
+    'Detail' => null, 'Combined Text Description' => 'Assets - Shopping Lists: Archive',
+    'Dependencies' => ['SHOPPING_LISTS:VIEW'], 'Comment' => null,
+    'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
+  'SHOPPING_LISTS:DELETE' => [
+    'Category' => 'Assets', 'Table' => 'Shopping Lists', 'Type' => 'Delete',
+    'Detail' => null, 'Combined Text Description' => 'Assets - Shopping Lists: Delete',
+    'Dependencies' => ['SHOPPING_LISTS:VIEW'], 'Comment' => null,
+    'Supported Token Types' => ["web-session"], 'Caution' => null,
+  ],
   'ASSETS:ASSET_BARCODES:DELETE' => [
     'Category' => 'Assets',
     'Table' => 'Asset Barcodes',

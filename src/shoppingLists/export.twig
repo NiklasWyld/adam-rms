@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ shoppingList.shoppingLists_name }} - Shopping list PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js" integrity="sha512-7BzHjLXs8xehClrkJEtJtAwXxcbLast87k+XekuItHxrMr/v6POWkoKS2/8CU6DHdIjY+A4NwvsBQ8PxoRH7xQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/vfs_fonts.min.js" integrity="sha512-P0bOMePRS378NwmPDVPU455C/TuxDS+8QwJozdc7PGgN8kLqR4ems0U/3DeJkmiE31749vYWHvBOtR+37qDCZQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>body{font:16px/1.6 system-ui,sans-serif;color:#263238;background:#f4f6f9;margin:0;padding:40px 20px}main{max-width:700px;margin:40px auto;background:white;border:1px solid #dee2e6;border-radius:6px;padding:32px}button,a{font:inherit}button{cursor:pointer;padding:8px 16px;margin:0 8px 12px 0}h1{font-size:24px;overflow-wrap:anywhere}#pdf-error{color:#a32323}</style>
+</head>
+<body><main>
+    <h1>{{ shoppingList.shoppingLists_name }}</h1>
+    <p id="pdf-status" role="status">Preparing your PDF…</p>
+    <p id="pdf-error" role="alert"></p>
+    <button id="download-pdf" disabled>Download PDF</button><button id="open-pdf" disabled>Open PDF</button>
+    <p><a href="{{ CONFIG.ROOTURL }}/shoppingLists/?id={{ shoppingList.shoppingLists_id }}">Back to shopping list</a></p>
+</main>
+<script type="application/json" id="shopping-pdf-data">{{ {list: shoppingList, meta: shoppingMeta, business: USERDATA.instance.instances_name, logo: INSTANCELOGO, exported: "now"|date('d M Y, H:i T')}|json_encode(15)|raw }}</script>
+<script src="{{ CONFIG.ROOTURL }}/shoppingLists/pdf.js"></script>
+</body></html>

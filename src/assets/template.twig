@@ -609,6 +609,14 @@ ignoreURLs: ['searchUser.php'] // Ignore user searches
 											</a>
 										</li>
 									{% endif %}
+									{% if "SHOPPING_LISTS:VIEW"|instancePermissions %}
+										<li class="nav-item">
+											<a href="{{ CONFIG.ROOTURL }}/shoppingLists/" class="nav-link{{ shoppingActive ? ' active' : '' }}">
+												<i class="nav-icon fas fa-shopping-cart"></i>
+												<p>Shopping Lists</p>
+											</a>
+										</li>
+									{% endif %}
 									{% if "ASSETS:ASSET_BARCODES:VIEW"|instancePermissions %}
 										<li class="nav-item">
 											<a href="{{ CONFIG.ROOTURL}}/maintenance/barcode.php" class="nav-link">

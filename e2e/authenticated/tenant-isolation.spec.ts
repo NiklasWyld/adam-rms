@@ -50,6 +50,7 @@ type LinkCase = {
 type PageCase = { file: string; label?: string; url: (t: Tenant) => string; shows: (t: Tenant) => string; hides?: (t: Tenant) => string; fixme?: string };
 
 const readCases: ReadCase[] = [
+  { endpoint: "/api/shoppingLists/action.php", params: (t) => ({ id: t.shoppingListId }), method: "GET" },
   { endpoint: "/api/projects/list.php", params: () => ({}) },
   { endpoint: "/api/projects/data.php", params: (t) => ({ id: t.projectId }), shows: (t) => `${t.marker} project description` },
   { endpoint: "/api/projects/assets/statusList.php", params: (t) => ({ projects_id: t.projectId }), shows: (t) => `${t.marker} assignment comment` },
@@ -78,6 +79,8 @@ const readCases: ReadCase[] = [
 ];
 
 const pageCases: PageCase[] = [
+  { file: "shoppingLists/index.php", url: (t) => `/shoppingLists/?id=${t.shoppingListId}`, shows: (t) => `${t.marker} shopping list` },
+  { file: "shoppingLists/export.php", url: (t) => `/shoppingLists/export.php?id=${t.shoppingListId}`, shows: (t) => `${t.marker} shopping list` },
   { file: "project/index.php", url: (t) => `/project/?id=${t.projectId}`, shows: (t) => `${t.marker} project description` },
   { file: "project/noteExport.php", url: (t) => `/project/noteExport.php?id=${t.projectId}`, shows: (t) => `${t.marker} note` },
   { file: "project/projectInvoice.php", url: (t) => `/project/projectInvoice.php?id=${t.projectId}`, shows: (t) => `${t.marker}\\u0020project` }, // the PDF data is JS-escaped

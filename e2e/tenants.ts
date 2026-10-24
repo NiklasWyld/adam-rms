@@ -50,6 +50,8 @@ export type Tenant = {
   moduleStepId: number;
   certificationId: number;
   signupCodeId: number;
+  shoppingListId: number;
+  shoppingItemId: number;
 };
 type TenantUser = { id: number; email: string };
 export type Tenants = {

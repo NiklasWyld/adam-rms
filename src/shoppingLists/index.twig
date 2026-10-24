@@ -1,0 +1,175 @@
+{% extends "assets/template.twig" %}
+{% block htmlIncludes %}
+<style>
+.shopping-description { white-space: pre-wrap; overflow-wrap: anywhere; }
+.shopping-table td { vertical-align: middle; }
+.shopping-table .item-status { min-width:110px; }
+.shopping-table .shopping-item { min-width: 240px; max-width: 430px; white-space: normal; overflow-wrap: anywhere; }
+.shopping-table .shopping-actions { min-width: 168px; }
+.shopping-toolbar { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+.shopping-stat { font-size:1.45rem; font-weight:600; }
+.shopping-image { width:48px; height:48px; object-fit:contain; margin-right:.75rem; }
+.shopping-modal .form-group label { font-weight:600; }
+.shopping-muted { color:#6c757d; font-size:.875rem; }
+.shopping-reason { border-left:3px solid #dee2e6; padding-left:.6rem; margin-top:.5rem; }
+</style>
+{% endblock %}
+{% block content %}
+{% set canCreate = "SHOPPING_LISTS:CREATE"|instancePermissions %}
+{% set canEdit = "SHOPPING_LISTS:EDIT"|instancePermissions %}
+{% set canArchive = "SHOPPING_LISTS:ARCHIVE"|instancePermissions %}
+{% set canDelete = "SHOPPING_LISTS:DELETE"|instancePermissions %}
+<div class="container-fluid" id="shopping-module">
+    <div class="shopping-toolbar mb-3">
+        {% if shoppingList %}
+            <a href="{{ CONFIG.ROOTURL }}/shoppingLists/" class="btn btn-outline-secondary"><i class="fas fa-arrow-left" aria-hidden="true"></i> All lists</a>
+            <a href="{{ CONFIG.ROOTURL }}/shoppingLists/export.php?id={{ shoppingList.shoppingLists_id }}" target="_blank" rel="noopener" class="btn btn-primary"><i class="fas fa-file-pdf" aria-hidden="true"></i> Export PDF</a>
+            {% if canEdit %}<button class="btn btn-outline-secondary" data-list-edit="{{ shoppingList.shoppingLists_id }}">Edit list</button>{% endif %}
+            {% if canCreate %}<button class="btn btn-outline-secondary" data-action="duplicateList" data-id="{{ shoppingList.shoppingLists_id }}">Duplicate list</button>{% endif %}
+            {% if canArchive and shoppingList.shoppingLists_status != 'archived' %}<button class="btn btn-outline-secondary" data-action="archiveList" data-id="{{ shoppingList.shoppingLists_id }}">Archive list</button>{% endif %}
+            {% if canDelete %}<button class="btn btn-outline-danger" data-action="deleteList" data-id="{{ shoppingList.shoppingLists_id }}">Delete list</button>{% endif %}
+        {% elseif canCreate %}
+            <button class="btn btn-primary" id="new-list"><i class="fas fa-plus" aria-hidden="true"></i> New shopping list</button>
+        {% endif %}
+    </div>
+    <div id="shopping-error" class="alert alert-danger d-none" role="alert"></div>
+    {% if shoppingList %}
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start">
+                    <div><h2 class="h4">{{ shoppingList.shoppingLists_name }}</h2><p class="shopping-description">{{ shoppingList.shoppingLists_description }}</p></div>
+                    <span class="badge badge-{{ shoppingList.shoppingLists_status == 'active' ? 'primary' : 'secondary' }} p-2">{{ shoppingMeta.statuses[shoppingList.shoppingLists_status] }}</span>
+                </div>
+                <p class="shopping-muted mb-0">Created {{ shoppingList.shoppingLists_created|date('d M Y, H:i') }} by {{ shoppingList.creator }} · {{ shoppingList.shoppingLists_currency }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4"><div class="card"><div class="card-body"><div class="shopping-muted">Estimated total</div><div class="shopping-stat" id="estimated-total">{{ shoppingList.totalFormatted }}</div><small>{{ shoppingList.itemCount }} items</small></div></div></div>
+            <div class="col-sm-4"><div class="card"><div class="card-body"><div class="shopping-muted">Budget</div><div class="shopping-stat">{{ shoppingList.budgetFormatted ?? 'Not set' }}</div><small>Currency fixed when the list is created</small></div></div></div>
+            <div class="col-sm-4"><div class="card"><div class="card-body"><div class="shopping-muted">Remaining budget</div><div class="shopping-stat {{ shoppingList.overBudget ? 'text-danger' : '' }}" id="remaining-budget">{{ shoppingList.remainingFormatted ?? '—' }}</div><small>{{ shoppingList.overBudget ? 'Estimated cost exceeds budget' : 'Based on priced, non-rejected items' }}</small></div></div></div>
+        </div>
+        <p class="text-muted"><i class="fas fa-info-circle" aria-hidden="true"></i> Planned purchases are independent of your inventory. {{ shoppingList.missingPrices }} unpriced items; {{ shoppingList.excludedItems }} rejected items excluded from the estimate. Totals include all other statuses and do not change with filters.</p>
+        <div class="card">
+            <div class="card-header shopping-toolbar">
+                {% if canEdit %}<button class="btn btn-primary" id="new-item"><i class="fas fa-plus" aria-hidden="true"></i> Add item</button>{% endif %}
+                <label class="sr-only" for="item-search">Search items</label><input id="item-search" class="form-control w-auto" type="search" placeholder="Search items">
+                <label class="sr-only" for="priority-filter">Filter by necessity</label><select id="priority-filter" class="form-control w-auto"><option value="">All necessities</option>{% for key, name in shoppingMeta.priorities %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
+                <label class="sr-only" for="item-status-filter">Filter by item status</label><select id="item-status-filter" class="form-control w-auto"><option value="">All item statuses</option>{% for key, name in shoppingMeta.itemStatuses %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover shopping-table mb-0" id="items-table">
+                    <thead><tr><th scope="col">Item / justification</th><th scope="col">Quantity</th><th scope="col">Unit price</th><th scope="col">Total</th><th scope="col">Necessity</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+                    <tbody>
+                        {% for item in shoppingList.items %}
+                            <tr data-item="{{ item.shoppingListItems_id }}" data-priority="{{ item.shoppingListItems_priority }}" data-status="{{ item.shoppingListItems_status }}">
+                                <td class="shopping-item">
+                                    {% if item.shoppingListItems_image %}<img src="{{ item.shoppingListItems_image }}" class="shopping-image float-left" alt="" loading="lazy" referrerpolicy="no-referrer">{% endif %}
+                                    <strong>{{ item.shoppingListItems_name }}</strong>
+                                    <div class="shopping-muted">{{ item.manufacturer }} {{ item.shoppingListItems_model }}{% if item.category %} · {{ item.category }}{% endif %}</div>
+                                    {% if item.shoppingListItems_description %}<div class="shopping-description small">{{ item.shoppingListItems_description }}</div>{% endif %}
+                                    {% if item.shoppingListItems_reason %}<div class="shopping-description small shopping-reason"><strong>Justification:</strong> {{ item.shoppingListItems_reason }}</div>{% endif %}
+                                    {% if item.shoppingListItems_supplier or item.shoppingListItems_sku %}<div class="shopping-muted">{{ item.shoppingListItems_supplier }} {{ item.shoppingListItems_sku }}</div>{% endif %}
+                                    {% if item.shoppingListItems_url %}<a href="{{ item.shoppingListItems_url }}" target="_blank" rel="noopener noreferrer" class="small">Product link <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>{% endif %}
+                                    {% if item.shoppingListItems_notes %}<div class="shopping-description shopping-muted">{{ item.shoppingListItems_notes }}</div>{% endif %}
+                                </td>
+                                <td>{{ item.shoppingListItems_quantity|number_format(3, '.', '')|trim('0', 'right')|trim('.', 'right') }} {{ item.shoppingListItems_unit }}</td>
+                                <td class="text-nowrap">{{ item.unitPriceFormatted }}</td>
+                                <td class="text-nowrap">{{ item.totalFormatted }}{% if item.shoppingListItems_status == 'rejected' %}<div class="shopping-muted">Excluded</div>{% endif %}</td>
+                                <td><span class="badge badge-{{ item.shoppingListItems_priority in ['essential','high'] ? 'warning' : 'light' }}">{{ shoppingMeta.priorities[item.shoppingListItems_priority] }}</span></td>
+                                <td>{% if canEdit %}<select class="form-control form-control-sm item-status" data-item="{{ item.shoppingListItems_id }}" aria-label="Status for {{ item.shoppingListItems_name }}">{% for key, name in shoppingMeta.itemStatuses %}<option value="{{ key }}" {{ key == item.shoppingListItems_status ? 'selected' : '' }}>{{ name }}</option>{% endfor %}</select>{% else %}{{ shoppingMeta.itemStatuses[item.shoppingListItems_status] }}{% endif %}</td>
+                                <td class="shopping-actions">
+                                    {% if canEdit %}
+                                        <button class="btn btn-sm btn-outline-secondary mb-1" data-item-edit="{{ item.shoppingListItems_id }}">Edit</button>
+                                        <button class="btn btn-sm btn-outline-secondary mb-1" data-action="duplicateItem" data-item-id="{{ item.shoppingListItems_id }}">Duplicate</button>
+                                        <div class="mb-1"><button class="btn btn-sm btn-light" data-move="-1" data-item-id="{{ item.shoppingListItems_id }}" aria-label="Move up" {{ loop.first ? 'disabled' : '' }}><i class="fas fa-arrow-up" aria-hidden="true"></i></button> <button class="btn btn-sm btn-light" data-move="1" data-item-id="{{ item.shoppingListItems_id }}" aria-label="Move down" {{ loop.last ? 'disabled' : '' }}><i class="fas fa-arrow-down" aria-hidden="true"></i></button></div>
+                                    {% endif %}
+                                    {% if canDelete %}<button class="btn btn-sm btn-outline-danger" data-action="deleteItem" data-item-id="{{ item.shoppingListItems_id }}">Remove</button>{% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="7" class="text-center text-muted py-5">No items yet. Add your first planned purchase.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p id="no-matching-items" class="text-center text-muted p-3 d-none">No items match these filters.</p>
+            </div>
+        </div>
+        {% if shoppingList.shoppingLists_comment %}<div class="card"><div class="card-header">General comment</div><div class="card-body shopping-description">{{ shoppingList.shoppingLists_comment }}</div></div>{% endif %}
+    {% else %}
+        <div class="card">
+            <div class="card-header shopping-toolbar">
+                <label class="sr-only" for="list-search">Search shopping lists</label><input id="list-search" type="search" class="form-control w-auto" placeholder="Search shopping lists">
+                <label class="sr-only" for="list-status-filter">Filter by list status</label><select id="list-status-filter" class="form-control w-auto"><option value="">All list statuses</option>{% for key, name in shoppingMeta.statuses %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover shopping-table mb-0" id="lists-table">
+                    <thead><tr><th scope="col">Shopping list</th><th scope="col">Items</th><th scope="col">Estimated total</th><th scope="col">Status</th><th scope="col">Created</th><th scope="col">Actions</th></tr></thead>
+                    <tbody>{% for list in shoppingLists %}
+                        <tr data-list="{{ list.shoppingLists_id }}" data-status="{{ list.shoppingLists_status }}">
+                            <td class="shopping-item"><a href="{{ CONFIG.ROOTURL }}/shoppingLists/?id={{ list.shoppingLists_id }}"><strong>{{ list.shoppingLists_name }}</strong></a><div class="shopping-description shopping-muted">{{ list.shoppingLists_description }}</div></td>
+                            <td>{{ list.itemCount }}</td><td class="text-nowrap">{{ list.totalFormatted }}{% if list.missingPrices %}<div class="shopping-muted">{{ list.missingPrices }} unpriced</div>{% endif %}</td>
+                            <td><span class="badge badge-{{ list.shoppingLists_status == 'active' ? 'primary' : 'secondary' }}">{{ shoppingMeta.statuses[list.shoppingLists_status] }}</span></td>
+                            <td class="text-nowrap">{{ list.shoppingLists_created|date('d M Y') }}<div class="shopping-muted">{{ list.creator }}</div></td>
+                            <td class="shopping-actions">
+                                {% if canEdit %}<button class="btn btn-sm btn-outline-secondary mb-1" data-list-edit="{{ list.shoppingLists_id }}">Edit</button>{% endif %}
+                                {% if canCreate %}<button class="btn btn-sm btn-outline-secondary mb-1" data-action="duplicateList" data-id="{{ list.shoppingLists_id }}">Duplicate</button>{% endif %}
+                                {% if canArchive and list.shoppingLists_status != 'archived' %}<button class="btn btn-sm btn-outline-secondary mb-1" data-action="archiveList" data-id="{{ list.shoppingLists_id }}">Archive</button>{% endif %}
+                            </td>
+                        </tr>
+                    {% else %}<tr><td colspan="6" class="text-center text-muted py-5">No shopping lists yet. Create a list to plan your purchases.</td></tr>{% endfor %}</tbody>
+                </table>
+                <p id="no-matching-lists" class="text-center text-muted p-3 d-none">No shopping lists match these filters.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+<div class="modal fade shopping-modal" id="list-modal" tabindex="-1" role="dialog" aria-labelledby="list-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document"><form class="modal-content" id="list-form">
+        <div class="modal-header"><h2 class="modal-title h5" id="list-modal-title">Shopping list</h2><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+        <div class="modal-body">
+            <div class="alert alert-danger d-none form-error" role="alert"></div>
+            <input type="hidden" name="id">
+            <div class="form-group"><label for="list-name">Name</label><input class="form-control" id="list-name" name="name" maxlength="255" required></div>
+            <div class="form-group"><label for="list-description">Description</label><textarea class="form-control" id="list-description" name="description" rows="3" maxlength="12000"></textarea></div>
+            <div class="row"><div class="col-sm-6 form-group"><label for="list-budget">Budget (optional)</label><input class="form-control" id="list-budget" name="budget" inputmode="decimal" placeholder="e.g. 2500.00"><small class="form-text text-muted">Business currency; no thousands separators.</small></div>
+            <div class="col-sm-6 form-group"><label for="list-status">Status</label><select class="form-control" id="list-status" name="status">{% for key, name in shoppingMeta.statuses %}<option value="{{ key }}" {{ key == 'archived' ? 'disabled' : '' }}>{{ name }}</option>{% endfor %}</select></div></div>
+            <div class="form-group"><label for="list-comment">General comment</label><textarea class="form-control" id="list-comment" name="comment" rows="3" maxlength="12000"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save list</button></div>
+    </form></div>
+</div>
+<div class="modal fade shopping-modal" id="item-modal" tabindex="-1" role="dialog" aria-labelledby="item-modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document"><form class="modal-content" id="item-form">
+        <div class="modal-header"><h2 class="modal-title h5" id="item-modal-title">Shopping item</h2><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+        <div class="modal-body">
+            <div class="alert alert-danger d-none form-error" role="alert"></div>
+            <input type="hidden" name="itemId">
+            <div class="form-group"><label for="item-name">Item name</label><input class="form-control" id="item-name" name="name" maxlength="255" required></div>
+            <div class="row">
+                <div class="col-sm-6 form-group"><label for="item-manufacturer">Manufacturer</label><select class="form-control" id="item-manufacturer" name="manufacturerId"><option value="">Not specified</option>{% for manufacturer in shoppingMeta.manufacturers %}<option value="{{ manufacturer.manufacturers_id }}">{{ manufacturer.manufacturers_name }}</option>{% endfor %}</select></div>
+                <div class="col-sm-6 form-group"><label for="item-model">Model / product</label><input class="form-control" id="item-model" name="model" maxlength="255"></div>
+            </div>
+            <div class="form-group"><label for="item-category">Category</label><select class="form-control" id="item-category" name="categoryId"><option value="">Not specified</option>{% for category in shoppingMeta.categories %}<option value="{{ category.assetCategories_id }}">{{ category.assetCategoriesGroups_name }} / {{ category.assetCategories_name }}</option>{% endfor %}</select></div>
+            <div class="form-group"><label for="item-description">Description</label><textarea class="form-control" id="item-description" name="description" rows="2" maxlength="12000"></textarea></div>
+            <div class="row">
+                <div class="col-sm-4 form-group"><label for="item-quantity">Quantity</label><input class="form-control" id="item-quantity" name="quantity" inputmode="decimal" value="1" required><small class="form-text text-muted">Up to 3 decimal places</small></div>
+                <div class="col-sm-4 form-group"><label for="item-unit">Unit</label><input class="form-control" id="item-unit" name="unit" maxlength="40" placeholder="e.g. pcs, m"></div>
+                <div class="col-sm-4 form-group"><label for="item-price">Estimated unit price ({{ shoppingList.shoppingLists_currency }})</label><input class="form-control" id="item-price" name="unitPrice" inputmode="decimal"><small class="form-text text-muted">Leave blank if unknown; 0 means free.</small></div>
+            </div>
+            <p class="text-muted" id="item-price-preview" aria-live="polite"></p>
+            <div class="row"><div class="col-sm-6 form-group"><label for="item-supplier">Supplier / retailer</label><input class="form-control" id="item-supplier" name="supplier" maxlength="255"></div><div class="col-sm-6 form-group"><label for="item-sku">Article number</label><input class="form-control" id="item-sku" name="sku" maxlength="255"></div></div>
+            <div class="form-group"><label for="item-url">Product / shop URL</label><input type="url" class="form-control" id="item-url" name="url" maxlength="2048" placeholder="https://"></div>
+            <div class="form-group"><label for="item-image">Product image URL (optional)</label><input type="url" class="form-control" id="item-image" name="image" maxlength="2048" placeholder="https://"><small class="form-text text-muted">HTTPS image link</small></div>
+            <div class="row">
+                <div class="col-sm-6 form-group"><label for="item-priority">Necessity</label><select class="form-control" id="item-priority" name="priority" required><option value="">Choose necessity</option>{% for key, name in shoppingMeta.priorities %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select></div>
+                <div class="col-sm-6 form-group"><label for="item-status">Item status</label><select class="form-control" id="item-status" name="status">{% for key, name in shoppingMeta.itemStatuses %}<option value="{{ key }}">{{ name }}</option>{% endfor %}</select></div>
+            </div>
+            <div class="form-group"><label for="item-reason">Justification / necessity</label><textarea class="form-control" id="item-reason" name="reason" rows="3" maxlength="12000" placeholder="Why is this purchase needed?"></textarea></div>
+            <div class="form-group"><label for="item-notes">Notes</label><textarea class="form-control" id="item-notes" name="notes" rows="2" maxlength="12000"></textarea></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save item</button></div>
+    </form></div>
+</div>
+<script type="application/json" id="shopping-data">{{ {csrf: shoppingCsrf, root: CONFIG.ROOTURL, list: shoppingList, lists: shoppingLists}|json_encode(15)|raw }}</script>
+<script src="{{ CONFIG.ROOTURL }}/shoppingLists/shoppingLists.js"></script>
+{% endblock %}

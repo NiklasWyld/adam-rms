@@ -18,6 +18,11 @@ import { dbQuery, expect, test, type Tenant } from "../tenants";
 type Field = { table: string; idColumn: string; column: string; id: (a: Tenant) => number };
 const f = (table: string, idColumn: string, column: string, id: (a: Tenant) => number): Field => ({ table, idColumn, column, id });
 const FIELDS: Field[] = [
+  f("shoppingLists", "shoppingLists_id", "shoppingLists_name", (a) => a.shoppingListId),
+  f("shoppingLists", "shoppingLists_id", "shoppingLists_description", (a) => a.shoppingListId),
+  f("shoppingLists", "shoppingLists_id", "shoppingLists_comment", (a) => a.shoppingListId),
+  f("shoppingListItems", "shoppingListItems_id", "shoppingListItems_name", (a) => a.shoppingItemId),
+  f("shoppingListItems", "shoppingListItems_id", "shoppingListItems_reason", (a) => a.shoppingItemId),
   f("projects", "projects_id", "projects_name", (a) => a.projectId),
   f("projects", "projects_id", "projects_description", (a) => a.projectId),
   f("projects", "projects_id", "projects_name", (a) => a.subProjectId),

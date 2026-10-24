@@ -293,6 +293,17 @@ function tenant(string $letter): array {
         "instances_id" => $instance, "signupCodes_deleted" => 0, "signupCodes_valid" => 1, "signupCodes_notes" => "$marker signup code",
         "signupCodes_role" => "$marker role", "instancePositions_id" => $limitedPosition,
     ], $remembered['signupCodeId'] ?? null);
+
+    $t['shoppingListId'] = upsert("shoppingLists", "shoppingLists_id", ["instances_id" => $instance, "shoppingLists_name" => "$marker shopping list"], [
+        "users_userid" => $manager, "shoppingLists_description" => "$marker shopping description", "shoppingLists_comment" => "$marker procurement comment",
+        "shoppingLists_created" => "2024-01-01 00:00:00", "shoppingLists_updated" => "2024-01-01 00:00:00",
+        "shoppingLists_currency" => "GBP", "shoppingLists_status" => "draft", "shoppingLists_deleted" => 0, "shoppingLists_budget" => 100000,
+    ], $remembered['shoppingListId'] ?? null);
+    $t['shoppingItemId'] = upsert("shoppingListItems", "shoppingListItems_id", ["shoppingLists_id" => $t['shoppingListId'], "shoppingListItems_name" => "$marker shopping item"], [
+        "instances_id" => $instance, "manufacturers_id" => $t['manufacturerId'], "assetCategories_id" => $t['categoryId'],
+        "shoppingListItems_quantity" => "2.000", "shoppingListItems_unitPrice" => 1234, "shoppingListItems_priority" => "high",
+        "shoppingListItems_reason" => "$marker procurement justification", "shoppingListItems_status" => "planned", "shoppingListItems_deleted" => 0,
+    ], $remembered['shoppingItemId'] ?? null);
     return $t;
 }
 
