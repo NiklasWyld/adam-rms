@@ -126,9 +126,9 @@ async function result(response: APIResponse): Promise<Result> {
 export class Session {
   constructor(readonly request: APIRequestContext) {}
 
-  async api(endpoint: string, params: Params = {}, method: "POST" | "GET" = "POST") {
-    if (method === "GET") return result(await this.request.get(endpoint, { params: toForm(params) }));
-    return result(await this.request.post(endpoint, { form: toForm(params) }));
+  async api(endpoint: string, params: Params = {}, method: "POST" | "GET" = "POST", options: { maxRedirects?: number } = {}) {
+    if (method === "GET") return result(await this.request.get(endpoint, { params: toForm(params), ...options }));
+    return result(await this.request.post(endpoint, { form: toForm(params), ...options }));
   }
 
   /** A multipart POST, for endpoints that take a file upload */

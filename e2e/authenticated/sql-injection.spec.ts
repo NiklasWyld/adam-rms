@@ -24,6 +24,8 @@ const PAYLOAD = `1'"\`) OR (1=1`;
 const PAYLOAD_NAME = "e2e_probe` = 1, `e2e_probe";
 /** What MySQL says when a value has broken the statement it was pasted into */
 const SQL_ERROR = /You have an error in your SQL syntax|mysqli_sql_exception: Unknown column/;
+// Inspect RMS responses directly instead of following signed downloads to optional object storage.
+const NO_REDIRECTS = { maxRedirects: 0 };
 
 const apiDir = path.join(__dirname, "..", "..", "src", "api");
 /** Included by endpoints rather than requested */
@@ -104,14 +106,14 @@ test.describe("logged in as business A's full user", () => {
       const broken: string[] = [];
       for (const param of params) {
         for (const method of ["POST", "GET"] as const) {
-          const response = await session.api(`/api/${file}`, request(params, param, a), method);
+          const response = await session.api(`/api/${file}`, request(params, param, a), method, NO_REDIRECTS);
           if (SQL_ERROR.test(response.body)) broken.push(`${method} ${param}: ${response.body.match(/[^\n]*(SQL syntax|Unknown column)[^\n]*/)?.[0]}`);
         }
       }
       const valid = request(params, "", a);
       const named = await session.api(`/api/${file}`, {
         ...valid, [PAYLOAD_NAME]: 1, formData: [...(valid.formData as Params[]), { name: PAYLOAD_NAME, value: 1 }],
-      });
+      }, "POST", NO_REDIRECTS);
       if (SQL_ERROR.test(named.body)) broken.push(`a field named ${PAYLOAD_NAME}: ${named.body.match(/[^\n]*(SQL syntax|Unknown column)[^\n]*/)?.[0]}`);
       await context.dispose();
       expect(broken).toEqual([]);
@@ -127,7 +129,7 @@ test.describe("logged out", () => {
       const session = new Session(context);
       const broken: string[] = [];
       for (const param of params) {
-        const response = await session.api(`/api/${file}`, request(params, param, a));
+        const response = await session.api(`/api/${file}`, request(params, param, a), "POST", NO_REDIRECTS);
         if (SQL_ERROR.test(response.body)) broken.push(`${param}: ${response.body.match(/[^\n]*(SQL syntax|Unknown column)[^\n]*/)?.[0]}`);
       }
       await context.dispose();

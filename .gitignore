@@ -3,10 +3,11 @@
 *.swp
 
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.*.sample
 
 vendor/
 node_modules/
@@ -24,3 +25,17 @@ node_modules/
 /website/.cache-loader
 /website/api-docs
 npm-debug.log*
+
+# Local runtime data, test reports and exports
+*.log
+*.log.*
+*.pid
+/tmp/
+/output/
+/backups/
+/dumps/
+/coverage/
+/playwright-report/
+/test-results/
+/.cdn-cache/
+.phpunit.result.cache
