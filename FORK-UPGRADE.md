@@ -99,3 +99,19 @@ EXPECTED_ROOTURL="https://${CODESPACE_NAME}-8080.${GITHUB_CODESPACES_PORT_FORWAR
 ```
 
 Run that maintenance check from a Codespaces login shell after `npm ci --prefix e2e`. It first reproduced the localhost URL failure, then passed with the fix, including login, dashboard and reuse of the running server. Normal Codespace starts require no terminal command.
+
+## Final integration and publication verification - 24 October 2026
+
+The final integration targets only NiklasWyld/adam-rms main. The existing upstream update, fork-specific features, hosted Codespace recovery and shopping-list commits are retained. Origin was verified as the personal fork; upstream was not used as a push target. No force push, reset or branch deletion is used.
+
+Published scope includes the stable Codespaces SSH feature, loopback host binding for port 8080, login-shell startup environment recovery, the startup regression, shopping lists and their isolated schema/API/UI/PDF exports, and local-artifact ignore rules. The owner additionally explicitly approved allowing the entire RMS to be framed by https://technikteam.tailc962db.ts.net:8443. The frame-ancestors policy is restricted to self and that exact HTTPS origin; per-page calendar frame-src handling remains independent.
+
+Validation before publication:
+
+- Complete Playwright suite: **871 passed**, no skipped, failed or flaky tests. Two additional framing/CSP cases pass separately. This includes fork comments/calendar/manufacturers/project quick-create, all shopping scenarios, actual PDF downloads for 0/2/65 items, tenant and permission checks, and SQL/XSS sweeps.
+- The previous optional-S3 failure is resolved at the test boundary: SQL probes inspect the RMS response without following redirects; a new regression separately checks the signed file-download redirect. No production file-download behaviour or security assertion is weakened.
+- PHP/include/Twig/template static checks, Composer strict validation, shell/JavaScript syntax checks and git diff checks pass. Composer audit reports no known security advisories; the existing doctrine/annotations and php-http/message-factory abandonment notices remain compatibility debt.
+- Shopping migration rollback/reapply runs only on adamrms_e2e and preserves unrelated table counts. The development database has all 54 migrations applied.
+- The startup regression restarts the existing port-8080 server, verifies HTTPS root URLs and login/dashboard, and confirms idempotent startup. Fingerprints verify preservation of shopping records, assets, assignments, projects, roles and existing password data; no database dump is committed or generated.
+- Gitleaks **8.30.1**, downloaded from its official release and checked against its published SHA-256 checksum, scans both the complete intended source tree and the complete origin/main..HEAD commit range. Raw tree review identifies four uses of the already-public development password hash and the pre-existing public Sentry CSP reporting client key. Exact value-and-path exceptions cover only those reviewed values; no broad rule is disabled. The final reviewed tree and new-commit scans report no sensitive credentials. The [Sentry client-key documentation](https://docs.sentry.io/api/projects/list-a-projects-client-keys/) distinguishes public CSP/security reporting endpoints from secret DSNs and bearer API credentials. No real credential requiring rotation was identified.
+- Scanner reports, test reports, PDFs, screenshots, logs, dependency installations and temporary credentials remain outside the commit. No .env, private SSH key, browser profile, session/cookie file, database dump, vendor or node_modules directory is added.
