@@ -76,7 +76,26 @@ The final complete Playwright run passed **845 tests**, with no failed or skippe
 
 ## Remaining limits
 
-- Creating a hosted GitHub Codespace was attempted for the repair branch, but GitHub returned `403 Resource not accessible by integration`. No hosted Codespace was created. The container image, lifecycle and forwarded-address generation were tested locally through the Dev Containers CLI; GitHub's hosted port routing remains the final platform check when the repository owner opens a Codespace.
+- Creating a hosted GitHub Codespace was attempted for the repair branch, but GitHub returned `403 Resource not accessible by integration`. No hosted Codespace was created. The container image, lifecycle and forwarded-address generation were tested locally through the Dev Containers CLI; GitHub's hosted port routing was subsequently verified in the existing Codespace on 24 October 2026; see the recovery record below.
 - External calendar providers may require access/login and may restrict iframe embedding. The application validates and renders the configured URL; tests do not authenticate to a real Google account.
 - Real S3 uploads, outgoing mail, OAuth providers and live Stripe subscriptions need their respective configuration and were not exercised against external accounts. Optional sidecars are not required by the default workflow.
 - Composer still reports `doctrine/annotations` and `php-http/message-factory` as abandoned. They remain compatibility dependencies of the existing OpenAPI/email stack; the current locked versions have no reported vulnerability advisory. The unmodified `composer audit --locked` command therefore exits with status 2 for the two abandoned packages, not for security advisories. Replacing that stack is a separate change.
+
+## Existing Codespace recovery — 24 October 2026
+
+The existing Codespace `stunning-space-carnival-rxjrxxv7r4xcpgjr` was repaired in place through its configured SSH connection. No new Codespace was created.
+
+The hosted relay returned HTTP 502 / SSH forwarding "Connection refused" while the application's local login returned HTTP 200. Removing and recreating the forwarded port temporarily restored browser access, but the next stop/start reproduced the failure. The app service now publishes `127.0.0.1:8080:8080` on the Docker host as a stable relay target. The port remains private in Codespaces. The existing devcontainer was recreated with the build cache to activate this Compose change; the named database volume was retained.
+
+A separate start-script defect was reproduced with a non-login SSH command: Codespaces' injected name and forwarding domain were absent, causing localhost asset URLs and login redirects. The script now re-enters a login shell once to load the platform's normal environment, and refuses to start with missing forwarding metadata.
+
+Verification on this hosted Codespace covered MySQL 8.0.46, PHP 8.3, locked Composer dependencies, all 53 migrations, HTTP login/dashboard, Chromium rendering without JavaScript errors, and Safari login/dashboard through the actual private HTTPS URL. After the Compose repair, a complete stop/start automatically ran `postStartCommand` and restored SSH and port 8080 without manually recreating the forwarding entry. The original development user and database survived. A local test business named "Codespace Entwicklung" was added for dashboard testing.
+
+The focused HTTP end-to-end regression uses Playwright's request client and deliberately restarts the development server. It requires the seeded development account and an existing local business; it does not run the application's fixture-resetting test setup:
+
+```bash
+cd /workspace
+EXPECTED_ROOTURL="https://${CODESPACE_NAME}-8080.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}" node .devcontainer/tests/startup.cjs
+```
+
+Run that maintenance check from a Codespaces login shell after `npm ci --prefix e2e`. It first reproduced the localhost URL failure, then passed with the fix, including login, dashboard and reuse of the running server. Normal Codespace starts require no terminal command.

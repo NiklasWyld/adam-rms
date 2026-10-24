@@ -1,4 +1,7 @@
 {
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {}
+  },
   "name": "AdamRMS",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",

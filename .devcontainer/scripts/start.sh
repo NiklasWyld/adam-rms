@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+# Non-login SSH commands do not inherit Codespaces' injected environment.
+# A login shell restores it through the platform's normal profile scripts.
+if [[ ${CODESPACES:-false} == true && ( -z ${CODESPACE_NAME:-} || -z ${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-} ) ]]; then
+    if [[ ${ADAMRMS_LOGIN_ENV_LOADED:-false} == true ]]; then
+        echo "Codespaces forwarding metadata is missing; refusing to start with localhost URLs." >&2
+        exit 1
+    fi
+    export ADAMRMS_LOGIN_ENV_LOADED=true
+    exec bash -lc 'exec bash "$1"' bash "$PWD/.devcontainer/scripts/start.sh"
+fi
 php .devcontainer/scripts/database.php
 if [[ ! -f vendor/autoload.php ]]; then
     bash .devcontainer/scripts/install.sh

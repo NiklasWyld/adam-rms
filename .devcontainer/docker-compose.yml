@@ -7,6 +7,9 @@ services:
       - ..:/workspace:cached
     working_dir: /workspace
     command: sleep infinity
+    # Keep the Codespaces relay target available on the Docker host after resume.
+    ports:
+      - "127.0.0.1:8080:8080"
     depends_on:
       db:
         condition: service_healthy
