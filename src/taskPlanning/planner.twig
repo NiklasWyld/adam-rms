@@ -15,6 +15,7 @@
     </div>
     <div id="tp-tick-panel" class="tp-panel" hidden>
         <strong>TickTick</strong><span id="tp-tick-status"></span>
+        {% if "BUSINESS:BUSINESS_SETTINGS:VIEW"|instancePermissions %}<a href="{{ CONFIG.ROOTURL }}/instances/tickTick.php" class="btn btn-default btn-sm">TickTick Settings</a>{% endif %}
         <button id="tp-connect" class="btn btn-primary btn-sm" disabled>Connect TickTick</button>
         <button id="tp-disconnect" class="btn btn-default btn-sm" hidden>Disconnect</button>
         {% if not taskGlobal %}<label>Transfer <select id="tp-sync-scope" class="form-control form-control-sm"><option value="mine">Only assigned to me</option><option value="all">All project tasks</option></select></label><button id="tp-sync" class="btn btn-primary btn-sm" disabled>Sync to TickTick</button>{% endif %}

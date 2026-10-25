@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 // Contract test with real isolated MySQL persistence, entirely in-memory TickTick transport.
-if (getenv('DB_DATABASE') !== 'adamrms_e2e') throw new RuntimeException('Only the disposable adamrms_e2e database is allowed.');
+if (getenv('DB_DATABASE') !== 'adamrms_e2e' && !(getenv('GITHUB_ACTIONS') === 'true' && getenv('CI') === 'true' && getenv('DB_DATABASE') === 'db' && getenv('DB_HOSTNAME') === '127.0.0.1')) throw new RuntimeException('Only an isolated E2E database is allowed.');
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../src/common/libs/TaskPlanning.php';
 require __DIR__ . '/../../src/common/libs/TaskTickTick.php';
@@ -41,8 +41,23 @@ $transport=function($method,$url,$body)use(&$lists,&$remote,&$creates,&$updates,
 };
 $tick=new TaskTickTick($db,$service,$transport);$_SESSION=[];
 try{
+    $settings=new TaskTickSettings($db,$instance,$user);$meta=$settings->document("https://example.invalid");
+    $settings->save(["revision"=>(string)$meta["revision"],"client_id"=>"contract-client","redirect_uri"=>"https://example.invalid/taskPlanning/callback.php"],"contract-secret",false,fn()=>null);
     $url=$tick->authorise($project);parse_str(parse_url($url,PHP_URL_QUERY),$q);check($q['scope']==='tasks:read tasks:write','OAuth scopes');
+    $meta=$settings->document("https://example.invalid");
+    $settings->save(["revision"=>(string)$meta["revision"],"client_id"=>"contract-client","redirect_uri"=>"https://example.invalid/taskPlanning/callback.php"],"contract-secret-rotated",false,fn()=>null);
+    try{$tick->callback($q['state'],'contract-code');throw new RuntimeException('Stale app consent accepted');}catch(DomainException $e){check(str_contains($e->getMessage(),'app settings changed'),'App rotation rejects pending consent');}
+    $url=$tick->authorise($project);parse_str(parse_url($url,PHP_URL_QUERY),$q);
     check($tick->callback($q['state'],'contract-code')===$project,'OAuth callback');
+    $meta=$settings->document("https://example.invalid");
+    $settings->save(["revision"=>(string)$meta["revision"],"client_id"=>"contract-client","redirect_uri"=>"https://example.invalid/taskPlanning/callback.php"],"",false,fn()=>null);
+    check($tick->status($project)['connected'],'No-op app save retains personal connection');
+    $blocking=new PDO("mysql:host=".getenv('DB_HOSTNAME').";dbname=".getenv('DB_DATABASE'),getenv('DB_USERNAME'),getenv('DB_PASSWORD'));
+    $statement=$blocking->prepare('SELECT GET_LOCK(?,0)');$lock=TaskTickSettings::lockName($instance);$statement->execute([$lock]);check((int)$statement->fetchColumn()===1,'Fixture holds app lock');
+    try{
+        $meta=$settings->document("https://example.invalid");
+        try{$settings->save(["revision"=>(string)$meta["revision"],"client_id"=>"contract-client","redirect_uri"=>"https://example.invalid/taskPlanning/callback.php"],"",false,fn()=>null);throw new RuntimeException('Concurrent app mutation accepted');}catch(DomainException $e){check(str_contains($e->getMessage(),'currently'),'Config lock protects mutation');}
+    }finally{$statement=$blocking->prepare('SELECT RELEASE_LOCK(?)');$statement->execute([$lock]);}
     $db->where('instances_id',$instance);$db->where('users_userid',$user);$stored=$db->getValue('taskTickConnections','taskTickConnections_token');
     check(!str_contains($stored,'contract-token'),'Encrypted persistence');check($tick->status($project)['connected'],'Connected metadata');
     $url=$tick->authorise($project);parse_str(parse_url($url,PHP_URL_QUERY),$q);
@@ -83,5 +98,6 @@ try{
     $tick->disconnect();check(!$tick->status($project)['connected'],'Disconnect');
     echo "PASS TickTick contract: OAuth/state, encrypted persistence, timezone, checklist, update/complete/reopen, reconciliation, no duplicate retry, user isolation\n";
 }finally{
+    $meta=$settings->document("https://example.invalid");$settings->save(["revision"=>(string)$meta["revision"]],"",true,fn()=>null);
     $tick->disconnect();$db->where('projects_id',$project);$db->where('instances_id',$instance);$db->update('projects',['projects_deleted'=>1]);
 }

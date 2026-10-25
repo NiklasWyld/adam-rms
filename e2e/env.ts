@@ -18,6 +18,9 @@ export const APP_ENV: Record<string, string> = {
   DB_PORT: process.env.DB_PORT ?? "3306",
   DEV_MODE: "true",
   CONFIG_ROOTURL: BASE_URL,
+  // Isolate encryption material and never inherit live TickTick app credentials in tests.
+  TASK_PLANNING_TOKEN_KEY_FILE: process.env.E2E_TICKTICK_KEY_FILE ?? "/tmp/adamrms-e2e-secrets/task-planning.key",
+  TASK_PLANNING_TOKEN_KEY: "", TICKTICK_CLIENT_ID: "", TICKTICK_CLIENT_SECRET: "", TICKTICK_REDIRECT_URI: "",
 };
 
 /** Seeded by db/seeds/DefaultUserSeeder.php */

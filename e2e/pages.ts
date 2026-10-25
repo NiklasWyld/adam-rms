@@ -11,6 +11,7 @@ import type { Tenant } from "./tenants";
 export type PageCase = { url: (t: Tenant) => string; fixme?: string };
 
 export const businessPages: PageCase[] = [
+  { url: () => "/instances/tickTick.php" },
   { url: () => "/taskPlanning/" },
   { url: (t) => `/project/?id=${t.projectId}#task-planning-view` },
   { url: (t) => `/taskPlanning/export.php?projects_id=${t.projectId}` },

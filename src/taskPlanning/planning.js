@@ -379,7 +379,7 @@
         $id('tp-disconnect').hidden = !tick.connected || !permission;
         if ($id('tp-sync')) $id('tp-sync').disabled = !tick.connected || !permission || syncing;
         $id('tp-tick-status').textContent = !permission ? 'Your role has no TickTick sync permission.' : !tick.configured ?
-            'OAuth is not configured yet. Set the server-side TickTick app credentials, HTTPS callback and encryption key.' :
+            'TickTick is not configured yet. Open TickTick Settings in Business Settings, or ask a business administrator.' :
             tick.connected ? 'Connected'+(tick.expires ? ' · expires '+tick.expires+' UTC' : '')+(tick.project && tick.project.taskTickProjects_synced ? ' · last sync '+tick.project.taskTickProjects_synced+' UTC' : '') : 'Connect your personal TickTick account once.';
         if (tick.project && tick.project.taskTickProjects_error) $id('tp-tick-status').textContent += ' · '+tick.project.taskTickProjects_error;
     }

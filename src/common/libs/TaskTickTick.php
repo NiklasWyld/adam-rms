@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__ . '/TaskTickSettings.php';
 
 final class TaskTickTickHttpError extends RuntimeException
 {
@@ -10,33 +11,26 @@ final class TaskTickTickHttpError extends RuntimeException
 final class TaskTickTick
 {
     private $transport;
-    public function __construct(private $db, private TaskPlanning $tasks, ?callable $transport = null) { $this->transport = $transport; }
-    public static function configured(): bool
+    private TaskTickSettings $settings;
+    public function __construct(private $db, private TaskPlanning $tasks, ?callable $transport = null)
     {
-        return (bool)(getenv('TICKTICK_CLIENT_ID') && getenv('TICKTICK_CLIENT_SECRET') && self::redirect() &&
-            strlen(base64_decode(getenv('TASK_PLANNING_TOKEN_KEY') ?: '', true) ?: '') === 32);
+        $this->transport = $transport;
+        $this->settings = new TaskTickSettings($db, $tasks->instance, $tasks->user);
     }
-    private static function redirect(): string
+    public function configured(): bool { return $this->settings->configured(); }
+    private function app(): array
     {
-        $uri = getenv('TICKTICK_REDIRECT_URI') ?: '';
-        return filter_var($uri, FILTER_VALIDATE_URL) && parse_url($uri, PHP_URL_SCHEME) === 'https' && !parse_url($uri, PHP_URL_USER) ? $uri : '';
+        $app = $this->settings->credentials();
+        if (!$app || !TaskPlanningSecrets::ready()) throw new DomainException('Ask a business administrator to configure TickTick in Business Settings before connecting your account.');
+        return $app;
     }
     public static function seal(string $token): string
     {
-        $key = base64_decode(getenv('TASK_PLANNING_TOKEN_KEY') ?: '', true);
-        if (!is_string($key) || strlen($key) !== 32) throw new DomainException('TickTick token encryption is not configured.');
-        $iv = random_bytes(12); $tag = '';
-        $encrypted = openssl_encrypt($token, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag, 'AdamRMS Task Planning');
-        if ($encrypted === false) throw new RuntimeException('Token encryption failed.');
-        return base64_encode($iv . $tag . $encrypted);
+        return TaskPlanningSecrets::encrypt($token, 'AdamRMS Task Planning');
     }
     private static function unseal(string $stored): string
     {
-        $key = base64_decode(getenv('TASK_PLANNING_TOKEN_KEY') ?: '', true); $raw = base64_decode($stored, true);
-        if (!is_string($key) || strlen($key) !== 32 || !is_string($raw) || strlen($raw) < 29) throw new DomainException('Reconnect TickTick: the encryption key or stored token is unavailable.');
-        $token = openssl_decrypt(substr($raw, 28), 'aes-256-gcm', $key, OPENSSL_RAW_DATA, substr($raw, 0, 12), substr($raw, 12, 16), 'AdamRMS Task Planning');
-        if ($token === false) throw new DomainException('Reconnect TickTick: the token could not be decrypted.');
-        return $token;
+        return TaskPlanningSecrets::decrypt($stored, 'AdamRMS Task Planning');
     }
     private function own(string $table): void { $this->tasks->scope($table, false); $this->db->where('users_userid', $this->tasks->user); }
     public function status(?int $project): array
@@ -48,31 +42,38 @@ final class TaskTickTick
         $maps = array_values(array_filter($maps, fn($m) => in_array((int)$m['planningTasks_id'], $visible, true)));
         $p = null;
         if ($project) { $this->own('taskTickProjects'); $this->db->where('projects_id', $project); $p = $this->db->getOne('taskTickProjects', ['taskTickProjects_synced', 'taskTickProjects_error']); }
-        return ['configured' => self::configured(), 'connected' => !empty($c['taskTickConnections_token']),
+        return ['configured' => $this->configured(), 'connected' => !empty($c['taskTickConnections_token']),
             'expires' => $c['taskTickConnections_expires'] ?? null, 'tasks' => $maps, 'project' => $p];
     }
     public function authorise(?int $project): string
     {
-        if (!self::configured()) throw new DomainException('Ask an administrator to configure the TickTick OAuth app and token encryption key.');
+        $app = $this->app();
         $state = bin2hex(random_bytes(32));
         $_SESSION['taskTickOAuth'] = ['hash' => hash('sha256', $state), 'until' => time() + 600,
-            'instance' => $this->tasks->instance, 'user' => $this->tasks->user, 'project' => $project];
-        return 'https://ticktick.com/oauth/authorize?' . http_build_query(['client_id' => getenv('TICKTICK_CLIENT_ID'), 'scope' => 'tasks:read tasks:write', 'state' => $state, 'redirect_uri' => self::redirect(), 'response_type' => 'code']);
+            'instance' => $this->tasks->instance, 'user' => $this->tasks->user, 'project' => $project,
+            'app' => TaskTickSettings::fingerprint($app)];
+        return 'https://ticktick.com/oauth/authorize?' . http_build_query(['client_id' => $app['clientId'], 'scope' => 'tasks:read tasks:write', 'state' => $state, 'redirect_uri' => $app['redirect'], 'response_type' => 'code']);
     }
     public function callback(string $state, string $code): ?int
     {
         $o = $_SESSION['taskTickOAuth'] ?? []; unset($_SESSION['taskTickOAuth']);
-        if (!self::configured() || !isset($o['hash']) || !hash_equals($o['hash'], hash('sha256', $state)) || $o['until'] < time() ||
-            $o['instance'] !== $this->tasks->instance || $o['user'] !== $this->tasks->user) throw new DomainException('The TickTick connection request expired or belongs to a different session/business. Please connect again.');
-        if (!$code || strlen($code) > 2000) throw new InvalidArgumentException('TickTick did not return an authorisation code.');
-        $response = $this->http('POST', 'https://ticktick.com/oauth/token', ['code' => $code, 'grant_type' => 'authorization_code', 'scope' => 'tasks:read tasks:write', 'redirect_uri' => self::redirect()], null, true);
-        $token = $response['access_token'] ?? null;
-        if (!is_string($token) || !$token) throw new DomainException('TickTick returned no access token. Please connect again.');
-        $row = ['instances_id' => $this->tasks->instance, 'users_userid' => $this->tasks->user, 'taskTickConnections_token' => self::seal($token),
-            'taskTickConnections_expires' => isset($response['expires_in']) && is_numeric($response['expires_in']) ? gmdate('Y-m-d H:i:s', time() + (int)$response['expires_in']) : null];
-        $this->db->onDuplicate(['taskTickConnections_token', 'taskTickConnections_expires']);
-        $this->must($this->db->insert('taskTickConnections', $row));
-        return $o['project'];
+        $lock = TaskTickSettings::lockName($this->tasks->instance);
+        if ((int)$this->db->rawQueryValue('SELECT GET_LOCK(?, 0) LIMIT 1', [$lock]) !== 1) throw new DomainException('TickTick settings are busy. Connect again when the current operation finishes.');
+        try {
+            $app = $this->app();
+            if (!isset($o['hash'], $o['app']) || !hash_equals($o['hash'], hash('sha256', $state)) || $o['until'] < time() ||
+                $o['instance'] !== $this->tasks->instance || $o['user'] !== $this->tasks->user ||
+                !hash_equals($o['app'], TaskTickSettings::fingerprint($app))) throw new DomainException('The TickTick connection request expired, its app settings changed, or it belongs to another session/business. Connect again.');
+            if (!$code || strlen($code) > 2000) throw new InvalidArgumentException('TickTick did not return an authorisation code.');
+            $response = $this->http('POST', 'https://ticktick.com/oauth/token', ['code' => $code, 'grant_type' => 'authorization_code', 'scope' => 'tasks:read tasks:write', 'redirect_uri' => $app['redirect']], null, true);
+            $token = $response['access_token'] ?? null;
+            if (!is_string($token) || !$token || strlen($token) > 16000 || preg_match('/[\r\n\x00]/', $token)) throw new DomainException('TickTick returned no valid access token. Connect again.');
+            $row = ['instances_id' => $this->tasks->instance, 'users_userid' => $this->tasks->user, 'taskTickConnections_token' => self::seal($token),
+                'taskTickConnections_expires' => isset($response['expires_in']) && is_numeric($response['expires_in']) ? gmdate('Y-m-d H:i:s', time() + (int)$response['expires_in']) : null];
+            $this->db->onDuplicate(['taskTickConnections_token', 'taskTickConnections_expires']);
+            $this->must($this->db->insert('taskTickConnections', $row));
+            return $o['project'];
+        } finally { $this->db->rawQueryValue('SELECT RELEASE_LOCK(?) LIMIT 1', [$lock]); }
     }
     private function token(): string
     {
@@ -98,7 +99,7 @@ final class TaskTickTick
         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_CUSTOMREQUEST => $method, CURLOPT_HTTPHEADER => $headers,
             CURLOPT_CONNECTTIMEOUT => 8, CURLOPT_TIMEOUT => 25, CURLOPT_FOLLOWLOCATION => false, CURLOPT_PROTOCOLS => CURLPROTO_HTTPS]);
         if ($body !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, $oauth ? http_build_query($body) : json_encode($body, JSON_THROW_ON_ERROR));
-        if ($oauth) curl_setopt($ch, CURLOPT_USERPWD, getenv('TICKTICK_CLIENT_ID') . ':' . getenv('TICKTICK_CLIENT_SECRET'));
+        if ($oauth) { $app = $this->app(); curl_setopt($ch, CURLOPT_USERPWD, $app['clientId'] . ':' . $app['secret']); }
         $raw = curl_exec($ch); $status = curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
         if ($raw === false) throw new RuntimeException('TickTick could not be reached. An uncertain create will be reconciled before any retry.');
         if ($status === 401 || $status === 403) throw new TaskTickTickHttpError($status, 'TickTick access was denied. Reconnect the same account and check list permissions.');
@@ -140,10 +141,15 @@ final class TaskTickTick
     }
     public function sync(int $project, bool $mine): array
     {
-        $p = $this->tasks->project($project, true); $token = $this->token();
-        // Cross-session lock. Never hold a SQL transaction over an external HTTP request.
+        $p = $this->tasks->project($project, true);
+        // Keep app rotation atomic with sync/callback, without holding a SQL transaction over HTTP.
+        $configLock = TaskTickSettings::lockName($this->tasks->instance);
+        if ((int)$this->db->rawQueryValue('SELECT GET_LOCK(?, 0) LIMIT 1', [$configLock]) !== 1) throw new DomainException('TickTick settings or a sync are busy. Try again when the current operation finishes.');
         $lock = 'tasktick:' . $this->tasks->instance . ':' . $this->tasks->user;
-        if ((int)$this->db->rawQueryValue('SELECT GET_LOCK(?, 0)', [$lock]) !== 1) throw new DomainException('A TickTick sync is already running. Try again when it finishes.');
+        try {
+            $this->app(); $token = $this->token();
+            if ((int)$this->db->rawQueryValue('SELECT GET_LOCK(?, 0) LIMIT 1', [$lock]) !== 1) throw new DomainException('A TickTick sync is already running. Try again when it finishes.');
+        } catch (Throwable $e) { $this->db->rawQueryValue('SELECT RELEASE_LOCK(?) LIMIT 1', [$configLock]); throw $e; }
         $pm = null; $currentId = null; $done = 0; $skipped = 0; $creating = null;
         try {
             $this->own('taskTickProjects'); $this->db->where('projects_id', $project); $pm = $this->db->getOne('taskTickProjects');
@@ -248,6 +254,6 @@ final class TaskTickTick
             if ($currentId) $this->save('taskTickTasks', $currentId, ['taskTickTasks_error' => $message]);
             if ($pm) $this->save('taskTickProjects', (int)$pm['taskTickProjects_id'], ['taskTickProjects_error' => $message]);
             throw new DomainException($done . ' tasks synced. ' . $message);
-        } finally { $this->db->rawQueryValue('SELECT RELEASE_LOCK(?)', [$lock]); }
+        } finally { $this->db->rawQueryValue('SELECT RELEASE_LOCK(?) LIMIT 1', [$lock]); $this->db->rawQueryValue('SELECT RELEASE_LOCK(?) LIMIT 1', [$configLock]); }
     }
 }

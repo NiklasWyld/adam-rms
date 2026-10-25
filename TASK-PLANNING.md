@@ -21,30 +21,42 @@ Inserted tasks are independent snapshots. Resource limits: 500 titles per paste,
 
 ## TickTick configuration
 
-Verified against the [official Open API documentation](https://developer.ticktick.com/docs/openapi.md)
-on 25 October 2026. Only official HTTPS OAuth/Open API endpoints are used.
+Open **Task Planning → TickTick → TickTick Settings**, or **Business Settings → TickTick**.
+Business Settings: View is required to view the page; Business Settings: Edit is required to change it.
+No Codespaces secrets or shell commands are needed for the app configuration in the existing Codespace.
 
-Register an app in the [TickTick developer centre](https://developer.ticktick.com/manage).
-Set these environment variables on the PHP web process (never commit actual values):
+Register an app in the [TickTick developer centre](https://developer.ticktick.com/manage), enter its
+Client ID and Client Secret in RMS, and register the displayed HTTPS callback URL in TickTick.
+The suggested callback uses the configured public RMS origin plus /taskPlanning/callback.php.
+Save, then return to Task Planning and connect the personal TickTick account. App settings belong
+to the active business; each user's OAuth connection remains personal.
 
-- TICKTICK_CLIENT_ID
-- TICKTICK_CLIENT_SECRET
-- TICKTICK_REDIRECT_URI — the exact registered HTTPS URL, e.g. your RMS origin followed by
-  /taskPlanning/callback.php
-- TASK_PLANNING_TOKEN_KEY — a stable base64-encoded random 32-byte key, generated once with
-  php -r 'echo base64_encode(random_bytes(32)), PHP_EOL;'
+Secrets use AES-256-GCM authenticated encryption. The UI/API returns only whether a secret exists;
+the stored secret is never displayed. Leave the field blank to retain it. Secret-bearing requests
+are excluded from API analytics payloads and Sentry request bodies; audit entries omit credentials.
+Changing the effective app credentials invalidates personal tokens in this business while preserving
+all external task/project mappings. Saving unchanged credentials retains connections.
+Removing the app explicitly disables business sync instead of falling back to environment credentials.
+Pending OAuth consent is bound to the app settings; stale consent cannot restore old credentials.
+Configuration changes, callbacks and sync share a per-business database lock.
 
-Keep the key in the deployment secret store and back it up separately from the database.
-The web process must inherit these variables; restart only that process after changing its environment.
-Changing/losing the key requires reconnecting. Never expose secrets through Twig, browser storage or logs.
+The server automatically creates a private encryption key outside the checkout and web directory.
+In this Codespace it is /workspaces/.adamrms-secrets/task-planning.key, on the persistent /workspaces
+mount, with a 0700 directory and a 0600 key file. No key material is committed or sent to the browser.
+**Back up this file separately from the database.** Losing it makes existing encrypted credentials
+unreadable. RMS refuses to silently generate a replacement while encrypted data exists.
 
-Open TickTick in the planner, connect once via OAuth (tasks:read tasks:write), then
-**Sync to TickTick**. Choose all project tasks or only tasks assigned to you. Each user/business has
-its own encrypted connection and mappings. RMS projects become marked TickTick lists.
-Disconnect removes the locally stored token; mappings and existing external tasks remain.
-Revoke the authorisation in TickTick settings as well if required. Reconnect the same account;
-missing external lists/tasks fail visibly and are never silently recreated. Expired tokens require
-reauthorisation; automatic refresh is not assumed by the documented authorization_code flow.
+Other deployments use /var/lib/adamrms/secrets/task-planning.key by default. Mount a persistent private
+directory writable by the PHP runtime user, or set TASK_PLANNING_TOKEN_KEY_FILE to an absolute
+private path outside the repository. An existing TASK_PLANNING_TOKEN_KEY (base64, 32 bytes) still
+takes precedence; do not change it without migrating/reconnecting encrypted credentials.
+Legacy TICKTICK_CLIENT_ID / TICKTICK_CLIENT_SECRET / TICKTICK_REDIRECT_URI remain a fallback
+only until this business saves or explicitly removes its app configuration.
+
+Official API details were checked against the [Open API documentation](https://developer.ticktick.com/docs/openapi.md).
+Scopes remain tasks:read tasks:write. Expired OAuth tokens require reconnection; automatic refresh
+is not assumed. Disconnecting a personal account removes its local token; revoke the app in TickTick
+settings as well if required. Live OAuth consent still needs actual app credentials and user consent.
 
 Mapping:
 
@@ -100,3 +112,10 @@ Migration rollback/reapply on adamrms_e2e preserved every unrelated table and th
 Actual filtered/all/empty/multipage PDF downloads were verified and rendered for visual review.
 The normal port-8080 My Tasks page, project tab and task API were checked with the development login.
 Live TickTick OAuth/API verification remains pending app credentials.
+
+TickTick settings follow-up: 23 targeted static, task-planning and app-settings tests passed
+across focused runs, including masked browser editing, API/log redaction, business permissions,
+key loss/permissions, authenticated encryption, pending OAuth invalidation and real SQL locks.
+The settings migration was rolled back/reapplied only on adamrms_e2e; unrelated records and
+the normal database were fingerprinted and preserved. Normal port-8080 settings/API and
+automatically provisioned persistent encryption storage were verified without live credentials.
