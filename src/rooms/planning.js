@@ -276,13 +276,50 @@
             try {accept(await api('saveBooking',bookingFields()));window.jQuery('#room-booking-modal').modal('hide');status('Reservation saved. Overlaps have been checked again.');}
             catch(e){showError('room-booking-error',e.message);}finally{button.disabled=false;}
         });
-        if($id('room-master-form'))$id('room-master-form').addEventListener('submit',async event=>{
-            event.preventDefault();const button=$id('master-save');if(button.disabled)return;button.disabled=true;showError('room-master-error','');
-            const fields={id:master?.rooms_id || '',revision:master?.rooms_revision || ''};
-            ['name','number','building','capacity','description','equipment','notes','active'].forEach(k=>fields[k]=$id('master-'+k).value);fields.locationId=$id('master-location').value;
-            try{accept(await api('saveRoom',fields));window.jQuery('#room-master-modal').modal('hide');status('Room saved.');}
-            catch(e){showError('room-master-error',e.message);}finally{button.disabled=false;}
-        });
+        if ($id('room-master-form')) {
+        $id('room-master-form').addEventListener('submit', async event => {
+                event.preventDefault();
+
+                const deleting = event.submitter?.id === 'master-delete';
+                const saveButton = $id('master-save');
+                const deleteButton = $id('master-delete');
+
+                if (saveButton.disabled) return;
+
+                saveButton.disabled = true;
+                if (deleteButton) deleteButton.disabled = true;
+                showError('room-master-error', '');
+
+                const fields = {
+                    id: master?.rooms_id || '',
+                    revision: master?.rooms_revision || ''
+                };
+
+                try {
+                    if (deleting) {
+                        if (!fields.id) throw new Error('No room selected.');
+                    } else {
+                        [
+                            'name', 'number', 'building', 'capacity',
+                            'description', 'equipment', 'notes', 'active'
+                        ].forEach(k => {
+                            fields[k] = $id('master-' + k).value;
+                        });
+
+                        fields.locationId = $id('master-location').value;
+                    }
+
+                    accept(await api(deleting ? 'deleteRoom' : 'saveRoom', fields));
+                    window.jQuery('#room-master-modal').modal('hide');
+                    status(deleting ? 'Room deleted.' : 'Room saved.');
+                } catch (e) {
+                    showError('room-master-error', e.message);
+                } finally {
+                    saveButton.disabled = false;
+                    if (deleteButton) deleteButton.disabled = false;
+                }
+            });
+        }
         if($id('room-new'))$id('room-new').addEventListener('click',()=>{if(data)openRoom();});
         ['room-catalogue-search','room-active-filter'].forEach(id=>{if($id(id))$id(id).addEventListener('input',()=>{if(data)renderCatalogue();});});
         if($id('room-timezone-form'))$id('room-timezone-form').addEventListener('submit',async event=>{

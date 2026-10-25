@@ -211,6 +211,13 @@ final class RoomPlanning
                 if (!in_array($zone, DateTimeZone::listIdentifiers(), true)) throw new InvalidArgumentException('Choose a valid time zone.');
                 $this->db->where('instances_id', $this->instance);
                 $ok = $this->db->update('instances', ['instances_config_roomPlanningTimezone' => $zone]); $id = $this->instance;
+            } elseif ($action === 'deleteRoom') {
+                $id = self::id($data['id'] ?? null);
+                $old = $this->room($id, true); $this->revision($data, $old, 'rooms_revision');
+                // Keep reservations and their room reference intact for historical records.
+                $this->scope('rooms'); $this->db->where('rooms_id', $id);
+                $ok = $this->db->update('rooms', ['rooms_deleted' => 1, 'rooms_active' => 0,
+                    'rooms_updated' => $now, 'rooms_updatedBy' => $this->user, 'rooms_revision' => (int)$old['rooms_revision'] + 1]);
             } elseif ($action === 'saveRoom') {
                 $id = empty($data['id']) ? 0 : self::id($data['id']);
                 if ($id) { $old = $this->room($id, true); $this->revision($data, $old, 'rooms_revision'); }

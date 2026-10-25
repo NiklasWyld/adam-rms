@@ -283,3 +283,33 @@ test("timeline keeps business-local dates across browser zones and 23/25-hour DS
     expect(dialogs).toEqual([]);
   }finally{await context.close();}
 });
+
+
+test("room deletion checks permissions, tenant, CSRF and revision and preserves reservation records",async({asA,asLimitedA,tenants,playwright})=>{
+  const r=await room(asA),b=await reserve(asA,tenants.a.projectId,r.rooms_id);
+  const current=await read(asA),fields={action:"deleteRoom",id:r.rooms_id,revision:r.rooms_revision,csrf:current.csrf};
+  const before=dbQuery("SELECT * FROM roomReservations WHERE roomReservations_id=?",[b.roomReservations_id]);
+  expect((await asA.api(endpoint,{...fields,revision:0})).json.error.code).toBe("CONFLICT");
+  expect((await asA.api(endpoint,{...fields,csrf:"invalid"})).json.error.code).toBe("CSRF-ERROR");
+  expect(succeeded(await asA.api(endpoint,fields,"GET"))).toBe(false);
+  const otherRequest=await playwright.request.newContext({baseURL:BASE_URL});
+  try {
+    const asB=await newSession(otherRequest,tenants.b.users.full.email,tenants.password),foreign=await room(asB);
+    expect((await asA.api(endpoint,{...fields,id:foreign.rooms_id})).json.error.code).toBe("NOT-FOUND");
+    expect(dbQuery<any>("SELECT rooms_deleted FROM rooms WHERE rooms_id=?",[foreign.rooms_id])[0].rooms_deleted).toBe(0);
+  }finally{await otherRequest.dispose();}
+  const role=tenants.a.positions.limited,original=dbQuery<any>("SELECT instancePositions_actions FROM instancePositions WHERE instancePositions_id=?",[role])[0].instancePositions_actions;
+  try {
+    dbQuery("UPDATE instancePositions SET instancePositions_actions='ROOMS:VIEW' WHERE instancePositions_id=?",[role]);
+    const limited=await read(asLimitedA);
+    expect((await asLimitedA.api(endpoint,{...fields,csrf:limited.csrf})).json.error.code).toBe("AUTH-ERROR");
+  }finally{dbQuery("UPDATE instancePositions SET instancePositions_actions=? WHERE instancePositions_id=?",[original,role]);}
+  const deleted=await write(asA,"deleteRoom",undefined,{id:r.rooms_id,revision:r.rooms_revision});
+  expect(deleted.data.rooms.some((x:any)=>x.rooms_id===r.rooms_id)).toBe(false);
+  const project=await read(asA,tenants.a.projectId);
+  expect(project.data.rooms.some((x:any)=>x.rooms_id===r.rooms_id)).toBe(false);
+  expect(dbQuery<any>("SELECT rooms_deleted,rooms_active,rooms_revision,rooms_updatedBy FROM rooms WHERE rooms_id=?",[r.rooms_id])[0]).toMatchObject({rooms_deleted:1,rooms_active:0,rooms_revision:2,rooms_updatedBy:tenants.a.users.full.id});
+  expect(dbQuery("SELECT * FROM roomReservations WHERE roomReservations_id=?",[b.roomReservations_id])).toEqual(before);
+  expect(succeeded(await asA.api(endpoint,{action:"saveBooking",projects_id:tenants.a.projectId,csrf:project.csrf,roomId:r.rooms_id,start:"2027-07-15T08:00",end:"2027-07-15T10:00",purpose:"Deleted room",status:"planned"}))).toBe(false);
+  expect((await asA.api(endpoint,fields)).json.error.code).toBe("NOT-FOUND");
+});

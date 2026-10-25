@@ -24,13 +24,13 @@ try {
     if ($action !== 'data') {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') finish(false, ['code' => 'METHOD-ERROR', 'message' => 'Use POST to change room planning.']);
         if (!is_string($input['csrf'] ?? null) || !hash_equals($_SESSION['roomPlanningCsrf'], $input['csrf'])) finish(false, ['code' => 'CSRF-ERROR', 'message' => 'Your session changed. Reload the page before saving.']);
-        if (!in_array($action, ['saveRoom', 'timezone', 'saveBooking', 'setStatus', 'deleteBooking', 'check'], true)) throw new InvalidArgumentException('Unknown room planning action.');
-        if (in_array($action, ['saveRoom', 'timezone'], true)) {
+        if (!in_array($action, ['saveRoom', 'deleteRoom', 'timezone', 'saveBooking', 'setStatus', 'deleteBooking', 'check'], true)) throw new InvalidArgumentException('Unknown room planning action.');
+        if (in_array($action, ['saveRoom', 'deleteRoom', 'timezone'], true)) {
             if (!$manage) finish(false, ['code' => 'AUTH-ERROR', 'message' => 'No permission to manage rooms.']);
         } elseif (!$viewProjects || !$edit || $project === null) finish(false, ['code' => 'AUTH-ERROR', 'message' => 'No permission to edit project room planning.']);
         if ($action === 'check') finish(true, null, ['conflicts' => $service->check($project, $input)]);
         $id = $service->mutate($action, $input, function (int $id) use ($action, $project, $bCMS, $AUTH) {
-            $table = $action === 'saveRoom' ? 'rooms' : ($action === 'timezone' ? 'instances' : 'roomReservations');
+            $table = in_array($action, ['saveRoom', 'deleteRoom'], true) ? 'rooms' : ($action === 'timezone' ? 'instances' : 'roomReservations');
             $bCMS->auditLog(strtoupper($action), $table, null, $AUTH->data['users_userid'], null, $project, $id);
         });
         // Reload the timezone and current conflicts after committing, including concurrent reservations.
