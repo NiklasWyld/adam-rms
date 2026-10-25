@@ -19,7 +19,8 @@ use Aws\Exception\AwsException;
 use Twig\Extra\String\StringExtension;
 
 //TWIG
-$TWIGLOADER = new \Twig\Loader\FilesystemLoader([__DIR__ . '/../']);
+// Keep template cache keys stable when directory index pages change the working directory.
+$TWIGLOADER = new \Twig\Loader\FilesystemLoader([__DIR__ . '/../'], __DIR__ . '/../');
 if (getenv('DEV_MODE') == "true") {
     $TWIG = new \Twig\Environment($TWIGLOADER, array(
         'debug' => true,
