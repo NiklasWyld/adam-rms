@@ -8,6 +8,22 @@
  */
 
 $instanceActions = [
+  'PROJECTS:TASK_PLANNING:EDIT' => [
+    'Category' => 'Projects', 'Table' => 'Task Planning', 'Type' => 'Edit', 'Detail' => null,
+    'Combined Text Description' => 'Projects - Task Planning: Create, edit and complete tasks', 'Dependencies' => ['PROJECTS:VIEW'],
+    'Comment' => null, 'Supported Token Types' => ['web-session'], 'Caution' => null,
+  ],
+  'PROJECTS:TASK_PLANNING:TEMPLATES' => [
+    'Category' => 'Projects', 'Table' => 'Task Planning', 'Type' => 'Templates', 'Detail' => null,
+    'Combined Text Description' => 'Projects - Task Planning: Manage reusable task packages', 'Dependencies' => ['PROJECTS:VIEW'],
+    'Comment' => null, 'Supported Token Types' => ['web-session'], 'Caution' => null,
+  ],
+  'PROJECTS:TASK_PLANNING:SYNC' => [
+    'Category' => 'Projects', 'Table' => 'Task Planning', 'Type' => 'Sync', 'Detail' => null,
+    'Combined Text Description' => 'Projects - Task Planning: Synchronise tasks to personal TickTick', 'Dependencies' => ['PROJECTS:VIEW'],
+    'Comment' => null, 'Supported Token Types' => ['web-session'], 'Caution' => null,
+  ],
+
   'ROOMS:VIEW' => [
     'Category' => 'Rooms', 'Table' => 'Rooms', 'Type' => 'View', 'Detail' => null,
     'Combined Text Description' => 'Rooms: View catalogue and business overview', 'Dependencies' => null,

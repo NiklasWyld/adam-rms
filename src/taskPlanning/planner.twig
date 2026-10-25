@@ -1,0 +1,70 @@
+<link rel="stylesheet" href="{{ CONFIG.ROOTURL }}/taskPlanning/planning.css">
+<section id="task-planner" data-endpoint="{{ CONFIG.ROOTURL }}/api/taskPlanning/action.php" data-project="{{ taskGlobal ? '' : project.projects_id }}" data-export="{{ CONFIG.ROOTURL }}/taskPlanning/export.php" data-project-url="{{ CONFIG.ROOTURL }}/project/">
+    <div class="tp-heading">
+        <div><h3>{{ taskGlobal ? 'My Tasks' : 'Task Planning' }}</h3><span id="tp-progress" class="text-muted"></span></div>
+        <div class="tp-actions"><button id="tp-packages" class="btn btn-default btn-sm">Task packages</button><button id="tp-export-toggle" class="btn btn-default btn-sm">Export PDF</button><button id="tp-tick-toggle" class="btn btn-default btn-sm">TickTick</button></div>
+    </div>
+    <div class="tp-save-line"><span id="tp-save" role="status" aria-live="polite">Loading tasks…</span><button id="tp-retry" class="btn btn-link btn-sm" hidden>Retry save</button><button id="tp-reload" class="btn btn-link btn-sm" hidden>Reload current version</button><button id="tp-discard" class="btn btn-link btn-sm" hidden>Discard pending saves</button></div>
+    <div id="tp-error" class="alert alert-danger" role="alert" hidden></div>
+    <div id="tp-export-panel" class="tp-panel" hidden>
+        <strong>Print a task plan</strong>
+        <label>Tasks <select id="tp-export-scope" class="form-control form-control-sm"><option value="filtered">Current filters</option><option value="all">All tasks in this view</option></select></label>
+        <label>Group by <select id="tp-export-group" class="form-control form-control-sm"><option value="category">Category</option><option value="day">Planned day</option><option value="">No grouping</option></select></label>
+        <label><input type="checkbox" id="tp-export-checklist" checked> Include checklists</label>
+        <button class="btn btn-primary btn-sm" id="tp-export">Export PDF</button>
+    </div>
+    <div id="tp-tick-panel" class="tp-panel" hidden>
+        <strong>TickTick</strong><span id="tp-tick-status"></span>
+        <button id="tp-connect" class="btn btn-primary btn-sm" disabled>Connect TickTick</button>
+        <button id="tp-disconnect" class="btn btn-default btn-sm" hidden>Disconnect</button>
+        {% if not taskGlobal %}<label>Transfer <select id="tp-sync-scope" class="form-control form-control-sm"><option value="mine">Only assigned to me</option><option value="all">All project tasks</option></select></label><button id="tp-sync" class="btn btn-primary btn-sm" disabled>Sync to TickTick</button>{% endif %}
+        <small class="d-block w-100 text-muted">Manual RMS → TickTick sync. Existing links are updated. Category, RMS status, responsible user and the original dates are also included in the description.</small>
+    </div>
+    <div id="tp-package-panel" class="tp-panel" hidden>
+        <div class="tp-actions w-100"><strong class="mr-auto">Reusable task packages</strong><select id="tp-package-select" aria-label="Task package" class="form-control form-control-sm"></select><button id="tp-package-new" class="btn btn-default btn-sm">New package</button><button id="tp-package-from" class="btn btn-default btn-sm">Save project tasks as package</button><button id="tp-package-edit" class="btn btn-default btn-sm">Edit package</button></div>
+        <div class="tp-actions w-100" id="tp-package-apply-controls"><label>Reference date <input id="tp-reference" type="date" class="form-control form-control-sm"></label><button id="tp-preview" class="btn btn-default btn-sm">Preview package</button><span class="text-muted small">Relative days are calculated from the project event date or this reference date.</span></div>
+        <div id="tp-preview-list" class="w-100"></div>
+        <button id="tp-apply" class="btn btn-primary btn-sm" hidden>Add selected tasks to project</button>
+        <div id="tp-package-editor" class="w-100" hidden>
+            <label class="w-100">Package name <input id="tp-package-name" class="form-control" maxlength="160"></label>
+            <p class="small text-muted">Add titles with Enter or paste several lines. Expand a task for description and checklist. Relative days: −14, −7, −1, 0, +1. Leave blank for no date.</p>
+            <div id="tp-package-items"></div>
+            <textarea id="tp-package-add" rows="2" class="form-control" placeholder="Add task titles, one per line" aria-label="Package task titles"></textarea>
+            <div class="tp-actions mt-2"><button id="tp-package-add-button" class="btn btn-default btn-sm">Add titles</button><button id="tp-package-save" class="btn btn-primary btn-sm">Save package</button><button id="tp-package-cancel" class="btn btn-default btn-sm">Close editor</button><button id="tp-package-delete" class="btn btn-outline-danger btn-sm" hidden>Delete package</button></div>
+        </div>
+    </div>
+    <div class="card tp-card">
+        <div class="tp-filters">
+            <input type="search" id="tp-search" class="form-control" placeholder="Search tasks…" aria-label="Search tasks">
+            <label>From <input type="date" id="tp-from" class="form-control form-control-sm"></label><label>Through <input type="date" id="tp-to" class="form-control form-control-sm"></label>
+            <select multiple id="tp-categories" aria-label="Filter categories" data-placeholder="Categories"></select>
+            <select multiple id="tp-assignees" aria-label="Filter responsible users" data-placeholder="Responsible"></select>
+            <select multiple id="tp-priorities" aria-label="Filter priorities" data-placeholder="Priorities"></select>
+            <select multiple id="tp-statuses" aria-label="Filter statuses" data-placeholder="Statuses"></select>
+            <button id="tp-reset" class="btn btn-link btn-sm">Reset filters</button>
+        </div>
+        <div class="tp-viewbar">
+            <label>Sort <select id="tp-sort" class="form-control form-control-sm"><option value="manual">Manual</option><option value="date">Date</option><option value="priority">Priority</option><option value="category">Category</option></select></label>
+            <label>Group <select id="tp-group" class="form-control form-control-sm"><option value="">No grouping</option><option value="day">Days</option><option value="category">Categories</option></select></label>
+            <select id="tp-saved" aria-label="Saved filters" class="form-control form-control-sm"><option value="">Saved filters…</option></select>
+            <input id="tp-filter-name" class="form-control form-control-sm" placeholder="Filter name" maxlength="120" aria-label="Filter name">
+            <button id="tp-save-filter" class="btn btn-link btn-sm">Save filter</button><button id="tp-delete-filter" class="btn btn-link btn-sm" hidden>Delete filter</button>
+            <span id="tp-shown" class="text-muted ml-auto"></span>
+        </div>
+        <div id="tp-bulk" class="tp-viewbar" hidden>
+            <strong id="tp-selected"></strong><label>Change <select id="tp-bulk-field" class="form-control form-control-sm"><option value="status">Status</option><option value="category">Category</option><option value="day">Planned day</option><option value="assignee">Responsible</option><option value="priority">Priority</option></select></label>
+            <span id="tp-bulk-value"></span><button id="tp-bulk-apply" class="btn btn-primary btn-sm">Apply to selected</button><button id="tp-bulk-clear" class="btn btn-link btn-sm">Clear selection</button>
+        </div>
+        <div id="tp-quick" class="tp-quick" hidden>
+            <span class="tp-plus">＋</span>
+            {% if taskGlobal %}<select id="tp-quick-project" class="form-control" aria-label="Project for new tasks"></select>{% endif %}
+            <textarea id="tp-quick-title" rows="1" class="form-control" placeholder="Add a task — Enter to save, paste multiple lines" aria-label="New task titles" maxlength="250000"></textarea>
+            <button id="tp-add" class="btn btn-primary btn-sm">Add</button>
+        </div>
+        <div class="tp-selectbar"><label><input id="tp-select-all" type="checkbox"> Select visible tasks</label><small id="tp-shortcuts" class="text-muted">N: new task · /: search · Enter: save title · Tab: next field</small></div>
+        <div id="tp-list" aria-label="Tasks"></div>
+        <div id="tp-empty" class="tp-empty" hidden>No matching tasks. Add a title above or reset your filters.</div>
+    </div>
+    <datalist id="tp-category-list"></datalist>
+</section>
+<script src="{{ CONFIG.ROOTURL }}/taskPlanning/planning.js"></script>
