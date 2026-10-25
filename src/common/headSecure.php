@@ -5,7 +5,10 @@ require_once __DIR__ . '/../assets/widgets/statsWidgets.php'; //Stats on homepag
 //THIS IS DUPLICATED SOMEWHAT IN API HEAD SECURE AS SECURITY IS HANDLED SLIGHTLY DIFFERENTLY ON THE API END
 
 if (!$GLOBALS['AUTH']->login) {
-    $_SESSION['return'] = str_replace("src/", "", "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+    // Reverse proxies can send an internal Host; return to the configured public origin.
+    $returnRoot = parse_url($CONFIG['ROOTURL']);
+    $returnOrigin = $returnRoot['scheme'] . '://' . $returnRoot['host'] . (isset($returnRoot['port']) ? ':' . $returnRoot['port'] : '');
+    $_SESSION['return'] = $returnOrigin . '/' . ltrim(str_replace("src/", "", $_SERVER['REQUEST_URI']), '/');
     if ($CONFIG['DEV']) die($GLOBALS['AUTH']->debug . "<br/><a href='" . $CONFIG['ROOTURL'] . "/login/'>" . $CONFIG['ROOTURL'] . "/login/</a>");
     header("Location: " . $CONFIG['ROOTURL'] . "/login/");
     die('<meta http-equiv="refresh" content="0; url="' . $CONFIG['ROOTURL'] . "/login/" . '" />');
