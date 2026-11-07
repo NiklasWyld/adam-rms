@@ -734,7 +734,7 @@
                         <input type="hidden" name="id" value="{{ project.projects_id }}">
                         <fieldset id="invoice-pdf-fields" hidden disabled class="mb-3">
                             <legend class="h5">Rechnungsangaben</legend>
-                            <p>Trage die bereits vergebene Rechnungsnummer und den tatsächlichen Leistungszeitraum ein. Die PDF-Datei ist eine sonstige Rechnung im PDF-Format.</p>
+                            <p>Trage die bereits vergebene Rechnungsnummer und den tatsächlichen Leistungszeitraum ein. Nach erfolgreicher Prüfung kannst du die Rechnung im Projekt ablegen.</p>
                             <div class="form-group">
                                 <label for="invoice-number">Rechnungsnummer</label>
                                 <input id="invoice-number" name="invoiceNumber" class="form-control" maxlength="64">
@@ -770,6 +770,11 @@
                             <div class="form-check">
                                 <input id="invoice-confirmed" type="checkbox" name="invoiceConfirmed" value="1" class="form-check-input">
                                 <label for="invoice-confirmed" class="form-check-label">Ich habe beide vollständigen Anschriften und den Steuerfall geprüft. Alle erfassten Preise sind Nettobeträge. Es handelt sich um eine inländische Rechnung mit einheitlicher Besteuerung ohne weitere gesetzliche Pflichtvermerke.</label>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input id="invoice-clean-copy" type="checkbox" name="cleanCopy" value="1" class="form-check-input" aria-describedby="invoice-clean-copy-help">
+                                <label for="invoice-clean-copy" class="form-check-label">PDF ohne Entwurfskennzeichnung herunterladen</label>
+                                <small id="invoice-clean-copy-help" class="form-text text-muted">Auch bei fehlenden Angaben. Die Prüfhinweise erscheinen im Browser. Der Download wird nicht als ausgestellte Rechnung im Projekt abgelegt.</small>
                             </div>
                         </fieldset>
                         <div class="form-group">
@@ -876,7 +881,14 @@
     </div>
     <script>
         $(document).ready(function () {
-            $('#pdfGenerateModal').on('show.bs.modal', function (e) {
+            const pdfModal = $('#pdfGenerateModal');
+            function updatePdfButtons() {
+                const clean = !$('#invoice-pdf-fields').prop('disabled') && $('#invoice-clean-copy').prop('checked');
+                pdfModal.find('button[name="draft"]').prop({ hidden: clean, disabled: clean });
+                pdfModal.find('button[name="upload"]').text(clean ? 'PDF herunterladen' : 'PDF erstellen');
+            }
+            $('#invoice-clean-copy').on('change', updatePdfButtons);
+            pdfModal.on('show.bs.modal', function (e) {
                  if ($(e.relatedTarget).data('delivery-note')){
                     $("#pdfGenerateModal .modal-title").text("Lieferschein erstellen");
                     $('#pdfGenerateModal input[name="type"]').val("deliveryNote");
@@ -901,6 +913,10 @@
                 const fields = document.getElementById('invoice-pdf-fields');
                 fields.hidden = !invoice;
                 fields.disabled = !invoice;
+                const delivery = this.querySelector('input[name="type"]').value === 'deliveryNote';
+                pdfModal.find('input[name="totalvalue"], input[name="invoiceNotes"], input[name="paymentTerms"]')
+                    .prop('disabled', delivery).parent().toggle(!delivery);
+                updatePdfButtons();
             });
             $("#assetAssignmentCheckboxAll").click(function () {
                 $(".assetAssignmentCheckbox").prop('checked', $(this).prop('checked'));

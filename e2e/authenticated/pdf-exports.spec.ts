@@ -26,6 +26,14 @@ const readPdf = (path: string) => execFileSync("pdftotext", ["-layout", path, "-
 const exportUrl = (id: number, options: Record<string, string>) =>
   "/project/projectInvoice.php?" + new URLSearchParams({ id: String(id), ...options });
 
+const positionOf = (path: string, word: string) => {
+  const xml = execFileSync("pdftotext", ["-bbox", path, "-"], { encoding: "utf8" });
+  const point = [...xml.matchAll(/<word xMin="([^"]+)" yMin="([^"]+)"[^>]*>([^<]+)<\/word>/g)]
+    .find(match => match[3] === word);
+  expect(point, word + " on the letterhead").not.toBeNull();
+  return { x: Number(point![1]) * 25.4 / 72, y: Number(point![2]) * 25.4 / 72 };
+};
+
 async function invoiceFixture(session: Session, tenant: Tenant) {
   dbQuery("DELETE FROM payments WHERE projects_id = ? AND payments_reference LIKE 'pdf-qa-%'", [tenant.projectId]);
   const settings = await session.api("/api/instances/editInstance.php", { formData: formData({
@@ -57,12 +65,26 @@ test("project invoices validate required fields and render German net, VAT and g
   expect(incomplete.filename).toContain("Entwurf");
 
   const options = await invoiceFixture(asA, tenants.a);
-  const regular = await download(page, exportUrl(id, { ...options, draft: "1" }), "rechnung-19-prozent", info);
+  const regular = await download(page, exportUrl(id, { ...options, cleanCopy: "1" }), "rechnung-19-prozent", info);
   for (const value of ["12,50 €", "2,38 €", "14,88 €", "19 %", "01.06.2025 bis 02.06.2025",
     "17.06.2025", "DE123456789", "Schüleraufführung", "Marktstraße 9", "Bühnenweg 12", "Bühne Süd GmbH"]) {
     expect(regular.text).toContain(value);
   }
   expect(regular.metadata).toContain("Rechnung");
+  expect(regular.metadata).toMatch(/Pages:\s+1\b/);
+  expect(regular.text).not.toMatch(/ENTWURF|Pflichtangaben und Voraussetzungen prüfen/i);
+  const recipient = positionOf(regular.path, "Marktstraße");
+  const date = positionOf(regular.path, "Rechnungsdatum");
+  const subject = positionOf(regular.path, "Rechnung");
+  expect(recipient.x).toBeCloseTo(25, 1);
+  expect(recipient.y).toBeGreaterThan(62.7);
+  expect(recipient.y).toBeLessThan(73);
+  expect(date.x).toBeCloseTo(125, 1);
+  expect(date.y).toBeGreaterThan(50);
+  expect(date.y).toBeLessThan(54);
+  expect(subject.x).toBeCloseTo(25, 1);
+  expect(subject.y).toBeGreaterThan(98.46);
+  expect(subject.y).toBeLessThan(104);
   const reduced = await download(page, exportUrl(id, { ...options, invoiceTaxCase: "reduced", draft: "1" }), "rechnung-7-prozent", info);
   expect(reduced.text).toContain("0,88 €");
   expect(reduced.text).toContain("13,38 €");
@@ -75,6 +97,29 @@ test("project invoices validate required fields and render German net, VAT and g
   expect((await asA.page(exportUrl(id, options))).body).toContain("Bereits abgerechnete Anzahlungen");
 });
 
+test("the invoice dialog downloads a clean copy even when required fields are missing", async ({ page, asA, tenants }, info) => {
+  const id = tenants.a.projectId;
+  await browserSession(page, asA);
+  await page.goto("/project/?id=" + id + "#file-view");
+  await page.getByRole("button", { name: "Rechnung erstellen", exact: true }).click();
+  const modal = page.locator("#pdfGenerateModal");
+  await modal.getByLabel("PDF ohne Entwurfskennzeichnung herunterladen").check();
+  await expect(modal.getByRole("button", { name: "Entwurf herunterladen" })).toBeHidden();
+  // Use the same tab so the test can register its download listener before submitting.
+  await modal.locator("form").evaluate(form => form.removeAttribute("target"));
+  const pending = page.waitForEvent("download");
+  await modal.getByRole("button", { name: "PDF herunterladen", exact: true }).click();
+  const file = await pending;
+  const path = info.outputPath("rechnung-ohne-pruefblock.pdf");
+  await file.saveAs(path);
+  expect(file.suggestedFilename()).not.toContain("Entwurf");
+  expect(readPdf(path)).not.toMatch(/ENTWURF|Pflichtangaben|Eine einmalig vergebene Rechnungsnummer/i);
+  await expect(page.locator("#invoice-pdf-checks")).toContainText("Eine einmalig vergebene Rechnungsnummer");
+  await expect(page.locator("#project-pdf-issue")).toHaveCount(0);
+  const data = JSON.parse((await page.locator("#project-pdf-data").textContent())!);
+  expect(data).toMatchObject({ cleanCopy: true, draft: false, save: false, token: null });
+});
+
 test("offer and delivery PDF preserve project and material data and repeat table headers", async ({ page, asA, tenants }, info) => {
   const id = tenants.a.projectId;
   dbQuery("DELETE FROM payments WHERE projects_id = ? AND payments_reference LIKE 'pdf-qa-%'", [id]);
@@ -85,17 +130,19 @@ test("offer and delivery PDF preserve project and material data and repeat table
         [id, "pdf-qa-" + info.retry + "-" + i, "Position " + i + " für Bühne und Schüleraufführung"]);
     }
     await browserSession(page, asA);
-    const common = { draft: "1", addresses: "on", assets: "on", comments: "on", showAll: "on", masses: "on", venue: "on" };
+    const common = { addresses: "on", assets: "on", comments: "on", showAll: "on", masses: "on", venue: "on" };
     const offer = await download(page, exportUrl(id, { ...common, type: "quote", finance: "on", prices: "on", discounts: "on", checkboxes: "on", sales: "on" }), "angebot-mehrseitig", info);
     expect(offer.filename).toContain("Angebot");
     expect(offer.text).toContain("Position 45");
     expect(offer.text).toContain("Materialliste");
     expect(offer.text).toContain("Nach Rabatt");
     expect(offer.text.match(/Position \/ Lieferant/g)?.length).toBeGreaterThan(1);
-    const delivery = await download(page, exportUrl(id, { ...common, type: "deliveryNote" }), "lieferschein", info);
+    const delivery = await download(page, exportUrl(id, { ...common, type: "deliveryNote", finance: "on", prices: "on", discounts: "on", totalvalue: "on" }), "lieferschein", info);
     expect(delivery.text).toContain("Übergabe am Bühneneingang");
     expect(delivery.text).toContain(tenants.a.assetTag);
-    expect(delivery.text).not.toContain("Einzelpreis");
+    expect(delivery.text).toContain("Menge");
+    expect(delivery.text).toContain("Name und Unterschrift");
+    expect(delivery.text).not.toMatch(/Einzelpreis|Projektbeträge|Materialwert|Nach Rabatt/);
     expect(delivery.metadata).toMatch(/Pages:\s+1\b/);
   } finally {
     dbQuery("DELETE FROM payments WHERE projects_id = ? AND payments_reference LIKE 'pdf-qa-%'", [id]);
@@ -128,6 +175,7 @@ test("final invoice with business logo archives once in local S3 and reserves it
   const values = dbQuery<{ config_key: string; config_value: string }>(
     "SELECT config_key, config_value FROM config WHERE config_key IN (?, ?)", keys);
   const logoKey = "logo-" + Date.now();
+  let receipts: { payments_id: number }[] = [];
   dbQuery("REPLACE INTO config (config_key, config_value) VALUES ('FILES_ENABLED', 'Enabled'), ('AWS_S3_BROWSER_ENDPOINT', ?)",
     [process.env.CONFIG_AWS_S3_SERVER_ENDPOINT]);
   try {
@@ -148,7 +196,15 @@ test("final invoice with business logo archives once in local S3 and reserves it
       [logoKey, tenants.a.instanceId]);
     const options = await invoiceFixture(asA, tenants.a);
     const id = tenants.a.projectId;
+    // A reused test database may also contain receipts created by the finance UI tests.
+    receipts = dbQuery("SELECT payments_id FROM payments WHERE projects_id = ? AND payments_type = 1 AND payments_deleted = 0", [id]);
+    for (const row of receipts) dbQuery("UPDATE payments SET payments_deleted = 1 WHERE payments_id = ?", [row.payments_id]);
     await browserSession(page, asA);
+    await download(page, exportUrl(id, { ...options, cleanCopy: "1" }), "rechnung-nur-download", info);
+    const clean = JSON.parse((await page.locator("#project-pdf-data").textContent())!);
+    expect(clean).toMatchObject({ save: false, token: null });
+    expect(dbQuery("SELECT s3files_id FROM s3files WHERE instances_id = ? AND s3files_invoice_number = ?",
+      [tenants.a.instanceId, options.invoiceNumber])).toEqual([]);
     const final = await download(page, exportUrl(id, { ...options, instancelogo: "1" }), "rechnung-archiviert", info);
     expect(execFileSync("pdfimages", ["-list", final.path], { encoding: "utf8" })).toMatch(/image\s+160\s+48\b/);
     expect(final.filename).not.toContain("Entwurf");
@@ -159,6 +215,7 @@ test("final invoice with business logo archives once in local S3 and reserves it
     expect(duplicate.body).toContain("Diese Rechnungsnummer wurde bereits verwendet.");
     expect(duplicate.body).toContain('"token":null');
   } finally {
+    for (const row of receipts) dbQuery("UPDATE payments SET payments_deleted = 0 WHERE payments_id = ?", [row.payments_id]);
     dbQuery("UPDATE instances SET instances_logo = NULL WHERE instances_id = ?", [tenants.a.instanceId]);
     dbQuery("DELETE FROM s3files WHERE s3files_filename = ?", [logoKey]);
     dbQuery("DELETE FROM config WHERE config_key IN (?, ?)", keys);

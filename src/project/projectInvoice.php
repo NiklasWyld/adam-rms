@@ -23,13 +23,20 @@ if (!empty($project['clients_id'])) {
 $document = ProjectInvoicePdf::TYPES[$type];
 $finance = $project['projectsTypes_config_finance'] == 1 && $AUTH->instancePermissionCheck('PROJECTS:PROJECT_PAYMENTS:VIEW');
 $PAGEDATA['GET'] = ['type' => $type, 'fileType' => $document['title']] + $_GET;
+if ($type === 'deliveryNote') {
+    foreach (['finance', 'prices', 'discounts', 'totalvalue', 'invoiceNotes', 'paymentTerms'] as $option) {
+        $PAGEDATA['GET'][$option] = false;
+    }
+}
 if (!$finance) {
     foreach (['finance', 'prices', 'discounts', 'subHires', 'sales', 'staff'] as $option) {
         $PAGEDATA['GET'][$option] = false;
     }
 }
 $canStore = $CONFIG['FILES_ENABLED'] === 'Enabled' && $business['instances_storageEnabled'] == 1;
-$PAGEDATA['pdfSave'] = $canStore && empty($_GET['draft']);
+$cleanCopy = $type === 'invoice' && ($_GET['cleanCopy'] ?? '') === '1' && empty($_GET['draft']);
+$PAGEDATA['pdfCleanCopy'] = $cleanCopy;
+$PAGEDATA['pdfSave'] = $canStore && empty($_GET['draft']) && !$cleanCopy;
 
 $DBLIB->where('s3files_meta_type', $document['id']);
 $DBLIB->where('instances_id', $business['instances_id']);
@@ -62,6 +69,6 @@ if ($type === 'invoice') {
     $PAGEDATA['GET']['prices'] = false;
     $PAGEDATA['GET']['discounts'] = false;
 }
-$PAGEDATA['pdfDraft'] = !empty($_GET['draft']) || ($type === 'invoice' && !$PAGEDATA['pdfSave']);
+$PAGEDATA['pdfDraft'] = !empty($_GET['draft']) || ($type === 'invoice' && !$PAGEDATA['pdfSave'] && !$cleanCopy);
 header('Cache-Control: no-store');
 echo $TWIG->render('project/pdf.twig', $PAGEDATA);

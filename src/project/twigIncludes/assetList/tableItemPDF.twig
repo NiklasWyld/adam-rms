@@ -1,7 +1,8 @@
 {% if type.assets|length > 1 %}
     [
         {% if GET.checkboxes %}'[  ]',{% endif %}
-        { text: pdf.wrap("{{ (type.assets|length ~ ' × ' ~ (type.assets[0].manufacturers_id != 1 ? type.assets[0].manufacturers_name ~ ' - ' : '') ~ type.assets[0].assetTypes_name)|escape('js') }}"),
+        {% if GET.type == 'deliveryNote' %}{ text: '{{ type.assets|length }}', alignment: 'right', bold: true },{% endif %}
+        { text: pdf.wrap("{{ ((GET.type == 'deliveryNote' ? '' : type.assets|length ~ ' × ') ~ (type.assets[0].manufacturers_id != 1 ? type.assets[0].manufacturers_name ~ ' - ' : '') ~ type.assets[0].assetTypes_name)|escape('js') }}"),
             bold: true, colSpan: {{ GET.comments ? 3 : 2 }} },
         {}, {% if GET.comments %}{},{% endif %}
         {% if GET.masses %}{ text: "{{ type.totals.mass > 0 ? type.totals.mass|pdfMass|escape('js') : '' }}", alignment: 'right' },{% endif %}
@@ -13,6 +14,7 @@
     {% if type.assets|length == 1 or GET.showAll %}
     [
         {% if GET.checkboxes %}'[  ]',{% endif %}
+        {% if GET.type == 'deliveryNote' %}{ text: '{{ type.assets|length == 1 ? 1 : '' }}', alignment: 'right' },{% endif %}
         { text: pdf.wrap("{% if type.assets|length == 1 %}{{ (asset.manufacturers_id != 1 ? asset.manufacturers_name ~ ' - ' : '')|escape('js') }}{{ asset.assetTypes_name|escape('js') }}{% endif %}{% if GET.showAll %}{% if type.assets|length == 1 %} · {% endif %}{{ asset.assets_tag|aTag|escape('js') }}{% endif %}{% if GET.flagsBlocks %}{% for flag in asset.flagsblocks.FLAG %} [F]{% endfor %}{% for flag in asset.flagsblocks.BLOCK %} [B]{% endfor %}{% endif %}{% if asset.assetsAssignments_linkedTo %} [L]{% endif %}") },
         {% if GET.comments %}pdf.wrap("{{ asset.assetsAssignments_comment|escape('js') }}"),{% endif %}
         { stack: [

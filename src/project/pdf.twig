@@ -1,4 +1,4 @@
-{% macro materials(groups, options, financesEnabled) %}
+{% macro materials(title, groups, options, financesEnabled) %}
     {% set widths = [] %}
     {% set withAmounts = financesEnabled and (options.prices or options.discounts) %}
     {% set headers = [] %}
@@ -6,27 +6,31 @@
         {% set widths = widths|merge([15]) %}
         {% set headers = headers|merge(['']) %}
     {% endif %}
+    {% if options.type == 'deliveryNote' %}
+        {% set widths = widths|merge([34]) %}
+        {% set headers = headers|merge(['Menge']) %}
+    {% endif %}
     {% set widths = widths|merge(['*']) %}
     {% set headers = headers|merge(['Material']) %}
     {% if options.comments %}
-        {% set widths = widths|merge([withAmounts ? 58 : 78]) %}
+        {% set widths = widths|merge([withAmounts ? 66 : 78]) %}
         {% set headers = headers|merge(['Bemerkungen']) %}
     {% endif %}
-    {% set widths = widths|merge([withAmounts ? 68 : 100]) %}
+    {% set widths = widths|merge([withAmounts ? 59 : 100]) %}
     {% set headers = headers|merge(['Details']) %}
     {% if options.masses %}
         {% set widths = widths|merge([withAmounts ? 40 : 50]) %}
         {% set headers = headers|merge(['Gewicht']) %}
     {% endif %}
     {% if financesEnabled and options.prices %}
-        {% set widths = widths|merge([58]) %}
+        {% set widths = widths|merge([54]) %}
         {% set headers = headers|merge(['Preis']) %}
     {% endif %}
     {% if financesEnabled and options.discounts %}
-        {% set widths = widths|merge([58]) %}
+        {% set widths = widths|merge([64]) %}
         {% set headers = headers|merge(['Nach Rabatt']) %}
     {% endif %}
-    pdf.table({{ headers|json_encode(15)|raw }}, {{ widths|json_encode(15)|raw }}, [
+    letter.materialTable("{{ title|escape('js') }}", {{ headers|json_encode(15)|raw }}, {{ widths|json_encode(15)|raw }}, [
         {% set category = null %}
         {% for group in groups %}
             {% set nextCategory = group.assets[0].assetCategories_name|default('Ohne Kategorie') %}
@@ -47,13 +51,17 @@
     <meta name="referrer" content="no-referrer">
     <title>{{ GET.fileType }} - {{ project.projects_name }}</title>
     {% include 'assets/templates/pdf/scripts.twig' %}
+    <script src="{{ CONFIG.ROOTURL }}/project/businessLetterPdf.js"></script>
 </head>
 <body>
 <main>
     <h1>{{ GET.fileType }} - {{ project.projects_name }}</h1>
+    {% if pdfCleanCopy %}
+        <p>Die PDF-Datei wird ohne Entwurfskennzeichnung heruntergeladen. Sie wird nicht im Projekt abgelegt.</p>
+    {% endif %}
     {% if invoicePdf.errors|default([]) %}
-        <p>Das PDF wird als Entwurf erstellt. Vor der Ausstellung fehlen folgende Voraussetzungen.</p>
-        <ul>{% for reason in invoicePdf.errors %}<li>{{ reason }}</li>{% endfor %}</ul>
+        <p>{% if pdfDraft %}Das PDF wird als Entwurf erstellt. {% endif %}Vor der Ausstellung fehlen folgende Voraussetzungen.</p>
+        <ul id="invoice-pdf-checks">{% for reason in invoicePdf.errors %}<li>{{ reason }}</li>{% endfor %}</ul>
     {% endif %}
     <p id="project-pdf-status" role="status">PDF wird erstellt …</p>
     <p id="project-pdf-error" role="alert"></p>
@@ -67,7 +75,7 @@
 <script type="application/json" id="project-pdf-data">{{ {
     title: GET.fileType, project: project.projects_name, projectId: project.projects_id,
     type: GET.type, version: fileNumber, save: pdfSave, draft: pdfDraft, invoice: invoicePdf|default(null),
-    token: invoiceToken|default(null), upload: CONFIG.ROOTURL ~ '/api/s3files/uploadProjectInvoice.php',
+    cleanCopy: pdfCleanCopy, token: invoiceToken|default(null), upload: CONFIG.ROOTURL ~ '/api/s3files/uploadProjectInvoice.php',
     recipient: project.projectsTypes_config_client == 1 ? {
         name: project.clients_name, address: GET.addresses or GET.type == 'invoice' ? project.clients_address : '',
         email: GET.addresses ? project.clients_email : '', phone: GET.addresses ? project.clients_phone : '',
@@ -85,34 +93,16 @@
     const source = pdf.business();
     const data = pdf.read('project-pdf-data');
     const invoice = data.invoice;
-    const address = party => [party.address].filter(Boolean).map(pdf.wrap);
-    const senderLine = [source.name, ...(data.address ? address(source) : [])].filter(Boolean).join(' · ').replace(/\r?\n/g, ' ');
-    const logo = pdf.logo(source);
-    const cover = {
-        columns: [
-            { width: '*', text: pdf.wrap(source.name), bold: true, fontSize: 12 },
-            ...(logo ? [{ ...logo, width: 105 }] : [])
-        ],
-        // Start the recipient field near 45 mm from the top on the A4 business document.
-        margin: [0, 0, 0, Math.max(0, pdf.mm(25) - (logo ? logo.fit[1] : 14))]
-    };
-    const letter = {
-        columns: [
-            { width: pdf.mm(85), stack: [
-                { text: pdf.wrap(senderLine), style: 'muted', margin: [0, 0, 0, 6] },
-                { text: pdf.wrap(data.recipient.name), bold: true },
-                ...address(data.recipient),
-                ...[data.recipient.email, data.recipient.phone, data.recipient.website].filter(Boolean).map(pdf.wrap)
-            ] },
-            { width: '*', stack: [
-                ...[...(data.address ? address(source) : []), ...pdf.contacts({ ...source, address: '' })].map(pdf.wrap),
-                ...(data.manager ? [{ text: 'Projektleitung: ' + pdf.wrap(data.manager), margin: [0, 5, 0, 0] }] : []),
-                ...(data.managerEmail ? [pdf.wrap(data.managerEmail)] : [])
-            ] }
-        ], columnGap: pdf.mm(14), margin: [0, 0, 0, pdf.mm(8)]
-    };
-    const metadata = [
+    const letter = window.AdamBusinessLetter;
+    const info = [
+        [invoice ? 'Rechnungsdatum' : 'Dokumentdatum', invoice ? invoice.issued : data.exported],
+        [invoice ? 'Rechnungs-Nr.' : 'Version', invoice ? invoice.number : String(data.version)],
         ['Projekt-Nr.', String(data.projectId)],
+        ['Projektleitung', data.manager],
+        ['E-Mail', data.managerEmail || source.email],
+        ['Telefon', source.phone]
+    ].filter(([, value]) => value);
+    const projectDetails = [
         {% if project.projectsStatuses_name %}['Projektstatus', "{{ project.projectsStatuses_name|escape('js') }}"],{% endif %}
         {% if project.projects_dates_deliver_start %}['Anlieferung', "{{ project.projects_dates_deliver_start|date('d.m.Y, H:i') }}"],{% endif %}
         {% if project.projects_dates_use_start %}['Veranstaltungsbeginn', "{{ project.projects_dates_use_start|date('d.m.Y, H:i') }}"],{% endif %}
@@ -124,23 +114,20 @@
         ['Veranstaltungsort', "{{ (project.locations_name ~ (project.locations_address ? '\n' ~ project.locations_address : ''))|escape('js') }}"],
         {% endif %}
     ];
+    const details = [];
     if (invoice) {
-        if (invoice.number) metadata.unshift(['Rechnungs-Nr.', invoice.number]);
-        if (invoice.issued) metadata.unshift(['Rechnungsdatum', invoice.issued]);
-        if (invoice.start) metadata.push([invoice.end && invoice.end !== invoice.start ? 'Leistungszeitraum' : 'Leistungsdatum',
+        if (invoice.start) details.push([invoice.end && invoice.end !== invoice.start ? 'Leistungszeitraum' : 'Leistungsdatum',
             invoice.end && invoice.end !== invoice.start ? invoice.start + ' bis ' + invoice.end : invoice.start]);
-        if (invoice.due) metadata.push(['Fällig am', invoice.due]);
-        if (invoice.taxNumber) metadata.push(['Steuernummer', invoice.taxNumber]);
-        if (invoice.vatId) metadata.push(['USt-IdNr.', invoice.vatId]);
-    } else metadata.unshift(['Dokumentdatum', data.exported], ['Version', String(data.version)]);
-    const content = [
-        cover, letter,
-        { text: data.title, style: 'title' },
-        { text: pdf.wrap(data.project), fontSize: 13, margin: [0, 3, 0, 12] },
-        { table: { widths: [110, '*'], body: metadata.map(([label, value]) => [{ text: label, bold: true }, pdf.wrap(value)]) },
-            layout: 'noBorders', margin: [0, 0, 0, 12] }
-    ];
-    if (invoice?.errors.length) content.push({
+        if (invoice.due) details.push(['Fällig am', invoice.due]);
+        if (invoice.taxNumber) details.push(['Steuernummer', invoice.taxNumber]);
+        if (invoice.vatId) details.push(['USt-IdNr.', invoice.vatId]);
+    }
+    details.push(...projectDetails);
+    const recipientContact = [data.recipient.email, data.recipient.phone, data.recipient.website].filter(Boolean);
+    if (recipientContact.length) details.push(['Empfängerkontakt', recipientContact.join(' · ')]);
+    const content = letter.front(source, data, info);
+    if (details.length) content.push(letter.details(details));
+    if (invoice?.errors.length && !data.cleanCopy) content.push({
         text: ['Entwurf - Pflichtangaben und Voraussetzungen prüfen\n', ...invoice.errors.map(reason => '• ' + reason + '\n')],
         color: '#8b2727', margin: [0, 0, 0, 12]
     });
@@ -169,11 +156,11 @@
         {% if GET.type != 'deliveryNote' and (GET.paymentTerms or GET.type == 'invoice') %}
             {% set terms = (GET.type == 'quote' ? USERDATA.instance.instances_quoteTerms : USERDATA.instance.instances_termsAndPayment)|pdfPlainHtml %}
             {% if terms %}
-                pdf.heading('{{ GET.type == "quote" ? "Angebotsbedingungen" : "Zahlungsbedingungen" }}'), { text: pdf.wrap("{{ terms|escape('js') }}") },
+                letter.section('{{ GET.type == "quote" ? "Angebotsbedingungen" : "Zahlungsbedingungen" }}', "{{ terms|escape('js') }}"),
             {% endif %}
         {% endif %}
     );
-    if (invoice?.bankDetails) content.push(pdf.heading('Bankverbindung'), { text: pdf.wrap(invoice.bankDetails) });
+    if (invoice?.bankDetails) content.push(letter.section('Bankverbindung', invoice.bankDetails));
     content.push(
         {% if GET.finance %}
             pdf.heading('Projektbeträge'),
@@ -188,22 +175,20 @@
             ]),
         {% endif %}
         {% if project.projects_invoiceNotes and GET.invoiceNotes %}
-            pdf.heading('Abrechnungshinweise'), { text: pdf.wrap("{{ project.projects_invoiceNotes|escape('js') }}") },
+            letter.section('Abrechnungshinweise', "{{ project.projects_invoiceNotes|escape('js') }}"),
         {% endif %}
         {% if project.projects_deliveryNotes and GET.type == 'deliveryNote' %}
-            pdf.heading('Lieferhinweise'), { text: pdf.wrap("{{ project.projects_deliveryNotes|escape('js') }}") },
+            letter.section('Lieferhinweise', "{{ project.projects_deliveryNotes|escape('js') }}"),
         {% endif %}
         {% if GET.assets and project.projectsTypes_config_assets == 1 %}
             {% set count = 0 %}
             {% for group in FINANCIALS.assetsAssigned %}{% set count = count + group.assets|length %}{% endfor %}
             {% for business in FINANCIALS.assetsAssignedSUB %}{% for group in business.assets %}{% set count = count + group.assets|length %}{% endfor %}{% endfor %}
             {% if FINANCIALS.assetsAssigned %}
-                pdf.heading('Materialliste'),
-                {{ layout.materials(FINANCIALS.assetsAssigned, GET, project.projectsTypes_config_finance == 1) }}
+                {{ layout.materials('Materialliste', FINANCIALS.assetsAssigned, GET, project.projectsTypes_config_finance == 1) }}
             {% endif %}
             {% for business in FINANCIALS.assetsAssignedSUB %}
-                pdf.heading("Materialliste - {{ business.instance.instances_name|escape('js') }}"),
-                {{ layout.materials(business.assets, GET, project.projectsTypes_config_finance == 1) }}
+                {{ layout.materials('Materialliste - ' ~ business.instance.instances_name, business.assets, GET, project.projectsTypes_config_finance == 1) }}
             {% endfor %}
             {% if count > 0 %}
                 {% if GET.flagsBlocks %}{ text: '[F] Markiert  ·  [B] Gesperrt', style: 'muted' },{% endif %}
@@ -240,8 +225,17 @@
         {% endfor %}
     );
 
-    const doc = pdf.definition({ source, title: data.title + ' - ' + data.project, content,
-        margins: [pdf.mm(25), pdf.mm(24), pdf.mm(20), pdf.mm(18)] });
+    if (data.type === 'deliveryNote') content.push({
+        unbreakable: true,
+        stack: [
+            pdf.heading('Empfang bestätigt'),
+            { columns: [
+                { text: '____________________\nDatum', width: pdf.mm(55) },
+                { text: '________________________________________\nName und Unterschrift', width: '*' }
+            ], margin: [0, 10, 0, 0] }
+        ]
+    });
+    const doc = letter.definition(source, data, content);
     if (data.draft) doc.watermark = { text: 'ENTWURF', opacity: .14, bold: true, italics: false };
 
     const filename = pdf.filename(data.title, invoice?.number, data.project, data.draft ? 'Entwurf' : (!invoice && data.save ? 'v' + data.version : ''));
