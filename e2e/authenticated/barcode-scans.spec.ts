@@ -64,7 +64,7 @@ test("on the barcode page, changing location by scanning a location barcode mid-
 
   // Set the location by scanning its barcode, then scan an asset there
   await scanOnPage(page, a.locationBarcodeValue);
-  await expect(alert).toContainText("Location set to");
+  await expect(alert).toContainText("Standort gesetzt auf");
   await alert.getByRole("button", { name: "OK" }).click();
   await expect(page.locator(".bootbox")).toHaveCount(0);
   const before = scanCount(a);
@@ -74,9 +74,9 @@ test("on the barcode page, changing location by scanning a location barcode mid-
 
   // Scanning the location barcode while scanning assets asks whether to move there
   await scanOnPage(page, a.locationBarcodeValue);
-  await expect(confirm).toContainText("Would you like to change your location");
-  await confirm.getByRole("button", { name: "Yes" }).click();
-  await expect(alert).toContainText("Location set to");
+  await expect(confirm).toContainText("Möchtest du zu diesem Standort wechseln");
+  await confirm.getByRole("button", { name: "Ja" }).click();
+  await expect(alert).toContainText("Standort gesetzt auf");
   await alert.getByRole("button", { name: "OK" }).click();
   await expect(page.locator(".bootbox")).toHaveCount(0);
 

@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../common/head.php';
 
 use \Firebase\JWT\JWT;
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Login with Microsoft"];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Mit Microsoft anmelden"];
 $PAGEDATA['microsoftAuthAvailable'] = $CONFIGCLASS->get("AUTH_PROVIDERS_MICROSOFT_APP_ID") != false and $CONFIGCLASS->get("AUTH_PROVIDERS_MICROSOFT_KEYS_SECRET") != false;
 
 if (!$PAGEDATA['microsoftAuthAvailable']) {

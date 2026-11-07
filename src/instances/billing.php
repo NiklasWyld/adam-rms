@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Business Billing", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Unternehmensabrechnung", "BREADCRUMB" => false];
 
 $instance = [];
 

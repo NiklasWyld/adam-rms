@@ -2,26 +2,26 @@
 {% block content %}
 <div class="row"><div class="col-xl-8 col-lg-10">
     <div class="card">
-        <div class="card-header"><h3 class="card-title">TickTick Settings · {{ USERDATA.instance.instances_name }}</h3></div>
+        <div class="card-header"><h3 class="card-title">TickTick-Einstellungen · {{ USERDATA.instance.instances_name }}</h3></div>
         <div class="card-body" id="tick-settings" data-endpoint="{{ CONFIG.ROOTURL }}/api/taskPlanning/settings.php" data-instance="{{ USERDATA.instance.instances_id }}">
             <div id="tick-settings-error" class="alert alert-danger" role="alert" hidden></div>
-            <p id="tick-settings-status" role="status" aria-live="polite">Loading settings…</p>
-            <p>Configure the TickTick app once for this business. Each user then connects their own TickTick account in Task Planning.</p>
-            <p>Create an app in the <a href="https://developer.ticktick.com/manage" target="_blank" rel="noopener noreferrer">TickTick developer centre</a> and copy its Client ID and Client Secret below.</p>
+            <p id="tick-settings-status" role="status" aria-live="polite">Einstellungen werden geladen …</p>
+            <p>Richte die TickTick-App einmal für dieses Unternehmen ein. Danach verbindet jeder Benutzer sein TickTick-Konto in der Aufgabenplanung.</p>
+            <p>Lege eine App an im <a href="https://developer.ticktick.com/manage" target="_blank" rel="noopener noreferrer">TickTick-Entwicklerportal</a> und übertrage die Client-ID und das Client-Secret unten.</p>
             <form id="tick-settings-form" autocomplete="off">
                 <fieldset id="tick-settings-fields" disabled>
                     <div class="form-group"><label for="tick-client-id">Client ID</label><input id="tick-client-id" name="client_id" class="form-control" maxlength="255" required autocomplete="off" spellcheck="false"></div>
-                    <div class="form-group"><label for="tick-client-secret">Client Secret</label><input type="password" id="tick-client-secret" name="client_secret" class="form-control" maxlength="4096" autocomplete="new-password" spellcheck="false" aria-describedby="tick-secret-help"><small id="tick-secret-help" class="form-text text-muted">Stored secrets are never displayed. Leave blank to keep the existing secret.</small></div>
-                    <div class="form-group"><label for="tick-redirect">Callback / Redirect URL</label><div class="input-group"><input type="url" id="tick-redirect" name="redirect_uri" class="form-control" maxlength="2048" required autocomplete="off" spellcheck="false"><div class="input-group-append"><button type="button" class="btn btn-default" id="tick-copy-redirect">Copy URL</button></div></div><small class="form-text text-muted">Register this exact HTTPS URL in the TickTick app. It must end in /taskPlanning/callback.php.</small><button type="button" class="btn btn-link btn-sm pl-0" id="tick-use-default">Use this RMS address</button></div>
+                    <div class="form-group"><label for="tick-client-secret">Client Secret</label><input type="password" id="tick-client-secret" name="client_secret" class="form-control" maxlength="4096" autocomplete="new-password" spellcheck="false" aria-describedby="tick-secret-help"><small id="tick-secret-help" class="form-text text-muted">Gespeicherte Client-Secrets sind ausgeblendet. Lass das Feld leer, um das vorhandene Secret zu behalten.</small></div>
+                    <div class="form-group"><label for="tick-redirect">Weiterleitungs-URL</label><div class="input-group"><input type="url" id="tick-redirect" name="redirect_uri" class="form-control" maxlength="2048" required autocomplete="off" spellcheck="false"><div class="input-group-append"><button type="button" class="btn btn-default" id="tick-copy-redirect">URL kopieren</button></div></div><small class="form-text text-muted">Hinterlege genau diese HTTPS-URL in der TickTick-App. Sie muss auf /taskPlanning/callback.php enden.</small><button type="button" class="btn btn-link btn-sm pl-0" id="tick-use-default">Diese AdamRMS-Adresse verwenden</button></div>
                     <p class="small text-muted" id="tick-encryption-info"></p>
-                    <p class="small text-muted">Changing the app credentials disconnects the personal TickTick connections in this business. Existing external tasks and their links are retained.</p>
-                    <button type="submit" id="tick-settings-save" class="btn btn-primary">Save settings</button>
-                    <button type="button" id="tick-settings-remove" class="btn btn-outline-danger ml-2" hidden>Remove app configuration</button>
+                    <p class="small text-muted">Neue App-Zugangsdaten trennen die persönlichen TickTick-Verbindungen dieses Unternehmens. Externe Aufgaben und ihre Zuordnungen bleiben erhalten.</p>
+                    <button type="submit" id="tick-settings-save" class="btn btn-primary">Einstellungen speichern</button>
+                    <button type="button" id="tick-settings-remove" class="btn btn-outline-danger ml-2" hidden>App-Konfiguration entfernen</button>
                 </fieldset>
             </form>
-            <button id="tick-settings-reload" class="btn btn-link btn-sm px-0 mt-2">Reload saved settings</button>
+            <button id="tick-settings-reload" class="btn btn-link btn-sm px-0 mt-2">Gespeicherte Einstellungen neu laden</button>
         </div>
-        <div class="card-footer"><a href="{{ CONFIG.ROOTURL }}/instances/navigation.php" class="btn btn-default">Back to Business Settings</a>{% if "PROJECTS:VIEW"|instancePermissions %}<a href="{{ CONFIG.ROOTURL }}/taskPlanning/" class="btn btn-default ml-2">My Tasks</a>{% endif %}</div>
+        <div class="card-footer"><a href="{{ CONFIG.ROOTURL }}/instances/navigation.php" class="btn btn-default">Zurück zu den Unternehmenseinstellungen</a>{% if "PROJECTS:VIEW"|instancePermissions %}<a href="{{ CONFIG.ROOTURL }}/taskPlanning/" class="btn btn-default ml-2">Meine Aufgaben</a>{% endif %}</div>
     </div>
 </div></div>
 <script src="{{ CONFIG.ROOTURL }}/taskPlanning/settings.js"></script>

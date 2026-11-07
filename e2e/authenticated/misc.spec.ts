@@ -1,7 +1,7 @@
 import { test, expect, mentions } from "../tenants";
 
 test("404.php shows the not found page", async ({ asA }) => {
-  expect(mentions(await asA.page("/404.php"), "Oops! Page not found.")).toBe(true);
+  expect(mentions(await asA.page("/404.php"), "Seite nicht gefunden")).toBe(true);
 });
 
 test("api/icons/getIcons.php searches the icon list", async ({ asA }) => {

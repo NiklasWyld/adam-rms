@@ -4,11 +4,11 @@
         <div class="col-12 col-md-12 col-lg-8">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Assets</h3>
+                    <h3 class="card-title">Material</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <select class="form-control" multiple="multiple" placeholder="Select assets to print barcodes for" id="assetSearch" lines>
+                        <select class="form-control" multiple="multiple" placeholder="Wähle das Material für den Barcodedruck" id="assetSearch" lines>
                             {% for asset in preFetch %}
                                 <option value="{{asset.assets_id}}" selected="selected">{{ asset.assets_tag|aTag }} | {{ asset.assetTypes_name}} ({{ asset.manufacturers_name }})</option>
                             {% endfor %}
@@ -18,23 +18,23 @@
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Groups</h3>
+                    <h3 class="card-title">Gruppen</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <select class="form-control" multiple="multiple" placeholder="Select groups of assets to print barcodes for" id="assetGroups" lines>
+                        <select class="form-control" multiple="multiple" placeholder="Wähle die Materialgruppen für den Barcodedruck" id="assetGroups" lines>
                         </select>
                     </div>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Blanks</h3>
+                    <h3 class="card-title">Unzugeordnete Barcodes</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="callout callout-default">
-                            Use blank barcodes to label new assets, then associate them with {{ CONFIG.PROJECT_NAME }} assets later.
+                            Mit unzugeordneten Barcodes kannst du neues Material beschriften und {{ CONFIG.PROJECT_NAME }} später verknüpfen.
                         </div>
                         <input type="number" class="form-control" name="numStickers" id="blanksInput" min="0" value="0" max="500" />
                     </div>
@@ -44,9 +44,9 @@
         <div class="col-12 col-md-12 col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Settings</h3>
+                    <h3 class="card-title">Einstellungen</h3>
                     <div class="card-tools pull-right">
-<a href="{{ CONFIG.LINKS_USERGUIDEURL }}assets/asset-barcodes" target="_blank" type="button" class="btn btn-info btn-sm">Help</a>
+<a href="{{ CONFIG.LINKS_USERGUIDEURL }}assets/asset-barcodes" target="_blank" type="button" class="btn btn-info btn-sm">Hilfe</a>
 
                     </div>
                 </div>
@@ -55,69 +55,69 @@
                         <div class="col-12">
                         <div class="text-muted">
                             <form id="settings">
-                                <p class="text-sm">Barcode Type
+                                <p class="text-sm">Barcodetyp
                                     <b class="d-block">
                                         <select class="form-control" name="barcodeType">
-                                            <option value="EAN_8">EAN 8 (not recommended - numeric digits only)</option><!-- Cannot encode characters - numbers only -->
-                                            <option value="EAN_13">EAN 13 (not recommended - numeric digits only)</option><!-- Cannot encode characters - numbers only -->
+                                            <option value="EAN_8">EAN 8 (nur Ziffern, nicht empfohlen)</option><!-- Cannot encode characters - numbers only -->
+                                            <option value="EAN_13">EAN 13 (nur Ziffern, nicht empfohlen)</option><!-- Cannot encode characters - numbers only -->
                                             <option value="CODE_39">Code 39</option>
                                             <option value="CODE_93">Code 93</option>
                                             <option value="CODE_128">Code 128</option>
-                                            <option value="UPC_E">UPC E (not recommended - numeric digits only)</option><!-- Cannot encode characters - numbers only -->
-                                            <option value="UPC_A">UPC A (not recommended - numeric digits only)</option><!-- Cannot encode characters- numbers only -->
-                                            <option value="QR_CODE" selected>QR Code</option>
+                                            <option value="UPC_E">UPC E (nur Ziffern, nicht empfohlen)</option><!-- Cannot encode characters - numbers only -->
+                                            <option value="UPC_A">UPC A (nur Ziffern, nicht empfohlen)</option><!-- Cannot encode characters- numbers only -->
+                                            <option value="QR_CODE" selected>QR-Code</option>
                                         </select>
                                     </b>
                                 </p>
-                                <button type="button" class="btn btn-default generateButton" data-type="table">Generate Table of Barcodes</button>
-                                <button type="button" class="btn btn-default generateButton" data-type="printout">Generate Sticker Printout</button>
+                                <button type="button" class="btn btn-default generateButton" data-type="table">Barcodeliste erstellen</button>
+                                <button type="button" class="btn btn-default generateButton" data-type="printout">Etiketten zum Drucken erstellen</button>
                                 <hr/>
-                                <p>Sticker Printout Settings</p>
-                                <p class="text-sm">Tag
+                                <p>Einstellungen für den Etikettendruck</p>
+                                <p class="text-sm">Kennung
                                     <b class="d-block">
                                         <select class="form-control" name="tags">
-                                            <option value="0">Hide</option>
-                                            <option value="1" selected>Show</option>
+                                            <option value="0">Ausblenden</option>
+                                            <option value="1" selected>Anzeigen</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">Type
+                                <p class="text-sm">Typ
                                     <b class="d-block">
                                         <select class="form-control" name="typename">
-                                            <option value="0" selected>Hide</option>
-                                            <option value="1">Show</option>
+                                            <option value="0" selected>Ausblenden</option>
+                                            <option value="1">Anzeigen</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">Mass
+                                <p class="text-sm">Gewicht
                                     <b class="d-block">
                                         <select class="form-control" name="mass">
-                                            <option value="0">Hide</option>
-                                            <option value="1" selected>Show</option>
+                                            <option value="0">Ausblenden</option>
+                                            <option value="1" selected>Anzeigen</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">1<sup>st</sup> Definable Field
+                                <p class="text-sm">1<sup>st</sup> Eigenes Feld
                                     <b class="d-block">
                                         <select class="form-control" name="definableField1">
-                                            <option value="0" selected>Hide</option>
-                                            <option value="1">Show</option>
+                                            <option value="0" selected>Ausblenden</option>
+                                            <option value="1">Anzeigen</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">Length Colours<sup>1st Definable Field must be length</sup>
+                                <p class="text-sm">Farbcode für Kabellängen<sup>Die Länge muss im ersten eigenen Feld stehen</sup>
                                     <b class="d-block">
                                         <select class="form-control" name="lengthMode">
-                                            <option value="0" selected>Disabled</option>
-                                            <option value="1">Enabled</option>
+                                            <option value="0" selected>Deaktiviert</option>
+                                            <option value="1">Aktiviert</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">Show Business Name
+                                <p class="text-sm">Unternehmensname anzeigen
                                     <b class="d-block">
                                         <input type="text" list="instanceNameOptionList" class="form-control" name="instanceName" />
                                         <datalist id="instanceNameOptionList">
-                                            <option value="Hide">Hide</option>
+                                            <option value="Hide">Ausblenden</option>
                                             <option selected>{{ USERDATA.instance.instances_name }}</option>
                                         </datalist>
                                     </b>
@@ -126,31 +126,31 @@
                                 <p class="text-sm">{{ USERDATA.instance.instances_name }} Logo
                                     <b class="d-block">
                                         <select class="form-control" name="instancelogo">
-                                            <option value="0">Hide</option>
-                                            <option value="1" selected>Show</option>
+                                            <option value="0">Ausblenden</option>
+                                            <option value="1" selected>Anzeigen</option>
                                         </select>
                                     </b>
                                 </p>
                                 <p class="text-sm">{{ CONFIG.PROJECT_NAME }} Logo
                                     <b class="d-block">
                                         <select class="form-control" name="adamrmslogo">
-                                            <option value="0" selected>Hide</option>
-                                            <option value="1">Show</option>
+                                            <option value="0" selected>Ausblenden</option>
+                                            <option value="1">Anzeigen</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">Paper Size
+                                <p class="text-sm">Papierformat
                                     <b class="d-block">
                                         <select class="form-control" name="pagesize">
                                             <option value="A4" selected>A4</option>
                                         </select>
                                     </b>
                                 </p>
-                                <p class="text-sm">Stickers Per Sheet
+                                <p class="text-sm">Etiketten pro Blatt
                                     <b class="d-block">
                                         <select class="form-control" name="numStickers">
-                                            <option value="8" selected>8 - Standard</option>
-                                            <option value="8cable">8 - Cable Style</option>
+                                            <option value="8" selected>8 – Standard</option>
+                                            <option value="8cable">8 – Kabeletiketten</option>
                                         </select>
                                     </b>
                                 </p>
@@ -160,7 +160,7 @@
                 </div>
                 <div class="card-footer">
                     <div class="btn-group float-right">
-                        <button type="button" class="btn btn-default generateButton" data-type="printout">Generate Sticker Printout</button>
+                        <button type="button" class="btn btn-default generateButton" data-type="printout">Etiketten zum Drucken erstellen</button>
                     </div>
                 </div>
             </div>
@@ -182,7 +182,7 @@
                 width: '100%',
 
                 minimumResultsForSearch: 1,
-                placeholder: "Enter asset numbers to search for assets",
+                placeholder: "Nach Inventarnummern suchen",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/barcodes/searchAsset.php",
                     dataType: "json",
@@ -216,7 +216,7 @@
                 minimumInputLength: 1,
                 width: '100%',
                 minimumResultsForSearch: 1,
-                placeholder: "Enter group name to search",
+                placeholder: "Gruppennamen eingeben",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/groups/search.php",
                     dataType: "json",

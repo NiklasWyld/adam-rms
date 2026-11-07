@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/head.php';
 
 use \Firebase\JWT\JWT;
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Login"];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Anmeldung"];
 $PAGEDATA['signupEnabled'] = $CONFIGCLASS->get("AUTH_SIGNUP_ENABLED") == 'Enabled';
 $PAGEDATA['googleAuthAvailable'] = $CONFIGCLASS->get("AUTH_PROVIDERS_GOOGLE_KEYS_ID") != false and $CONFIGCLASS->get("AUTH_PROVIDERS_GOOGLE_KEYS_SECRET") != false;
 $PAGEDATA['microsoftAuthAvailable'] = $CONFIGCLASS->get("AUTH_PROVIDERS_MICROSOFT_APP_ID") != false and $CONFIGCLASS->get("AUTH_PROVIDERS_MICROSOFT_KEYS_SECRET") != false;

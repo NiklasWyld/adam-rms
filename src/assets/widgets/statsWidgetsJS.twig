@@ -14,7 +14,7 @@
            setTimeout(countWidgets,2000); //Wait for the widget to hide
            ajaxcall("account/widgetToggle.php", {"widgetName":widgetName}, function (data) {
                $(".statsWidget[data-widgetname=" + widgetName + "]").hide(); //Not all support hiding through the button directly
-               console.log("Widget Removed");
+               console.log("Widget entfernt");
            });
        });
        $(".addWidgetButton").click(function () {
@@ -22,7 +22,7 @@
            var widgetName = $(this).data("widgetname");
            ajaxcall("account/widgetToggle.php", {"widgetName":widgetName}, function (data) {
                widgetButton.hide();
-               console.log("Widget Added");
+               console.log("Widget hinzugefügt");
            });
        });
 

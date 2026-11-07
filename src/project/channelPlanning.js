@@ -17,7 +17,7 @@
             return label;
         }
         function populated(rows) { return rows.some(function (uses) { return uses.some(function (entry) { return Object.keys(entry).some(function (key) { return entry[key].trim() !== ''; }); }); }); }
-        function showError(message) { errorBox.textContent = message; errorBox.hidden = false; }
+        function showError(message) { errorBox.textContent = adamUiError(message); errorBox.hidden = false; }
         function state(message) {
             status.textContent = message;
             saveButton.disabled = !editable || !loaded || !dirty || saving || blocked;
@@ -28,7 +28,7 @@
             var response = await fetch(root.dataset.endpoint, { method: 'POST', credentials: 'same-origin', body: body });
             var result = await response.json();
             if (!response.ok || !result.result) {
-                var error = new Error(result.error && result.error.message || 'Unable to contact AdamRMS. Your edits have not been saved.');
+                var error = new Error(result.error && result.error.message || 'AdamRMS ist nicht erreichbar. Deine Änderungen wurden nicht gespeichert.');
                 error.code = result.error && result.error.code;
                 throw error;
             }
@@ -37,13 +37,13 @@
         function changed() {
             generation++; dirty = true;
             clearTimeout(timer);
-            state(blocked ? 'Not saved - reload required' : 'Unsaved changes');
+            state(blocked ? 'Nicht gespeichert. Bitte neu laden.' : 'Nicht gespeicherte Änderungen');
             if (!blocked) timer = setTimeout(save, 800);
         }
         async function save() {
             clearTimeout(timer);
             if (!dirty || saving || blocked || !editable) return;
-            saving = true; state('Saving…');
+            saving = true; state('Wird gespeichert …');
             var sent = generation, payload = JSON.stringify(plan), confirmed = confirmReduction;
             errorBox.hidden = true;
             try {
@@ -54,19 +54,19 @@
                 if (sent === generation) {
                     dirty = false; confirmReduction = false;
                 }
-                state(dirty ? 'Unsaved changes' : 'Saved');
+                state(dirty ? 'Nicht gespeicherte Änderungen' : 'Gespeichert');
             } catch (error) {
                 if (error.code === 'CONFLICT' || error.code === 'CSRF-ERROR') blocked = true;
-                showError(error.message); state('Not saved');
+                showError(error.message); state('Nicht gespeichert');
                 if (error.code === 'CONFIRM-REDUCTION') {
-                    var confirm = element('button', 'btn btn-danger btn-sm ml-2', 'Confirm removal of populated channels');
+                    var confirm = element('button', 'btn btn-danger btn-sm ml-2', 'Entfernen belegter Kanäle bestätigen');
                     confirm.type = 'button';
                     confirm.onclick = function () { confirmReduction = true; save(); };
                     errorBox.appendChild(confirm);
                 }
             } finally {
                 saving = false;
-                state(blocked ? 'Not saved - reload required' : (dirty ? 'Unsaved changes' : 'Saved'));
+                state(blocked ? 'Nicht gespeichert. Bitte neu laden.' : (dirty ? 'Nicht gespeicherte Änderungen' : 'Gespeichert'));
                 if (dirty && sent !== generation && !blocked) timer = setTimeout(save, 800);
             }
         }
@@ -89,12 +89,12 @@
                 var count = kind === 'inputs' ? plan.inputCount : plan.outputCount;
                 while (plan[kind].length < count) plan[kind].push([blank()]);
                 if (!plan.configured) return;
-                var heading = element('h4', 'mt-4', kind === 'inputs' ? 'Inputs' : 'Outputs');
-                heading.appendChild(element('small', 'text-muted ml-2', String(count) + ' channels'));
+                var heading = element('h4', 'mt-4', kind === 'inputs' ? 'Eingänge' : 'Ausgänge');
+                heading.appendChild(element('small', 'text-muted ml-2', count + (count === 1 ? ' Kanal' : ' Kanäle')));
                 tables.appendChild(heading);
                 var scroll = element('div', 'table-responsive channel-scroll border rounded mb-4');
                 var table = element('table', 'table channel-table mb-0'), thead = element('thead'), header = element('tr');
-                var labels = kind === 'inputs' ? ['Channel', 'Programme / scene · Signal · Connection / source · Notes'] : ['Output', 'Programme / scene · Label · Destination / use · Notes'];
+                var labels = kind === 'inputs' ? ['Kanal', 'Programm / Szene · Signal · Anschluss / Quelle · Notizen'] : ['Ausgang', 'Programm / Szene · Bezeichnung · Ziel / Verwendung · Notizen'];
                 labels.forEach(function (label, i) { var th = element('th', '', label); th.scope = 'col'; if (i === 0) th.style.width = '100px'; header.appendChild(th); });
                 thead.appendChild(header); table.appendChild(thead);
                 var tbody = element('tbody');
@@ -109,17 +109,17 @@
                             var input = element(field === 'notes' ? 'textarea' : 'input', 'form-control form-control-sm');
                             if (field !== 'notes') input.type = 'text'; else input.rows = 1;
                             input.value = entry[field]; input.maxLength = 4000; input.readOnly = !editable;
-                            input.placeholder = [ 'Programme / scene (optional)', kind === 'inputs' ? 'Signal' : 'Label', kind === 'inputs' ? 'Connection / source' : 'Destination / use', 'Notes' ][fieldIndex];
-                            input.setAttribute('aria-label', name + ' use ' + (useIndex + 1) + ' ' + field);
+                            input.placeholder = [ 'Programm / Szene (optional)', kind === 'inputs' ? 'Signal' : 'Bezeichnung', kind === 'inputs' ? 'Anschluss / Quelle' : 'Ziel / Verwendung', 'Notizen' ][fieldIndex];
+                            input.setAttribute('aria-label', name + ', Belegung ' + (useIndex + 1) + ': ' + input.placeholder);
                             input.addEventListener('input', function () { entry[field] = input.value; changed(); });
                             fields.appendChild(input);
                         });
                         if (editable) {
                             var remove = element('button', 'btn btn-default btn-sm', '×');
-                            remove.type = 'button'; remove.title = 'Remove use';
-                            remove.setAttribute('aria-label', 'Remove ' + name + ' use ' + (useIndex + 1));
+                            remove.type = 'button'; remove.title = 'Belegung entfernen';
+                            remove.setAttribute('aria-label', name + ', Belegung ' + (useIndex + 1) + ' entfernen');
                             remove.onclick = function () {
-                                if (populated([[entry]]) && !window.confirm('Remove this populated use from ' + name + '?')) return;
+                                if (populated([[entry]]) && !window.confirm('Diese Belegung von ' + name + ' entfernen?')) return;
                                 uses.splice(useIndex, 1); if (!uses.length) uses.push(blank());
                                 changed(); render();
                             };
@@ -128,8 +128,8 @@
                         cell.appendChild(fields);
                     });
                     if (editable && uses.length < 20) {
-                        var add = element('button', 'btn btn-link btn-sm p-0', '+ Add use');
-                        add.type = 'button'; add.setAttribute('aria-label', 'Add use to ' + name);
+                        var add = element('button', 'btn btn-link btn-sm p-0', '+ Belegung hinzufügen');
+                        add.type = 'button'; add.setAttribute('aria-label', name + ': Belegung hinzufügen');
                         add.onclick = function () {
                             uses.push(blank()); changed(); render();
                             var row = tables.querySelector('tr[data-kind="' + kind + '"][data-channel="' + index + '"]');
@@ -154,7 +154,7 @@
             if (!editable || !plan || !form.reportValidity()) return;
             var inputs = Number(document.getElementById('channel-input-count').value), outputs = Number(document.getElementById('channel-output-count').value);
             var removed = populated(plan.inputs.slice(inputs)) || populated(plan.outputs.slice(outputs));
-            if (removed && !window.confirm('This removes populated channels beyond the new counts. Remove these channels and their uses?')) return;
+            if (removed && !window.confirm('Einige der entfallenden Kanäle sind belegt. Kanäle und Belegungen entfernen?')) return;
             if (removed) confirmReduction = true;
             plan.inputCount = inputs; plan.outputCount = outputs;
             plan.outputLabels = document.getElementById('channel-output-labels').value;
@@ -174,10 +174,10 @@
                 csrf = response.csrf; plan = response.plan; loaded = true;
                 search.disabled = false; configButton.disabled = !editable;
                 document.getElementById('channel-first-use').hidden = plan.configured;
-                if (!editable) document.getElementById('channel-edit-help').textContent = 'This plan is read-only. You can search and export saved channels.';
+                if (!editable) document.getElementById('channel-edit-help').textContent = 'Dieser Plan ist schreibgeschützt. Du kannst die gespeicherten Kanäle durchsuchen und exportieren.';
                 configValues(); form.hidden = plan.configured || !editable; render();
-                state(plan.configured ? 'Saved' : (editable ? 'Not configured' : 'No saved plan'));
-            } catch (error) { showError(error.message); state('Unable to load plan'); }
+                state(plan.configured ? 'Gespeichert' : (editable ? 'Nicht eingerichtet' : 'Kein Plan gespeichert'));
+            } catch (error) { showError(error.message); state('Der Plan konnte nicht geladen werden.'); }
         }
         // Load only when this tab is opened, keeping the existing project page lightweight.
         if (window.jQuery) window.jQuery('a[href="#channel-planning-view"]').on('shown.bs.tab', load);

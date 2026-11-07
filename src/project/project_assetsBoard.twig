@@ -41,17 +41,17 @@
             {% endif %}
             {% for instance in FINANCIALS.assetsAssignedSUB %}
                 <li class="nav-item">
-                    <a class="nav-link assetsBoardToggle" id="asset-board-tab-instance{{ instance['instance'].instances_id }}" data-toggle="pill" href="#asset-board-instance{{ instance['instance'].instances_id }}" role="tab" aria-controls="asset-board-instance{{ instance['instance'].instances_id }}" aria-selected="false">{{  instance['instance'].instances_name }} Assets</a>
+                    <a class="nav-link assetsBoardToggle" id="asset-board-tab-instance{{ instance['instance'].instances_id }}" data-toggle="pill" href="#asset-board-instance{{ instance['instance'].instances_id }}" role="tab" aria-controls="asset-board-instance{{ instance['instance'].instances_id }}" aria-selected="false">{{  instance['instance'].instances_name }} Material</a>
                 </li>
             {% endfor %}
             {% if (FINANCIALS.assetsAssigned|length > 0 or FINANCIALS.assetsAssignedSUB|length > 0) and "PROJECTS:PROJECT_ASSETS:EDIT:ASSIGNMENT_STATUS"|instancePermissions %}
                 <li class="nav-item" id="navItemQuickDispatch">
-                    <button type="button" class="nav-link" title="Quick Dispatch" data-toggle="modal" data-target="#quickDispatchModal">
+                    <button type="button" class="nav-link" title="Schnellausgabe" data-toggle="modal" data-target="#quickDispatchModal">
                         <i class="fas fas fa-shipping-fast"></i>
                     </button>
                 </li>
                 <li class="nav-item" id="navItemBarcodeDispatch">
-                    <button type="button" class="nav-link" title="Barcode Dispatch" data-toggle="modal" data-target="#barcodeDispatchModal">
+                    <button type="button" class="nav-link" title="Materialausgabe per Barcode" data-toggle="modal" data-target="#barcodeDispatchModal">
                         <i class="fas fa-barcode"></i>
                     </button>
                 </li>
@@ -78,8 +78,8 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Quick Dispatch</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h4 class="modal-title">Schnellausgabe</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -99,9 +99,9 @@
                 <div class="p-3">
                     <div class="tab-content">
                         <div class="tab-pane show active p2" id="quick-dispatch-modal-board-thisinstance" role="tabpanel" aria-labelledby="asset-list-tabs-profile-tab">
-                            <p>Enter an asset's tag from {{ USERDATA.instance.instances_name }} to set its status.</p>
+                            <p>Gib die Kennung eines Geräts aus {{ USERDATA.instance.instances_name }} ein, um seinen Status zu ändern.</p>
                             <div class="form-group">
-                                <label>Set Asset Status to</label>
+                                <label>Materialstatus setzen auf</label>
                                 <select class="form-control assetStatusSelectorQuickDispatch" data-instanceid="{{ USERDATA.instance["instances_id"] }}">
                                     {% for status in BOARDSTATUSES[USERDATA.instance["instances_id"]]|filter(s => not s['assetsAssignmentsStatus_deleted']) %}
                                     <option value="{{ status['assetsAssignmentsStatus_id'] }}">{{ status['assetsAssignmentsStatus_name'] }}</option>
@@ -111,9 +111,9 @@
                         </div>
                         {% for instance in FINANCIALS.assetsAssignedSUB %}
                         <div class="tab-pane p2" id="quick-dispatch-modal-board-instance{{ instance['instance']['instances_id'] }}">
-                            <p>Enter an asset's tag from {{  instance['instance'].instances_name }} tag to set its status.</p>
+                            <p>Gib die Kennung eines Geräts aus {{  instance['instance'].instances_name }} eingeben, um den Status zu setzen.</p>
                             <div class="form-group">
-                                <label>Set Asset Status to</label>
+                                <label>Materialstatus setzen auf</label>
                                 <select class="form-control assetStatusSelectorQuickDispatch" data-instanceid="{{ instance['instance']['instances_id'] }}">
                                     {% for status in BOARDSTATUSES[instance['instance']['instances_id']]|filter(s => not s['assetsAssignmentsStatus_deleted']) %}
                                     <option value="{{ status['assetsAssignmentsStatus_id'] }}">{{ status['assetsAssignmentsStatus_name'] }}</option>
@@ -124,7 +124,7 @@
                         {% endfor %}
                     </div>                
                     <div class="form-group">
-                        <label>Asset Tag</label>
+                        <label>Materialkennung</label>
                         <div class="input-group">
                             <input type="text" class="form-control" id="assetTagQuickDispatch" />
                             <div class="input-group-append">
@@ -144,8 +144,8 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Barcode Dispatch</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h4 class="modal-title">Materialausgabe per Barcode</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -166,9 +166,9 @@
                     <div class="tab-content">
                         {% if FINANCIALS.assetsAssigned|length > 0 %}
                         <div class="tab-pane show active p2" id="barcode-dispatch-modal-board-thisinstance" role="tabpanel">
-                            <p>Scan a barcode for an asset from {{ USERDATA.instance.instances_name }} to set its status.</p>
+                            <p>Scanne den Barcode eines Geräts aus {{ USERDATA.instance.instances_name }} ein, um seinen Status zu ändern.</p>
                             <div class="form-group">
-                                <label>Set Asset Status to</label>
+                                <label>Materialstatus setzen auf</label>
                                 <select class="form-control assetStatusSelectorBarcodeDispatch" data-instanceid="{{ USERDATA.instance["instances_id"] }}">
                                     {% for status in BOARDSTATUSES[USERDATA.instance["instances_id"]]|filter(s => not s['assetsAssignmentsStatus_deleted']) %}
                                     <option value="{{ status['assetsAssignmentsStatus_id'] }}">{{ status['assetsAssignmentsStatus_name'] }}</option>
@@ -179,9 +179,9 @@
                         {% endif %}
                         {% for instance in FINANCIALS.assetsAssignedSUB %}
                         <div class="tab-pane p2{% if FINANCIALS.assetsAssigned|length == 0 and loop.first %} show active{% endif %}" id="barcode-dispatch-modal-board-instance{{ instance['instance']['instances_id'] }}">
-                            <p>Scan a barcode for an asset from {{  instance['instance'].instances_name }} to set its status.</p>
+                            <p>Scanne den Barcode eines Geräts aus {{  instance['instance'].instances_name }} ein, um seinen Status zu ändern.</p>
                             <div class="form-group">
-                                <label>Set Asset Status to</label>
+                                <label>Materialstatus setzen auf</label>
                                 <select class="form-control assetStatusSelectorBarcodeDispatch" data-instanceid="{{ instance['instance']['instances_id'] }}">
                                     {% for status in BOARDSTATUSES[instance['instance']['instances_id']]|filter(s => not s['assetsAssignmentsStatus_deleted']) %}
                                     <option value="{{ status['assetsAssignmentsStatus_id'] }}">{{ status['assetsAssignmentsStatus_name'] }}</option>
@@ -267,7 +267,7 @@
             drawButtons();
             Toast.fire({
                 type: 'success',
-                title: 'Asset Status Updated'
+                title: 'Materialstatus aktualisiert'
             });
         });
     }
@@ -301,7 +301,7 @@
                     drawButtons();
                     Toast.fire({
                         type: 'success',
-                        title: 'Asset dispatched via barcode'
+                        title: 'Material per Barcode erfasst und ausgegeben'
                     });
                 } else if (result.error && result.error.code === "NOTASSIGNED" && ('assets_id' in result.error) && canAssignAssets) {
                     // Supermarket Sweep: asset exists but is not assigned to this project
@@ -311,8 +311,8 @@
                     }
                     window.barcodeAssignInProgress = true;
                     bootbox.confirm({
-                        title: "Add asset to project?",
-                        message: "This asset is not currently assigned to this project. Would you like to add it to the project and set its status?",
+                        title: "Material zum Projekt hinzufügen?",
+                        message: "Dieses Material ist dem Projekt noch nicht zugeordnet. Möchtest du es hinzufügen und den Status setzen?",
                         callback: function(confirmed) {
                             if (confirmed) {
                                 $.ajax({
@@ -335,7 +335,7 @@
                                                     if (retryResult.result === true) {
                                                         Toast.fire({
                                                             type: 'success',
-                                                            title: 'Asset added to project and dispatched via barcode'
+                                                            title: 'Material zum Projekt hinzugefügt und per Barcode ausgegeben'
                                                         });
                                                         // Clear in-progress flag before reload
                                                         window.barcodeAssignInProgress = false;
@@ -345,7 +345,7 @@
                                                         // Assignment succeeded but status change failed
                                                         Toast.fire({
                                                             type: 'warning',
-                                                            title: 'Asset added to project but status could not be updated'
+                                                            title: 'Material hinzugefügt. Der Status konnte nicht aktualisiert werden.'
                                                         });
                                                         window.barcodeAssignInProgress = false;
                                                         location.reload();
@@ -354,14 +354,14 @@
                                                 error: function() {
                                                     Toast.fire({
                                                         type: 'warning',
-                                                        title: 'Asset added to project but status could not be updated'
+                                                        title: 'Material hinzugefügt. Der Status konnte nicht aktualisiert werden.'
                                                     });
                                                     window.barcodeAssignInProgress = false;
                                                     location.reload();
                                                 }
                                             });
                                         } else {
-                                            var assignErrorMsg = assignResult.error ? assignResult.error.message : "Could not assign asset to project";
+                                            var assignErrorMsg = assignResult.error ? assignResult.error.message : "Das Material konnte dem Projekt nicht zugeordnet werden.";
                                             Toast.fire({
                                                 type: 'error',
                                                 title: value + ": " + assignErrorMsg
@@ -373,23 +373,23 @@
                                     },
                                     error: function() {
                                         window.barcodeAssignInProgress = false;
-                                        bootbox.alert('Sorry we couldn\'t connect to the internet - please check your connection');
+                                        bootbox.alert('Verbindung fehlgeschlagen. Bitte prüfe deine Internetverbindung.');
                                     }
                                 });
                             } else {
                                 // User cancelled - show the original error so it's clear nothing changed
                                 Toast.fire({
                                     type: 'info',
-                                    title: 'Asset not added to project'
+                                    title: 'Material wurde nicht zum Projekt hinzugefügt.'
                                 });
-                                var resultDiv = $("<div>").addClass("alert alert-warning").text(value + ": Asset not assigned to project - skipped");
+                                var resultDiv = $("<div>").addClass("alert alert-warning").text(value + ": Material nicht zugeordnet und übersprungen");
                                 $("#barcodeDispatchResult").prepend(resultDiv);
                                 window.barcodeAssignInProgress = false;
                             }
                         }
                     });
                 } else {
-                    var errorMsg = (result.error && result.error.message) ? result.error.message : "Barcode not found or asset not assigned to project";
+                    var errorMsg = (result.error && result.error.message) ? result.error.message : "Barcode nicht gefunden oder Material dem Projekt nicht zugeordnet";
                     Toast.fire({
                         type: 'error',
                         title: value + ": " + errorMsg
@@ -400,7 +400,7 @@
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR, textStatus, errorThrown);
-                bootbox.alert('Sorry we couldn\'t connect to the internet - please check your connection', function () {
+                bootbox.alert('Verbindung fehlgeschlagen. Bitte prüfe deine Internetverbindung.', function () {
                     location.reload();
                 });
             }
@@ -479,7 +479,7 @@
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log(jqXHR, textStatus, errorThrown);
                     console.log("Connection Error");
-                    bootbox.alert('Sorry we couldn\'t connect to the internet - please check your connection', function () {
+                    bootbox.alert('Verbindung fehlgeschlagen. Bitte prüfe deine Internetverbindung.', function () {
                         location.reload();
                     });
                 }

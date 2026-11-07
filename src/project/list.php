@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("PROJECTS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Projects", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Projekte", "BREADCRUMB" => false];
 
 if (isset($_GET['q'])) $PAGEDATA['search'] = $bCMS->sanitizeString($_GET['q']);
 else $PAGEDATA['search'] = null;
@@ -12,7 +12,7 @@ if (isset($_GET['status'])) {
     $DBLIB->where("projectsStatuses.projectsStatuses_id", intval($_GET['status']));
     $DBLIB->where("projectsStatuses.instances_id", $AUTH->data['instance']["instances_id"]);
     $PAGEDATA['STATUS'] = $DBLIB->getOne("projectsStatuses", ["projectsStatuses_id", "projectsStatuses_name"]);
-    if ($PAGEDATA['STATUS']) $PAGEDATA['pageConfig']['TITLE'] = "Projects with status " . $PAGEDATA['STATUS']['projectsStatuses_name'];
+    if ($PAGEDATA['STATUS']) $PAGEDATA['pageConfig']['TITLE'] = "Projekte mit Status " . $PAGEDATA['STATUS']['projectsStatuses_name'];
 } else $PAGEDATA['STATUS'] = null;
 
 
@@ -21,7 +21,7 @@ if (isset($_GET['client'])) {
     $DBLIB->where("clients.instances_id", $AUTH->data['instance']['instances_id']);
     $DBLIB->where("clients.clients_id", $_GET['client']);
     $PAGEDATA['CLIENT'] = $DBLIB->getone("clients", ["clients_id", "clients_name", "clients_archived"]);
-    if ($PAGEDATA['CLIENT']) $PAGEDATA['pageConfig']['TITLE'] = $PAGEDATA['CLIENT']['clients_name'] . " Projects";
+    if ($PAGEDATA['CLIENT']) $PAGEDATA['pageConfig']['TITLE'] = "Projekte für " . $PAGEDATA['CLIENT']['clients_name'];
 } else $PAGEDATA['CLIENT'] = false;
 
 
@@ -30,7 +30,7 @@ if (isset($_GET['location'])) {
     $DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']);
     $DBLIB->where("locations_id", $_GET['location']);
     $PAGEDATA['LOCATION'] = $DBLIB->getone("locations", ["locations_id", "locations_name", "locations_archived"]);
-    if ($PAGEDATA['LOCATION']) $PAGEDATA['pageConfig']['TITLE'] = $PAGEDATA['LOCATION']['locations_name'] . " Projects";
+    if ($PAGEDATA['LOCATION']) $PAGEDATA['pageConfig']['TITLE'] = "Projekte am Standort " . $PAGEDATA['LOCATION']['locations_name'];
 } else $PAGEDATA['LOCATION'] = false;
 
 

@@ -3,15 +3,15 @@
 
 <div class="card statsWidget" data-widgetname="storageUsage">
     <div class="card-header">
-        <h3 class="card-title">Storage Usage</h3>
+        <h3 class="card-title">Speicherbelegung</h3>
 
         <div class="card-tools">
             {% if WIDGETS.checkUser('storageUsage') %}
-                <button type="button" class="btn btn-tool removeWidgetButton" data-card-widget="collapse" data-widgetname="storageUsage" title="Remove from Dashboard">
+                <button type="button" class="btn btn-tool removeWidgetButton" data-card-widget="collapse" data-widgetname="storageUsage" title="Aus Übersicht entfernen">
                     <i class="fas fa-times"></i>
                 </button>
             {% else %}
-                <button type="button" class="btn btn-tool addWidgetButton" data-widgetname="storageUsage" title="Add to Dashboard">
+                <button type="button" class="btn btn-tool addWidgetButton" data-widgetname="storageUsage" title="Zur Übersicht hinzufügen">
                     <i class="fas fa-plus"></i>
                 </button>
             {% endif %}
@@ -24,6 +24,6 @@
             <div class="progress-bar" style="width: {{ ((THISWIDGET.USED/THISWIDGET.CAPACITY)*100)|round(1, 'ceil') }}%"></div>
         </div>
         {% endif %}
-        <span class="progress-description">{{ THISWIDGET.USED|formatsize }} of {{ (THISWIDGET.CAPACITY ? THISWIDGET.CAPACITY|formatsize : "unlimited storage") }} used</span>
+        <span class="progress-description">{{ THISWIDGET.USED|formatsize }} von {{ (THISWIDGET.CAPACITY ? THISWIDGET.CAPACITY|formatsize : "unlimited storage") }} belegt</span>
     </div>
 </div>

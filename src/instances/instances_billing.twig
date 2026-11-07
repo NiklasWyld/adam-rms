@@ -5,15 +5,15 @@
         <div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
-					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/billing.php">Billing</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/billing.php">Abrechnung</a></li>
                     {% if "BUSINESS:BUSINESS_SETTINGS:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/settings.php">Basic Settings</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/settings.php">Grundeinstellungen</a></li>
 					{% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 %}
 					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/logo.php">Logo</a></li>
                     {% endif %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/public.php">Public Site</a></li>
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/calendarSettings.php">Calendar Settings</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/public.php">Öffentliche Seite</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/calendarSettings.php">Kalendereinstellungen</a></li>
                     {% endif %}
 				</ul>
 			</div>
@@ -25,10 +25,10 @@
         <div class="card">
             <form id="basicSettings">
                 <div class="card-header">
-                    <h3 class="card-title">Billing Statistics for {{USERDATA.instance.instances_name}}</h3>
+                    <h3 class="card-title">Abrechnungsübersicht für {{USERDATA.instance.instances_name}}</h3>
                     <div class="card-tools">
                     {% if USERDATA.instance.instances_billingUser == USERDATA.users_userid and showStripeBillingLink %}
-                        <a href="{{CONFIG.ROOTURL}}/api/instances/billing/billingPortal.php" class="btn btn-success btn-sm" target="_blank">Manage Billing</a>
+                        <a href="{{CONFIG.ROOTURL}}/api/instances/billing/billingPortal.php" class="btn btn-success btn-sm" target="_blank">Abrechnung verwalten</a>
                     {% endif %}
                     </div>
                 </div>
@@ -37,52 +37,52 @@
                     <table class="table table-head-fixed table-striped" border="0" style="overflow-x: scroll;">
                         <tbody>
                             <tr>
-                                <td>Nominated Billing Contact</td>
+                                <td>Zuständig für die Abrechnung</td>
                                 <td>
                                     <a href="{{ CONFIG.ROOTURL }}/user.php?id={{ billingUser.users_userid }}" title="{{ billingUser.users_name1 ~ " " ~ billingUser.users_name2 }}">{{ billingUser.users_name1 ~ " " ~ billingUser.users_name2 }}</a>
                                     <br/>
                                     {% if CONFIG.LINKS_SUPPORTURL|length > 0 %}
-                                        <a href="{{CONFIG.LINKS_SUPPORTURL}}" target="_blank">Contact support to change this</a>
+                                        <a href="{{CONFIG.LINKS_SUPPORTURL}}" target="_blank">Für Änderungen wende dich an den Support.</a>
                                     {% endif %}
                                 </td>
                             </tr>
                             <tr>
-                                <td>Plan</td>
+                                <td>Tarif</td>
                                 <td>{{ USERDATA.instance.instances_planName }}</td>
                             </tr>
                             <tr>
-                                <td>Storage Used</td>
+                                <td>Belegter Speicher</td>
                                 <td>
-                                    {{ stats['STORAGEUSED']|formatsize }}<br/>Limit: {{ (USERDATA.instance.instances_storageLimit > 0 ? USERDATA.instance.instances_storageLimit|formatsize : "&infin;") }}
+                                    {{ stats['STORAGEUSED']|formatsize }}<br/>Grenze: {{ (USERDATA.instance.instances_storageLimit > 0 ? USERDATA.instance.instances_storageLimit|formatsize : "&infin;") }}
                                 </td>
                             </tr>
                             <tr>
-                                <td>Users</td>
+                                <td>Benutzer</td>
                                 <td>
-                                    {{ stats.USERS }}<br/>Limit: {{USERDATA.instance.instances_userLimit > 0 ?  USERDATA.instance.instances_userLimit : "&infin;"}}
+                                    {{ stats.USERS }}<br/>Grenze: {{USERDATA.instance.instances_userLimit > 0 ?  USERDATA.instance.instances_userLimit : "&infin;"}}
                                 </td>
                             </tr>
                             <tr>
-                                <td>Projects</td>
+                                <td>Projekte</td>
                                 <td>
-                                    {{ stats.PROJECTS|number_format(0) }}<br/>Limit: {{USERDATA.instance.instances_projectLimit > 0 ? USERDATA.instance.instances_projectLimit : "&infin;"}}
+                                    {{ stats.PROJECTS|number_format(0) }}<br/>Grenze: {{USERDATA.instance.instances_projectLimit > 0 ? USERDATA.instance.instances_projectLimit : "&infin;"}}
                                 </td>
                             </tr>
                             <tr>
-                                <td>Assets</td>
+                                <td>Material</td>
                                 <td>
-                                    {{ stats.assets.COUNT|number_format(0) }}<br/>Limit: {{USERDATA.instance.instances_assetLimit > 0 ? USERDATA.instance.instances_assetLimit : "&infin;"}}
+                                    {{ stats.assets.COUNT|number_format(0) }}<br/>Grenze: {{USERDATA.instance.instances_assetLimit > 0 ? USERDATA.instance.instances_assetLimit : "&infin;"}}
                                 </td>
                             </tr><tr>
                                 <td>
-                                    Assets Value
+                                    Materialwert
                                 </td>
                                 <td>
                                     {{ stats.assets.VALUE|money(USERDATA.instance['instances_config_currency']) }}
                                 </td>
                             </tr><tr>
                                 <td>
-                                    Assets Mass
+                                    Materialgewicht
                                 </td>
                                 <td>
                                     {{ stats.assets.MASS|mass }}

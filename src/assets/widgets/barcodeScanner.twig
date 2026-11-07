@@ -56,7 +56,7 @@
 <div class="row" id="errorCardContainer{{ suffix }}" style="display: none;">
     <div class="col-12">
         <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle"></i> No camera found on this device. You can still use a USB or Bluetooth barcode scanner, or type a barcode value manually below.
+            <i class="fas fa-exclamation-triangle"></i> Auf diesem Gerät wurde keine Kamera gefunden. Verwende einen USB- oder Bluetooth-Barcodescanner oder gib den Barcode manuell ein.
         </div>
     </div>
 </div>
@@ -64,20 +64,20 @@
     <div class="col-12 col-md-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-camera"></i> Camera Scanner</h3>
+                <h3 class="card-title"><i class="fas fa-camera"></i> Kamerascanner</h3>
                 <div class="card-tools">
-                    <button class="btn btn-sm btn-danger" title="Stop Scanning" id="barcodeScanResetButton{{ suffix }}" style="display: none;">Stop Scanning</button>
+                    <button class="btn btn-sm btn-danger" title="Scan beenden" id="barcodeScanResetButton{{ suffix }}" style="display: none;">Scan beenden</button>
                 </div>
             </div>
             <div class="card-body" id="barcodeScanVideoCard{{ suffix }}">
-                <button class="btn btn-success btn-lg" title="Start Scanning" id="barcodeScanStartButton{{ suffix }}">Start Camera Scanning</button>
+                <button class="btn btn-success btn-lg" title="Scan starten" id="barcodeScanStartButton{{ suffix }}">Kamera-Scan starten</button>
                 <video id="barcodeScanVideo{{ suffix }}" width="1920" style="border: 0;"></video>
             </div>
             <div class="card-footer" id="barcodeScanSourceSelectPanel{{ suffix }}" style="display: none;">
                 <div class="input-group my-2">
                     <div class="input-group-prepend">
                         <span class="input-group-text">
-                            Camera:
+                            Kamera:
                         </span>
                     </div>
                     <select class="form-control" id="barcodeScanSourceSelect{{ suffix }}"></select>
@@ -88,12 +88,12 @@
     <div class="col-12 col-md-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-keyboard"></i> USB/Bluetooth Scanner</h3>
+                <h3 class="card-title"><i class="fas fa-keyboard"></i> USB-/Bluetooth-Scanner</h3>
             </div>
             <div class="card-body">
-                <p>Use a USB or Bluetooth barcode scanner, or type a barcode value manually and press Enter.</p>
+                <p>Scanne per USB oder Bluetooth oder gib den Barcode ein und drücke die Eingabetaste.</p>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="barcodeScanTextInput{{ suffix }}" placeholder="Scan or type barcode value">
+                    <input type="text" class="form-control" id="barcodeScanTextInput{{ suffix }}" placeholder="Barcode scannen oder eingeben">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button" id="barcodeScanTextButton{{ suffix }}">
                             <i class="fas fa-arrow-right"></i>
@@ -182,7 +182,7 @@
                         }
                         if (err && !(err instanceof ZXing.NotFoundException)) {
                             console.error(err);
-                            bootbox.alert("Sorry - Barcode scanner encountered a problem: " + err, function() {
+                            bootbox.alert("Fehler beim Scannen des Barcodes: " + err, function() {
                                 codeReader.reset();
                             });
                         }
@@ -208,7 +208,7 @@
                     return;
                 }
                 console.error(err);
-                bootbox.alert("Sorry - Barcode scanner encountered a problem: " + err, function() {
+                bootbox.alert("Fehler beim Scannen des Barcodes: " + err, function() {
                     location.reload();
                 });
             });

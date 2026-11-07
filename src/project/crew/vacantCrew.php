@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("PROJECTS:PROJECT_CREW:EDIT:CREW_RECRUITMENT")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Project Crew Recruitment & Advertising", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Crew-Stellen und Bewerbungen", "BREADCRUMB" => false];
 
 $DBLIB->where("projects.instances_id", $AUTH->data['instance']['instances_id']);
 $DBLIB->where("projects.projects_deleted", 0);

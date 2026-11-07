@@ -3,7 +3,7 @@
             <div class="card ">
                 <div class="card-header">
                     <h3 class="card-title">
-                        Applications for {{ role.projects_name }} - {{ role.projectsVacantRoles_name }} | {{ role.projectsVacantRoles_slotsFilled }}/{{ role.projectsVacantRoles_slots }} roles allocated
+                        Bewerbungen für {{ role.projects_name }} - {{ role.projectsVacantRoles_name }} | {{ role.projectsVacantRoles_slotsFilled }}/{{ role.projectsVacantRoles_slots }} Stellen besetzt
                     </h3>
                 </div>
                 <div class="card-body table-responsive p-0">
@@ -11,13 +11,13 @@
                         <thead>
                         <tr>
                             <th>
-                                Applicant
+                                Bewerber
                             </th>
                             <th>
                                 Status
                             </th>
                             <th>
-                                Submitted
+                                Eingereicht
                             </th>
                             <th style="width: 20px">
                             </th>
@@ -37,22 +37,22 @@
                                 </td>
                                 <td>
                                     {% if app.projectsVacantRolesApplications_withdrawn == 1 %}
-                                    Withdrawn
+                                    Zurückgezogen
                                     {% elseif app.projectsVacantRolesApplications_status == 2 %}
-                                    Unsuccessful
+                                    Abgelehnt
                                     {% elseif app.projectsVacantRolesApplications_status == 1 %}
-                                    Successful
+                                    Angenommen
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {{ app.projectsVacantRolesApplications_submitted|date("d M Y h:ia") }}
+                                    {{ app.projectsVacantRolesApplications_submitted|date("d.m.Y H:i") }}
                                 </td>
                                 <td class="project-actions text-right">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#infoModal{{ app.projectsVacantRolesApplications_id }}">Read</button>
+                                        <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#infoModal{{ app.projectsVacantRolesApplications_id }}">Gelesen</button>
                                         {% if app.projectsVacantRolesApplications_withdrawn != 1 and app.projectsVacantRolesApplications_status < 1 %}
-                                        <button type="button" class="btn btn-danger btn-sm rejectButton" data-id="{{ app.projectsVacantRolesApplications_id }}">Reject</button>
-                                        <button type="button" class="btn btn-success btn-sm acceptButton" data-id="{{ app.projectsVacantRolesApplications_id }}" title="Make candidate successful candidate and assign them to the role">Assign</button>
+                                        <button type="button" class="btn btn-danger btn-sm rejectButton" data-id="{{ app.projectsVacantRolesApplications_id }}">Ablehnen</button>
+                                        <button type="button" class="btn btn-success btn-sm acceptButton" data-id="{{ app.projectsVacantRolesApplications_id }}" title="Bewerbung annehmen und Rolle zuweisen">Zuweisen</button>
                                         {% endif %}
                                     </div>
                                 </td>
@@ -68,7 +68,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">{{app.users_name1 ~ " " ~ app.users_name2}} | {{ role.projects_name }} - {{ role.projectsVacantRoles_name }}</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -81,19 +81,19 @@
                             </div>
                             <div class="input-group" style="margin-bottom: 5px;">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Email</span>
+                                    <span class="input-group-text">E-Mail</span>
                                 </div>
                                 <input type="email" disabled class="form-control" value="{{ app.users_email }}">
                             </div>
                             {% if role.projectsVacantRoles_collectPhone == 1 %}
                             <div class="input-group" style="margin-bottom: 5px;">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Phone</span>
+                                    <span class="input-group-text">Telefon</span>
                                 </div>
                                 <input type="tel" disabled class="form-control" value="{{ app.projectsVacantRolesApplications_phone }}">
                             </div>
                             {% endif %}
-                            <h3>Application Comments</h3>
+                            <h3>Anmerkungen zur Bewerbung</h3>
                             <p>{{ app.projectsVacantRolesApplications_applicantComment|nl2br }}</p>
                             {% for answer in app.projectsVacantRolesApplications_questionAnswers %}
                                 <h3>{{ answer.name }}</h3>
@@ -105,7 +105,7 @@
                             {% endembed %}
                         </div>
                         <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
                         </div>
                     </div>
                 </div>
@@ -116,14 +116,14 @@
             $(".acceptButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    message: "Are you sure you want accept this application and give this candidate the role?",
+                    message: "Diese Bewerbung annehmen und der Person die Rolle zuweisen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-success'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-danger'
                         }
                     },
@@ -139,7 +139,7 @@
             $(".rejectButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.prompt({
-                    title: "Rejection message to be emailed to candidate",
+                    title: "Absagetext für die E-Mail",
                     inputType: 'textarea',
                     callback: function (result) {
                         if (result) {

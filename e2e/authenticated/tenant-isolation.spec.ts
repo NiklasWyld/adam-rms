@@ -87,7 +87,7 @@ const pageCases: PageCase[] = [
   { file: "shoppingLists/export.php", url: (t) => `/shoppingLists/export.php?id=${t.shoppingListId}`, shows: (t) => `${t.marker} shopping list` },
   { file: "project/index.php", url: (t) => `/project/?id=${t.projectId}`, shows: (t) => `${t.marker} project description` },
   { file: "project/noteExport.php", url: (t) => `/project/noteExport.php?id=${t.projectId}`, shows: (t) => `${t.marker} note` },
-  { file: "project/projectInvoice.php", url: (t) => `/project/projectInvoice.php?id=${t.projectId}`, shows: (t) => `${t.marker}\\u0020project` }, // the PDF data is JS-escaped
+  { file: "project/projectInvoice.php", url: (t) => `/project/projectInvoice.php?id=${t.projectId}`, shows: (t) => `${t.marker} project` }, // the PDF data is embedded as JSON
   { file: "project/crew/vacantCrew.php", url: (t) => `/project/crew/vacantCrew.php?id=${t.projectId}`, shows: (t) => `${t.marker} vacancy` },
   { file: "project/crew/vacancy.php", url: (t) => `/project/crew/vacancy.php?id=${t.vacantRoleId}`, shows: (t) => `${t.marker} vacancy` },
   { file: "project/crew/applications.php", url: (t) => `/project/crew/applications.php?id=${t.vacantRoleId}`, shows: (t) => `${t.marker} application` },

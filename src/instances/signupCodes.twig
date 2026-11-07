@@ -6,18 +6,18 @@
         <div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
 					{% if "BUSINESS:USERS:VIEW:LIST"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/users.php">Users</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/users.php">Benutzer</a></li>
 					{% endif %}
 					{% if "BUSINESS:ROLES_AND_PERMISSIONS:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Permissions</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Berechtigungen</a></li>
 					{% endif %}
 					{% if "BUSINESS:USER_SIGNUP_CODES:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Signup Codes</a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Beitrittscodes</a></li>
 					{% endif %}
 					{% if "BUSINESS:SETTINGS:EDIT:TRUSTED_DOMAINS"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Trusted Domains</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Vertrauenswürdige Domains</a></li>
 					{% endif %}
 				</ul>
 			</div>
@@ -25,11 +25,11 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    Signup Codes
+                    Beitrittscodes
                 </h3>
                 <div class="card-tools pull-right">
                     <form class="input-group input-group-sm" method="GET">
-                        <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                        <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                         </div>
@@ -43,19 +43,19 @@
                             Code
                         </th>
                         <th style="width: 40rem;">
-                            Notes
+                            Notizen
                         </th>
                         <th style="width:8rem;">
-                            Used
+                            Verwendet
                         </th>
                         <th>
-                            Role
+                            Rolle
                         </th>
                         <th>
-                            Role Group
+                            Rollengruppe
                         </th>
                         <th>
-                            Enabled
+                            Aktiviert
                         </th>
                         <th style="width:70px;">
 
@@ -106,33 +106,33 @@
                 <i class="fas fa-sync fa-spin fa-3x"></i>
             </div>
             <div class="card-footer">
-                Use signup codes to allow users to join your business on {{ CONFIG.PROJECT_NAME }}, but keep them a secret as they allow anyone to join without needing to be approved<br/>
-                You can turn on email notifications for users in your <a href="{{ CONFIG.ROOTURL }}/user.php">account settings</a>
+                Mit Beitrittscodes können Benutzer deinem Unternehmen beitreten auf {{ CONFIG.PROJECT_NAME }}. Halte die Codes vertraulich, denn damit ist ein Beitritt ohne Freigabe möglich.<br/>
+                E-Mail-Benachrichtigungen kannst du aktivieren in deinen <a href="{{ CONFIG.ROOTURL }}/user.php">Kontoeinstellungen</a>
             </div>
         </div>
         {% if "BUSINESS:USER_SIGNUP_CODES:CREATE"|instancePermissions %}
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    Create Signup Code
+                    Beitrittscode erstellen
                 </h3>
             </div>
             <div class="card-body">
                 <form class="form-group" id="newCodeForm">
                     <div class="form-group">
-                        <label for="signupCodes_name">Signup Code *</label>
+                        <label for="signupCodes_name">Beitrittscode *</label>
                         <input type="text" class="form-control" id="signupCodes_name" name="signupCodes_name" aria-describedby="code-help">
-                        <small id="code-help" class="form-text text-muted">Enter the code itself</small>
-                        <div class="valid-feedback">Code is available</div>
-                        <div class="invalid-feedback" id="signupCodes_name_invalid">Sorry - that code is taken</div>
+                        <small id="code-help" class="form-text text-muted">Code eingeben</small>
+                        <div class="valid-feedback">Code ist verfügbar</div>
+                        <div class="invalid-feedback" id="signupCodes_name_invalid">Dieser Code ist bereits vergeben.</div>
                     </div>
                     <div class="form-group">
-                        <label for="signupCodes_role">Role *</label>
+                        <label for="signupCodes_role">Rolle *</label>
                         <input type="text" class="form-control" id="signupCodes_role" name="signupCodes_role">
-                        <div class="invalid-feedback">A role is required</div>
+                        <div class="invalid-feedback">Eine Rolle ist erforderlich.</div>
                     </div>
                     <div class="form-group">
-                        <label for="instancePositions_id">Role Group *</label>
+                        <label for="instancePositions_id">Rollengruppe *</label>
                         <select class="form-control" id="instancePositions_id" name="instancePositions_id">
                             {% for position in positions %}
                             <option value="{{ position.instancePositions_id }}">{{ position.instancePositions_displayName }}</option>
@@ -140,10 +140,10 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="signupCodes_notes">Notes</label>
+                        <label for="signupCodes_notes">Notizen</label>
                         <textarea class="form-control" name="signupCodes_notes" id="signupCodes_notes"></textarea>
                     </div>
-                    <button type="submit" id="codeSubmit" class="btn btn-primary">Create</button>
+                    <button type="submit" id="codeSubmit" class="btn btn-primary">Erstellen</button>
                 </form>
             </div>
         </div>
@@ -158,7 +158,7 @@
                 $("#signupCodes_name").val(result);
                 ajaxcall("instances/signupCodes/taken.php?signupCode=" + result, {}, (taken) => {
                     if (taken.response.taken) {
-                        $("#signupCodes_name_invalid").text("Sorry - that code is taken")
+                        $("#signupCodes_name_invalid").text("Dieser Code ist bereits vergeben.")
                         $("#signupCodes_name").removeClass('is-valid')
                         $("#signupCodes_name").addClass('is-invalid')
                     } else {
@@ -173,7 +173,7 @@
 
                 if (!$('#signupCodes_name').val()) {
                     event.preventDefault();
-                    $("#signupCodes_name_invalid").text("A role is required")
+                    $("#signupCodes_name_invalid").text("Wähle eine Rolle aus.")
                     $('#signupCodes_name').addClass('is-invalid')
                     return
                 }
@@ -215,14 +215,14 @@
                 var role = $(this).data("role");
                 var currentValue= $(this).data("value");
                 bootbox.prompt({
-                    title: "Edit Signup Code",
+                    title: "Einladungscode bearbeiten",
                     value: currentValue,
                     callback: function (result) {
                         if (result) {
                             result = result.replace(/[^a-z0-9]/gi,'');
                             ajaxcall("instances/signupCodes/taken.php?signupCode=" + result, {}, function (taken) {
                                 if (taken.response.taken && currentValue != result) {
-                                    bootbox.alert("Sorry - that code is taken");
+                                    bootbox.alert("Dieser Code ist bereits vergeben.");
                                 } else {
                                     bootbox.prompt({
                                         title: "Notes",
@@ -263,15 +263,15 @@
             $(".deleteButton").click(function () {
                 var id = $(this).data("codeid");
                 bootbox.confirm({
-                    title:"Are you sure?",
-                    message: "Deleting the code cannot be undone",
+                    title:"Möchtest du fortfahren?",
+                    message: "Das Löschen des Codes lässt sich nicht rückgängig machen.",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },

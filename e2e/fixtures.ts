@@ -6,7 +6,7 @@ export async function login(page: Page, email = TEST_USER.email, password = TEST
   await page.goto("/login/", { waitUntil: "domcontentloaded" });
   await page.locator("#emailInput").fill(email);
   await page.locator("#passwordInput").fill(password);
-  await page.getByRole("button", { name: "Login" }).click();
+  await page.getByRole("button", { name: "Anmelden" }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
     waitUntil: "domcontentloaded",
   });

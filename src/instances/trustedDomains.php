@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Trusted Domains", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Vertrauenswürdige Domains", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("BUSINESS:SETTINGS:EDIT:TRUSTED_DOMAINS")) die($TWIG->render('404.twig', $PAGEDATA));
 

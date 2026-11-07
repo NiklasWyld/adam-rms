@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("ASSETS:IMPORT")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Import Assets", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Material importieren", "BREADCRUMB" => false];
 
 $DBLIB->orderBy("assetCategories.assetCategories_rank", "ASC");
 $DBLIB->where("assetCategories_deleted", 0);

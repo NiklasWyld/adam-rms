@@ -4,15 +4,15 @@
 
 <div class="card statsWidget" data-widgetname="{{ THISWIDGETNAME }}">
     <div class="card-header">
-        <h3 class="card-title">Maintenance Jobs Outstanding</h3>
+        <h3 class="card-title">Offene Wartungsaufträge</h3>
 
         <div class="card-tools">
             {% if WIDGETS.checkUser(THISWIDGETNAME) %}
-                <button type="button" class="btn btn-tool removeWidgetButton" data-card-widget="collapse" data-widgetname="{{ THISWIDGETNAME }}" title="Remove from Dashboard">
+                <button type="button" class="btn btn-tool removeWidgetButton" data-card-widget="collapse" data-widgetname="{{ THISWIDGETNAME }}" title="Aus Übersicht entfernen">
                     <i class="fas fa-times"></i>
                 </button>
             {% else %}
-                <button type="button" class="btn btn-tool addWidgetButton" data-widgetname="{{ THISWIDGETNAME }}" title="Add to Dashboard">
+                <button type="button" class="btn btn-tool addWidgetButton" data-widgetname="{{ THISWIDGETNAME }}" title="Zur Übersicht hinzufügen">
                     <i class="fas fa-plus"></i>
                 </button>
             {% endif %}
@@ -29,7 +29,7 @@
                     <span class="font-weight-bold">
                       <i class="ion ion-android-arrow-up text-warning"></i> {{ THISWIDGET.MY }}
                     </span>
-                <span class="text-muted">ASSIGNED TO YOU</span>
+                <span class="text-muted">DIR ZUGEWIESEN</span>
             </p>
         </div>
         {% endif %}
@@ -41,7 +41,7 @@
                     <span class="font-weight-bold">
                       <i class="ion ion-android-arrow-up text-warning"></i> {{ THISWIDGET.TOTAL }}
                     </span>
-                <span class="text-muted">OUTSTANDING JOBS</span>
+                <span class="text-muted">OFFENE AUFTRÄGE</span>
             </p>
         </div>
     </div>

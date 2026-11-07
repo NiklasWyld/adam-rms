@@ -40,7 +40,7 @@ if ($PAGEDATA['role']['projectsVacantRoles_applicationVisibleToUsers'] != null) 
 
 if (isset($_GET['from'])) $PAGEDATA['referringPage'] = $_GET['from'];
 
-$PAGEDATA['pageConfig'] = ["TITLE" => 'Crew Vacancy: ' . $role['projects_name'] . ' - ' . $role['projectsVacantRoles_name'], "BREADCRUMB" => true];
+$PAGEDATA['pageConfig'] = ["TITLE" => 'Offene Crew-Stelle – ' . $role['projects_name'] . ' - ' . $role['projectsVacantRoles_name'], "BREADCRUMB" => true];
 
 echo $TWIG->render('project/crew/vacancy.twig', $PAGEDATA);
 ?>

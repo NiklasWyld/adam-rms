@@ -12,5 +12,5 @@ test("barcodePrint.php ignores asset groups that aren't numbers", async ({ reque
   const body = await response.text();
   expect(body).not.toContain("e2e_no_such_table");
   expect(body).not.toContain("Fatal error");
-  expect(body).not.toContain("Oops! Page not found.");
+  expect(body).not.toContain("Seite nicht gefunden");
 });

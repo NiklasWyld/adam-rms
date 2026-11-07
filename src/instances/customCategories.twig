@@ -5,9 +5,9 @@
         <div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
 					{% if "ASSETS:ASSET_CATEGORIES:VIEW"|instancePermissions %}
-                    <li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/customCategories.php">Asset Categories</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/customCategories.php">Materialkategorien</a></li>
                     {% endif %}
                     {% if "BUSINESS:BUSINESS_SETTINGS:VIEW"|instancePermissions %}
 					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/barcodes.php">Barcodes</a></li>
@@ -22,13 +22,13 @@
         <div class="card ">
             <div class="card-header">
                 <h3 class="card-title">
-                    Categories
+                    Kategorien
                 </h3>
                 <div class="card-tools pull-right">
                     <div class="btn-group">
                         {% if "ASSETS:ASSET_CATEGORIES:CREATE"|instancePermissions %}
-                            <button type="button" aria-label="Create new Asset Category Group" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newGroupModal"><i class="fa fa-plus"></i> Group</button>
-                            <button type="button" aria-label="Create new Asset Category" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newModal"><i class="fa fa-plus"></i> Category</button>
+                            <button type="button" aria-label="Materialkategoriegruppe anlegen" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newGroupModal"><i class="fa fa-plus"></i> Gruppe</button>
+                            <button type="button" aria-label="Materialkategorie anlegen" class="btn btn-default btn-sm" data-toggle="modal" data-target="#newModal"><i class="fa fa-plus"></i> Kategorie</button>
                         {% endif %}
                     </div>
                 </div>
@@ -61,8 +61,8 @@
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h4 class="modal-title">Edit {{group.assetCategoriesGroups_name}}</h4>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <h4 class="modal-title">Bearbeiten {{group.assetCategoriesGroups_name}}</h4>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
@@ -77,7 +77,7 @@
                                                         </div>
                                                         <div class="input-group" style="margin-bottom: 5px;">
                                                             <div class="input-group-prepend">
-                                                                <span class="input-group-text">Icon</span>
+                                                                <span class="input-group-text">Symbol</span>
                                                             </div>
                                                             <select class="form-control rms-icon-picker" name="assetCategoriesGroups_fontAwesome">
                                                                 {% if group.assetCategoriesGroups_fontAwesome %}
@@ -88,8 +88,8 @@
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer justify-content-between">
-                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                    <button type="button" class="btn btn-primary saveEditGroup-button" data-id="{{ group.assetCategoriesGroups_id }}">Save changes</button>
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                                                    <button type="button" class="btn btn-primary saveEditGroup-button" data-id="{{ group.assetCategoriesGroups_id }}">Änderungen speichern</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -107,7 +107,7 @@
                                 </td>
                                 <td style="width:70px;">
                                     <div class="btn-group">
-                                        <a type="button" title="View assets" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/assets.php?category%5B%5D={{ category.assetCategories_id }}&showlinked=1&showarchived=1"><i class="nav-icon fas fa-warehouse"></i></a>
+                                        <a type="button" title="Material ansehen" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/assets.php?category%5B%5D={{ category.assetCategories_id }}&showlinked=1&showarchived=1"><i class="nav-icon fas fa-warehouse"></i></a>
                                         {% if category.instances_id is not null %}
                                             {% if "ASSETS:ASSET_CATEGORIES:EDIT"|instancePermissions %}
                                                 <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#editModal{{ category.assetCategories_id }}"><i class="fas fa-edit"></i></button>
@@ -124,8 +124,8 @@
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h4 class="modal-title">Edit {{category.assetCategories_name}}</h4>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <h4 class="modal-title">Bearbeiten {{category.assetCategories_name}}</h4>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
@@ -140,7 +140,7 @@
                                                         </div>
                                                         <div class="input-group" style="margin-bottom: 5px;">
                                                             <div class="input-group-prepend">
-                                                                <span class="input-group-text">Icon</span>
+                                                                <span class="input-group-text">Symbol</span>
                                                             </div>
                                                             <select class="form-control rms-icon-picker" name="assetCategories_fontAwesome">
                                                                 {% if category.assetCategories_fontAwesome %}
@@ -150,7 +150,7 @@
                                                         </div>
                                                         <div class="input-group">
                                                             <div class="input-group-prepend">
-                                                                <span class="input-group-text">Category Group</span>
+                                                                <span class="input-group-text">Kategoriegruppe</span>
                                                             </div>
                                                             <select class="form-control" name="assetCategoriesGroups_id">
                                                                 {% for localgroup in categoryGroups %}
@@ -161,8 +161,8 @@
                                                     </form>
                                                 </div>
                                                 <div class="modal-footer justify-content-between">
-                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                    <button type="button" class="btn btn-primary saveEdit-button" data-id="{{ category.assetCategories_id }}">Save changes</button>
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                                                    <button type="button" class="btn btn-primary saveEdit-button" data-id="{{ category.assetCategories_id }}">Änderungen speichern</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -181,8 +181,8 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">New Asset Category</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Neue Materialkategorie</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -196,13 +196,13 @@
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Icon</span>
+                                <span class="input-group-text">Symbol</span>
                             </div>
                             <select class="form-control rms-icon-picker" name="assetCategories_fontAwesome"></select>
                         </div>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Category Group</span>
+                                <span class="input-group-text">Kategoriegruppe</span>
                             </div>
                             <select required class="form-control" name="assetCategoriesGroups_id">
                                 {% for group in categoryGroups %}
@@ -213,8 +213,8 @@
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveNewCategory">Create</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-primary" id="saveNewCategory">Erstellen</button>
                 </div>
             </div>
         </div>
@@ -223,8 +223,8 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">New Asset Category Group</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Neue Materialkategoriegruppe</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -238,15 +238,15 @@
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Icon</span>
+                                <span class="input-group-text">Symbol</span>
                             </div>
                             <select class="form-control rms-icon-picker" name="assetCategoriesGroups_fontAwesome"></select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveNewCategoryGroup">Create</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-primary" id="saveNewCategoryGroup">Erstellen</button>
                 </div>
             </div>
         </div>
@@ -261,7 +261,7 @@
                     theme: "bootstrap4",
                     minimumInputLength: 1,
                     minimumResultsForSearch: 1,
-                    placeholder: "Search for an Icon",
+                    placeholder: "Nach einem Symbol suchen",
                     ajax: {
                         url: "{{ CONFIG.ROOTURL }}/api/icons/getIcons.php",
                         dataType: "json",
@@ -326,15 +326,15 @@
             $(".deleteButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    title:"Are you sure?",
-                    message: "Categories aren't fully deleted until all assets in the category are moved to other categories",
+                    title:"Möchtest du fortfahren?",
+                    message: "Eine Kategorie wird vollständig gelöscht, sobald das zugehörige Material anderen Kategorien zugeordnet ist.",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -351,15 +351,15 @@
             $(".deleteGroupButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    title:"Are you sure?",
-                    message: "This will delete this group and any categories within it. Categories aren't fully deleted until all assets in the category are moved to other categories",
+                    title:"Möchtest du fortfahren?",
+                    message: "Dadurch werden die Gruppe und ihre Kategorien gelöscht. Eine Kategorie wird vollständig gelöscht, sobald das zugehörige Material anderen Kategorien zugeordnet ist.",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },

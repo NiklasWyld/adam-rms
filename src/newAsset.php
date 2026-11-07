@@ -2,7 +2,7 @@
 require_once __DIR__ . '/common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("ASSETS:CREATE")) die($TWIG->render('404.twig', $PAGEDATA));
-$PAGEDATA['pageConfig'] = ["TITLE" => "Add Asset", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Material hinzufügen", "BREADCRUMB" => false];
 
 
 $DBLIB->where("(manufacturers.instances_id IS NULL OR manufacturers.instances_id = '" . $AUTH->data['instance']['instances_id'] . "')");

@@ -5,15 +5,15 @@
   <div class="col-lg-6 offset-lg-3 col-md-12" style="padding: 5px;">
       <div class="card card-default">
           <div class="card-body" style="text-align: center;">
-                <h3>Verify Email</h3>
-                <p>Please check your email ({{USERDATA.users_email}}) for our verification email. Every now and again our E-Mails get sucked up by hungry spam filters - If you can't find our E-Mail please check your spam/junk folder for an email from {{ fromEmail }}, or click the button below to re-send it.</p>
-                <button id="submitButton" class="btn btn-default">Re-send verification email</button>
+                <h3>E-Mail-Adresse bestätigen</h3>
+                <p>Prüfe dein E-Mail-Postfach ({{USERDATA.users_email}}) auf die Bestätigungs-E-Mail. Falls sie fehlt, suche im Spam-Ordner nach einer E-Mail von {{ fromEmail }}oder sende die Nachricht über die Schaltfläche unten erneut.</p>
+                <button id="submitButton" class="btn btn-default">Bestätigungs-E-Mail erneut senden</button>
                 {% if "CONFIG:SET"|serverPermissions %}
                     <a href="{{CONFIG.ROOTURL}}/server/config.php" class="btn btn-default">Edit Server Configuration to disable email verification</a>
                 {% endif %}
           </div>
           <div class="card-footer">
-            <a href="{{ CONFIG.LINKS_SUPPORTURL }}">Contact Support</a>
+            <a href="{{ CONFIG.LINKS_SUPPORTURL }}">Support kontaktieren</a>
           </div>
           <script>
               $(document).ready(function () {

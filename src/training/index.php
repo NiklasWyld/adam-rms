@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("TRAINING:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Training", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Schulungen", "BREADCRUMB" => false];
 
 // List of positions to restrict modules to
 $DBLIB->orderBy("instancePositions_rank", "ASC");

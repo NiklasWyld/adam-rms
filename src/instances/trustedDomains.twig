@@ -6,18 +6,18 @@
         <div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
 					{% if "BUSINESS:USERS:VIEW:LIST"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/users.php">Users</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/users.php">Benutzer</a></li>
 					{% endif %}
 					{% if "BUSINESS:ROLES_AND_PERMISSIONS:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Permissions</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Berechtigungen</a></li>
 					{% endif %}
 					{% if "BUSINESS:USER_SIGNUP_CODES:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Signup Codes</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Beitrittscodes</a></li>
 					{% endif %}
 					{% if "BUSINESS:SETTINGS:EDIT:TRUSTED_DOMAINS"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Trusted Domains</a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Vertrauenswürdige Domains</a></li>
 					{% endif %}
 				</ul>
 			</div>
@@ -25,19 +25,19 @@
         <div class="card">
             <form id="settings">
                 <div class="card-header">
-                    <h3 class="card-title">Trusted Domains</h3>
+                    <h3 class="card-title">Vertrauenswürdige Domains</h3>
                 </div>
                 <div class="card-body">
-                    <p>Trusted Domains allows users on {{ CONFIG.PROJECT_NAME }} with verified email addresses to join your businesses if their email matches a domain you enter below.
-                    <br/><br/>They are similar to Signup Codes, in that they allow others to join your business, but they are automatic and are offered to any user in any domain you list.</p>
+                    <p>Mit vertrauenswürdigen Domains können Benutzer von {{ CONFIG.PROJECT_NAME }} mit bestätigter E-Mail-Adresse beitreten, sofern ihre Adresse zu einer der unten angegebenen Domains gehört.
+                    <br/><br/>Anders als ein Beitrittscode gilt die Freigabe automatisch für alle Benutzer mit einer bestätigten Adresse in der angegebenen Domain.</p>
                     <hr/>
                     <div class="form-group">
-                        <label>Trusted Domains</label>
+                        <label>Vertrauenswürdige Domains</label>
                         <input type="text" class="form-control" name="domains" value="{{instanceTrustedDomains.domains|join(',')}}" aria-describedby="domainsHelp" />
-                        <small id="domainsHelp" class="form-text text-muted">Separate with a comma</small>
+                        <small id="domainsHelp" class="form-text text-muted">Mit Kommas trennen</small>
                     </div>
                     <div class="form-group">
-                        <label>Role Group</label>
+                        <label>Rollengruppe</label>
                         <select class="form-control" name="instancePositions_id">
                             {% for position in positions %}
                                 <option {{ instanceTrustedDomains.instancePositions_id == position.instancePositions_id ? 'selected' : '' }} value="{{ position.instancePositions_id }}">{{ position.instancePositions_displayName }}</option>
@@ -45,12 +45,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
+                        <label>Rolle</label>
                         <input type="text" class="form-control" name="userInstances_label" value="{{ instanceTrustedDomains.userInstances_label }}">
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-default save">Save</button>
+                    <button type="submit" class="btn btn-default save">Speichern</button>
                 </div>
             </form>
         </div>

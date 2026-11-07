@@ -15,7 +15,7 @@ test.afterEach(() => {
   seedTenants();
 });
 
-const NOT_FOUND = "Oops! Page not found.";
+const NOT_FOUND = "Seite nicht gefunden";
 const pages = [
   "server/analytics/index.php", "server/analytics/pageViews.php", "server/analytics/tables.php", "server/auditLog.php",
   "server/config.php", "server/instances.php", "server/permissions.php", "server/users.php",

@@ -3,7 +3,7 @@ require_once __DIR__ . '/common/headSecure.php';
 require_once __DIR__ . '/common/libs/calendar.php';
 
 $PAGEDATA['pageConfig'] = [
-    "TITLE" => "Personal Calendar",
+    "TITLE" => "Mein Kalender",
     "BREADCRUMB" => false
 ];
 

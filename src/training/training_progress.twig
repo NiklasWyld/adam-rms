@@ -33,20 +33,20 @@
                     {% endembed %}
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-default markCompleted" disabled data-id="{{ step.modulesSteps_id }}" {% if loop.last != true %}data-next="{{ module.steps[loop.index]['modulesSteps_id'] }}"{% endif %} {% if step.modulesSteps_id in module.allStepsCompleted %}style="display:none;"{% endif %}>Mark as Completed ✔</button>
+                    <button class="btn btn-default markCompleted" disabled data-id="{{ step.modulesSteps_id }}" {% if loop.last != true %}data-next="{{ module.steps[loop.index]['modulesSteps_id'] }}"{% endif %} {% if step.modulesSteps_id in module.allStepsCompleted %}style="display:none;"{% endif %}>Als abgeschlossen markieren ✔</button>
                 </div>
             </div>
             {% endfor %}
             <div class="card card-default card-outline" id="completedModule">
                 <div class="card-header">
-                    <h3 class="card-title">Module Complete</h3>
+                    <h3 class="card-title">Modul abgeschlossen</h3>
                 </div>
                 <div class="card-body">
-                    Congratulations this module has been completed 🎉!
+                    Du hast dieses Modul abgeschlossen 🎉
                     {% if module.modules_type != 1 %}
-                    This module also requires certification which might involve practical training - contact an administrator to be certified
+                    Dieses Modul erfordert zusätzlich eine Zertifizierung, gegebenenfalls mit einer praktischen Übung. Wende dich dafür an die Administration.
                     {% endif %}
-                    <br/><br/><i class="fas fa-arrow-left"></i> The steps for this module will continue to be available for you to consult in the future
+                    <br/><br/><i class="fas fa-arrow-left"></i> Die Schritte dieses Moduls kannst du später jederzeit nachlesen.
                 </div>
             </div>
         </div>

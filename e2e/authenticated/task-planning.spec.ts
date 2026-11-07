@@ -119,30 +119,30 @@ test("UI quick add/paste, all inline fields, combined filters, bulk edits, saved
   const errors:string[]=[];page.on("pageerror",e=>errors.push(e.message));
   const p=tenants.a.projectId,tag=unique("UI"),filterName=unique("Ton am 12. Juli");
   await page.goto("/project/?id="+p+"#task-planning-view");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-quick-title").fill(tag+" PA\n"+tag+" Licht");await page.locator("#tp-quick-title").press("Enter");
   await expect(page.locator("#tp-quick-title")).toHaveValue("");
   await page.locator("#tp-search").fill(tag);
   await expect(page.locator(".tp-row")).toHaveCount(2);
   const row=page.locator(".tp-row").first();
   await row.locator('[data-field="category"]').fill("Tontechnik");await row.locator('[data-field="category"]').press("Enter");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await row.locator('[data-field="day"]').fill("2027-07-12");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await row.locator('[data-field="priority"]').selectOption("3");await row.locator('[data-field="assignee"]').selectOption(String(tenants.a.users.full.id));
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await row.locator('[data-action="expand"]').click();
   await row.locator('[data-field="description"]').fill("Beschreibung ÄÖÜ ß");await row.locator('[data-field="description"]').press("Tab");
   await row.locator('[data-field="deadline"]').fill("2027-07-11T18:00");
   await row.locator('[data-field="addCheck"]').fill("Mikrofone");await row.locator('[data-field="addCheck"]').press("Enter");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
-  await row.locator('[data-action="check"]').check();await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
+  await row.locator('[data-action="check"]').check();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   // Mark both, then use the same inline bulk value control for all fields.
   await page.locator("#tp-select-all").check();
   await page.locator("#tp-bulk-field").selectOption("status");await page.locator("#tp-bulk-input").selectOption("progress");await page.locator("#tp-bulk-apply").click();
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-bulk-field").selectOption("assignee");await page.locator("#tp-bulk-input").selectOption(String(tenants.a.users.full.id));await page.locator("#tp-bulk-apply").click();
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-bulk-clear").click();
   await page.locator("#tp-from").fill("2027-07-12");await page.locator("#tp-to").fill("2027-07-12");
   await page.locator("#tp-categories").selectOption(["Tontechnik"]);
@@ -152,16 +152,16 @@ test("UI quick add/paste, all inline fields, combined filters, bulk edits, saved
   await page.locator("#tp-sort").selectOption("priority");await page.locator("#tp-group").selectOption("category");
   await expect(page.locator(".tp-row")).toHaveCount(1);
   await page.locator("#tp-filter-name").fill(filterName);await page.locator("#tp-save-filter").click();
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-reset").click();expect(await page.locator(".tp-row").count()).toBeGreaterThan(1);
   await expect(page.locator("#tp-sort")).toHaveValue("priority");
   const filter=(await read(asA,p)).data.filters.find((f:any)=>f.taskSavedFilters_name===filterName);
   await page.locator("#tp-saved").selectOption(String(filter.taskSavedFilters_id));await expect(page.locator(".tp-row")).toHaveCount(1);
   await page.locator("#task-planner").screenshot({path:"/tmp/task-planning-desktop.png"});
   await row.locator('[data-action="complete"]').check();await expect(page.locator(".tp-row")).toHaveCount(0);
-  await page.goto("/taskPlanning/");await expect(page.locator('.main-sidebar a[href$="/taskPlanning/"]')).toBeVisible();await expect(page.locator("#tp-save")).toHaveText("All changes saved");await page.locator("#tp-search").fill(tag);
+  await page.goto("/taskPlanning/");await expect(page.locator('.main-sidebar a[href$="/taskPlanning/"]')).toBeVisible();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");await page.locator("#tp-search").fill(tag);
   await expect(page.locator(".tp-row")).toHaveCount(2);await expect(page.locator(".tp-project-link").first()).toBeVisible();
-  await page.reload();await expect(page.locator("#tp-save")).toHaveText("All changes saved");await page.locator("#tp-search").fill(tag);
+  await page.reload();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");await page.locator("#tp-search").fill(tag);
   await expect(page.locator(".tp-row")).toHaveCount(2);
   await page.setViewportSize({width:390,height:844});await page.locator("#task-planner").screenshot({path:"/tmp/task-planning-mobile.png"});
   expect(errors).toEqual([]);
@@ -169,7 +169,7 @@ test("UI quick add/paste, all inline fields, combined filters, bulk edits, saved
 
 test("UI task package editor previews, deselects, applies and saves project tasks for reuse",async({asA,tenants,page})=>{
   test.setTimeout(90000);await browser(page,asA);
-  await page.goto("/project/?id="+tenants.a.subProjectId+"#task-planning-view");await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await page.goto("/project/?id="+tenants.a.subProjectId+"#task-planning-view");await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-packages").click();await page.locator("#tp-package-new").click();const name=unique("Konzert Paket");
   await page.locator("#tp-package-name").fill(name);await page.locator("#tp-package-add").fill("Räume reservieren\nPA aufbauen\nAbbauen");await page.locator("#tp-package-add").press("Enter");
   await page.locator('[data-package-item="0"] [data-prop="category"]').fill("Organisation");
@@ -179,16 +179,16 @@ test("UI task package editor previews, deselects, applies and saves project task
   await page.locator("#tp-package-save").click();await expect(page.locator("#tp-package-editor")).not.toBeVisible();
   await page.locator("#tp-reference").fill("2027-07-12");await page.locator("#tp-preview").click();
   await expect(page.locator(".tp-preview-item")).toHaveCount(3);await expect(page.locator(".tp-preview-item").first()).toContainText("2027-06-28");
-  await page.locator('[data-preview="2"]').uncheck();const beforeCount=(await read(asA,tenants.a.subProjectId)).data.tasks.length;await page.locator("#tp-apply").dblclick();await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await page.locator('[data-preview="2"]').uncheck();const beforeCount=(await read(asA,tenants.a.subProjectId)).data.tasks.length;await page.locator("#tp-apply").dblclick();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   expect((await read(asA,tenants.a.subProjectId)).data.tasks.length).toBe(beforeCount+2);
   await page.locator("#tp-search").fill("PA aufbauen");await expect(page.locator(".tp-row").last().locator('[data-field="day"]')).toHaveValue("2027-07-12");
   await page.locator("#tp-package-from").click();await page.locator("#tp-package-name").fill(unique("Reused project"));await page.locator("#tp-package-save").click();
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
 });
 
 test("autosave recovers a dropped response without duplication and keeps concurrent drafts on conflict",async({asA,tenants,page})=>{
   test.setTimeout(90000);await browser(page,asA);await page.goto("/project/?id="+tenants.a.projectId+"#task-planning-view");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   let drop=true;
   await page.route("**/api/taskPlanning/action.php",async route=>{
     if(drop && new URLSearchParams(route.request().postData() || "").get("action")==="create"){
@@ -196,15 +196,15 @@ test("autosave recovers a dropped response without duplication and keeps concurr
     }else await route.continue();
   });
   const title=unique("Dropped response");await page.locator("#tp-quick-title").fill(title);await page.locator("#tp-quick-title").press("Enter");
-  await expect(page.locator("#tp-retry")).toBeVisible();await page.locator("#tp-retry").click();await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-retry")).toBeVisible();await page.locator("#tp-retry").click();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   expect((await read(asA,tenants.a.projectId)).data.tasks.filter((x:any)=>x.title===title)).toHaveLength(1);
   await page.locator("#tp-search").fill(title);
   const t=(await read(asA,tenants.a.projectId)).data.tasks.find((x:any)=>x.title===title);
   await patch(asA,tenants.a.projectId,t,{title:"Server changed"});
   await page.locator(".tp-title").fill("My unsaved edit");await page.locator(".tp-title").press("Enter");
-  await expect(page.locator("#tp-error")).toContainText("another tab");
+  await expect(page.locator("#tp-error")).toContainText("anderen Tab");
   await expect(page.locator(".tp-title")).toHaveValue("My unsaved edit");
-  page.once("dialog",d=>d.accept());await page.locator("#tp-reload").click();await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  page.once("dialog",d=>d.accept());await page.locator("#tp-reload").click();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   expect((await read(asA,tenants.a.projectId)).data.tasks.find((x:any)=>x.id===t.id).title).toBe("My unsaved edit");
   const current=(await read(asA,tenants.a.projectId)).data.tasks.find((x:any)=>x.id===t.id);
   await page.locator("#tp-search").fill("My unsaved edit");
@@ -212,7 +212,7 @@ test("autosave recovers a dropped response without duplication and keeps concurr
   await page.locator('[data-task="'+t.id+'"] .tp-title').fill("Discard me");await page.locator('[data-task="'+t.id+'"] .tp-title').press("Enter");
   await expect(page.locator("#tp-discard")).toBeVisible();
   page.once("dialog",d=>d.accept());await page.locator("#tp-discard").click();
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   expect((await read(asA,tenants.a.projectId)).data.tasks.find((x:any)=>x.id===t.id).title).toBe("Server version retained");
   await page.locator("#tp-search").fill("Server version retained");
   await page.evaluate(()=>document.body.classList.add("dark-mode"));
@@ -255,26 +255,26 @@ test("manual ordering, invalid input correction, multiple categories and XSS-saf
   test.setTimeout(90000);await browser(page,asA);
   const p=tenants.a.projectId,tag=unique("Order");
   const rows=await add(asA,p,[{title:tag+" A",category:"Order Ton",day:"2027-07-12"},{title:tag+" B",category:"Order Licht",day:"2027-07-12"},{title:tag+" C",category:"Order Logistik",day:"2027-07-13"}]);
-  await page.goto("/project/?id="+p+"#task-planning-view");await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await page.goto("/project/?id="+p+"#task-planning-view");await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-search").fill(tag);await page.locator(".tp-row").nth(1).locator('[data-action="expand"]').click();
-  await page.locator(".tp-row").nth(1).locator('[data-action="up"]').click();await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await page.locator(".tp-row").nth(1).locator('[data-action="up"]').click();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await expect(page.locator(".tp-title").first()).toHaveValue(tag+" B");
-  await page.reload();await expect(page.locator("#tp-save")).toHaveText("All changes saved");await page.locator("#tp-search").fill(tag);
+  await page.reload();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");await page.locator("#tp-search").fill(tag);
   await expect(page.locator(".tp-title").first()).toHaveValue(tag+" B");
   await page.locator("#tp-categories").selectOption(["Order Ton","Order Licht"]);await expect(page.locator(".tp-row")).toHaveCount(2);
   await page.locator("#tp-from").fill("2027-07-12");await page.locator("#tp-to").fill("2027-07-12");await expect(page.locator(".tp-row")).toHaveCount(2);
   const row=page.locator(".tp-row").first();await row.locator(".tp-title").fill("");await row.locator(".tp-title").press("Enter");
-  await expect(page.locator("#tp-error")).toContainText("valid text");await row.locator(".tp-title").fill(tag+" Corrected");await row.locator(".tp-title").press("Enter");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-error")).toContainText("gültigen Text");await row.locator(".tp-title").fill(tag+" Corrected");await row.locator(".tp-title").press("Enter");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   // Drag operates on the same stored manual ordering, while field edits never enable markup.
   await page.locator("#tp-reset").click();await page.locator("#tp-search").fill(tag);
   const before=await page.locator(".tp-title").evaluateAll(els=>els.map(el=>(el as HTMLInputElement).value));
   await page.locator(".tp-row").nth(2).locator('[data-action="drag"]').dragTo(page.locator(".tp-row").first());
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");await expect(page.locator(".tp-title").first()).toHaveValue(before[2]);
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");await expect(page.locator(".tp-title").first()).toHaveValue(before[2]);
   const xss='</textarea><script>window.taskXss=1</script><img src=x onerror="window.taskXss=2">';
   await add(asA,p,[{title:tag+" "+xss,description:xss,category:xss,checklist:[{title:xss}]}]);
   const r=await write(asA,p,"saveTemplate",{name:xss,items:[{title:xss,category:xss,description:xss}]});
-  await page.reload();await expect(page.locator("#tp-save")).toHaveText("All changes saved");await page.locator("#tp-search").fill(tag);
+  await page.reload();await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");await page.locator("#tp-search").fill(tag);
   await expect(page.locator(".tp-row")).toHaveCount(4);
   expect(await page.evaluate(()=>(window as any).taskXss)).toBeUndefined();
   await page.locator("#tp-packages").click();await page.locator("#tp-package-select").selectOption(String(r.ids[0]));await page.locator("#tp-package-edit").click();
@@ -309,7 +309,7 @@ test("missing reference dates, DST gaps and invalid saved filters refuse changes
 test("typing continues while a previous autosave response arrives without losing the active field",async({asA,tenants,page})=>{
   test.setTimeout(60000);await browser(page,asA);
   const p=tenants.a.projectId,title=unique("Fast typing"),[t]=await add(asA,p,[{title}]);
-  await page.goto("/project/?id="+p+"#task-planning-view");await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await page.goto("/project/?id="+p+"#task-planning-view");await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   await page.locator("#tp-search").fill(title);
   let delayed=false;
   await page.route("**/api/taskPlanning/action.php",async route=>{
@@ -320,7 +320,7 @@ test("typing continues while a previous autosave response arrives without losing
   const row=page.locator('[data-task="'+t.id+'"]');
   await row.locator('[data-field="category"]').fill("Fast category");await row.locator('[data-field="category"]').press("Enter");
   await row.locator(".tp-title").fill(title+" edited while saving");
-  await expect(page.locator("#tp-save")).toHaveText("All changes saved");
+  await expect(page.locator("#tp-save")).toHaveText("Alle Änderungen gespeichert");
   const saved=(await read(asA,p)).data.tasks.find((x:any)=>x.id===t.id);
   expect(saved).toMatchObject({title:title+" edited while saving",category:"Fast category"});
 });

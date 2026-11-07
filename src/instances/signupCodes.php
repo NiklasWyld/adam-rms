@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Signup Codes", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Beitrittscodes", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("BUSINESS:USER_SIGNUP_CODES:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

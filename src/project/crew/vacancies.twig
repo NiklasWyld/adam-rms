@@ -3,7 +3,7 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">
-           Crew Role Vacancies
+           Offene Crew-Stellen
         </h3>
     </div>
     <div class="card-body p-0 d-none d-lg-block">
@@ -11,22 +11,22 @@
             <thead>
             <tr>
                 <th style="width: 15%; min-width:300px;">
-                    Project
+                    Projekt
                 </th>
                 <th style="width: 15%; min-width:150px;">
-                    Project Client
+                    Auftraggeber
                 </th>
                 <th style="width: 10%; min-width:200px;">
-                    Project Dates
+                    Projekttermine
                 </th>
                 <th style="min-width:150px;">
-                    Role Name
+                    Rollenname
                 </th>
                 <th style="width: 10%; min-width:250px;">
-                    Deadline
+                    Frist
                 </th>
                 <th style="width: 10%; min-width:100px;">
-                    Places Remaining
+                    Freie Plätze
                 </th>
                 <th style="width: 300px">
                 </th>
@@ -52,8 +52,8 @@
                     </td>
                     <td>
                         {% if project != role.projects_id %}
-                            {{role.projects_dates_use_start ? role.projects_dates_use_start|date("d M Y h:ia") }}<br/>
-                            {{ role.projects_dates_use_end? role.projects_dates_use_end|date("d M Y h:ia") }}
+                            {{role.projects_dates_use_start ? role.projects_dates_use_start|date("d.m.Y H:i") }}<br/>
+                            {{ role.projects_dates_use_end? role.projects_dates_use_end|date("d.m.Y H:i") }}
                         {% endif %}
                         {% set project = role.projects_id %}
                     </td>
@@ -61,25 +61,25 @@
                         {{ role.projectsVacantRoles_name }}
                     </td>
                     <td>
-                        {{ role.projectsVacantRoles_deadline ? role.projectsVacantRoles_deadline|date("d M Y h:ia") : '' }}
+                        {{ role.projectsVacantRoles_deadline ? role.projectsVacantRoles_deadline|date("d.m.Y H:i") : '' }}
                     </td>
                     <td>
                         {{ role.projectsVacantRoles_slots - role.projectsVacantRoles_slotsFilled }}
                     </td>
                     <td class="project-actions text-right">
                         <div class="btn-group">
-                            <a type="button" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/project/crew/vacancy.php?id={{ role.projectsVacantRoles_id }}">More Info</a>
+                            <a type="button" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/project/crew/vacancy.php?id={{ role.projectsVacantRoles_id }}">Weitere Informationen</a>
                             {% if role.users_userid == USERDATA.users_userid %}
-                                <a href="vacantCrew.php?id={{ role.projects_id }}" class="btn btn-secondary btn-sm">Manage</a>
+                                <a href="vacantCrew.php?id={{ role.projects_id }}" class="btn btn-secondary btn-sm">Verwalten</a>
                             {% endif %}
                             {% if role.application %}
-                                <button type="button" class="btn btn-default btn-sm" disabled>Applied</button>
+                                <button type="button" class="btn btn-default btn-sm" disabled>Beworben</button>
                             {% else %}
                                 <a type="button" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/project/crew/vacancy.php?id={{ role.projectsVacantRoles_id }}">
                                     {% if role.projectsVacantRoles_firstComeFirstServed %}
-                                    Sign Up
+                                    Registrieren
                                     {% else %}
-                                    Apply
+                                    Bewerben
                                     {% endif %}
                                 </a>
                             {% endif %}
@@ -119,35 +119,35 @@
                             {{ role.projectsVacantRoles_description }}
                         </p>
                         <p>
-                            <strong>Project Dates: </strong>
-                            {{role.projects_dates_use_start ? role.projects_dates_use_start|date("d M Y h:ia") }}
+                            <strong>Projekttermine: </strong>
+                            {{role.projects_dates_use_start ? role.projects_dates_use_start|date("d.m.Y H:i") }}
                             {{role.projects_dates_use_start and role.projects_dates_use_end ? " - " }} 
-                            {{role.projects_dates_use_end ? role.projects_dates_use_end|date("d M Y h:ia") }}
+                            {{role.projects_dates_use_end ? role.projects_dates_use_end|date("d.m.Y H:i") }}
                         </p>
                         {% if role.projectsVacantRoles_deadline %}
                             <p>
-                                <strong>Deadline: </strong>
-                                {{ role.projectsVacantRoles_deadline|date("d M Y h:ia") }}
+                                <strong>Frist: </strong>
+                                {{ role.projectsVacantRoles_deadline|date("d.m.Y H:i") }}
                             </p>
                         {% endif %}
                         <p>
-                            <strong>Places Remaining: </strong>
+                            <strong>Freie Plätze: </strong>
                             {{ role.projectsVacantRoles_slots - role.projectsVacantRoles_slotsFilled }}
                         </p>
                         <div class="project-actions text-center">
                             <div class="btn-group">
-                                <a type="button" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/project/crew/vacancy.php?id={{ role.projectsVacantRoles_id }}">More Info</a>
+                                <a type="button" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/project/crew/vacancy.php?id={{ role.projectsVacantRoles_id }}">Weitere Informationen</a>
                                 {% if role.users_userid == USERDATA.users_userid %}
-                                    <a href="vacantCrew.php?id={{ role.projects_id }}" class="btn btn-secondary btn-sm">Manage</a>
+                                    <a href="vacantCrew.php?id={{ role.projects_id }}" class="btn btn-secondary btn-sm">Verwalten</a>
                                 {% endif %}
                                 {% if role.application %}
-                                    <button type="button" class="btn btn-default btn-sm" disabled>Applied</button>
+                                    <button type="button" class="btn btn-default btn-sm" disabled>Beworben</button>
                                 {% else %}
                                     <a type="button" class="btn btn-default btn-sm" href="{{CONFIG.ROOTURL}}/project/crew/vacancy.php?id={{ role.projectsVacantRoles_id }}">
                                         {% if role.projectsVacantRoles_firstComeFirstServed %}
-                                        Sign Up
+                                        Registrieren
                                         {% else %}
-                                        Apply
+                                        Bewerben
                                         {% endif %}
                                     </a>
                                 {% endif %}

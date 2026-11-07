@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("MAINTENANCE_JOBS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Maintenance Jobs", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Wartungsaufträge", "BREADCRUMB" => false];
 
 $PAGEDATA['showCompleted'] = isset($_GET['completed']);
 

@@ -2,61 +2,61 @@
 	<div class="col-lg-6 col-md-6 col-sm-12">
 		<div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Overview</h3>
+				<h3 class="card-title">Übersicht</h3>
 			</div>
 			<div class="card-body p-0">
 				<table class="table">
 					<tr>
 						<td style="width: 35%;">
-							Equipment SubTotal
+							Material vor Rabatt
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.prices.subTotal|money }}
 						</td>
 						<td style="width: 35%;">
-							Sales
+							Verkäufe
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.payments.sales.total|money }}
 						</td>
 					</tr>
 					<tr>
 						<td style="width: 35%;">
-							{% if FINANCIALS.prices.discounts|moneyPositive %}Discounts{% else %}Adjustments
+							{% if FINANCIALS.prices.discounts|moneyPositive %}Rabatte{% else %}Anpassungen
 							{% endif %}
 						</td>
-						<td style="width: 15%;text-align: right;">
-							{% if FINANCIALS.prices.discounts|moneyPositive %}&#8209;{{ FINANCIALS.prices.discounts|money }}{% else %}None
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
+							{% if FINANCIALS.prices.discounts|moneyPositive %}&#8209;{{ FINANCIALS.prices.discounts|money }}{% else %}Keine
 							{% endif %}
 						</td>
 						<td style="width: 35%;">
-							Staffing
+							Personal
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.payments.staff.total|money }}
 						</td>
 					</tr>
 					<tr>
 						<td style="width: 35%;">
-							<b>Equipment Total</b>
+							<b>Material gesamt</b>
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.prices.total|money }}
 						</td>
 						<td style="width: 35%;">
-							Additional Hires
+							Zumietungen
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.payments.subHire.total|money }}
 						</td>
 					</tr>
 					<tr style="background-color: rgba(0,0,0,.03);">
                         <td style="width: 35%;"></td>
-						<td style="width: 15%;text-align: right;"></td>
+						<td class="text-nowrap" style="width: 15%;text-align: right;"></td>
 						<td style="width: 35%;">
-							<b>SubTotal</b>
+							<b>Zwischensumme</b>
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.payments.subTotal|money }}
 						</td>
 					</tr>
@@ -64,19 +64,19 @@
 						<td style="width: 35%;"></td>
 						<td style="width: 10%;"></td>
 						<td style="width: 40%;">
-							Payments Received to Date
+							Bisherige Zahlungseingänge
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							&#8209;{{ FINANCIALS.payments.received.total|money }}
 						</td>
 					</tr>
 					<tr>
 						<td style="width: 35%;"></td>
-						<td style="width: 15%;text-align: right;"></td>
+						<td class="text-nowrap" style="width: 15%;text-align: right;"></td>
 						<td style="width: 35%;">
-							<b>Grand Total Outstanding</b>
+							<b>Offener Betrag</b>
 						</td>
-						<td style="width: 15%;text-align: right;">
+						<td class="text-nowrap" style="width: 15%;text-align: right;">
 							{{ FINANCIALS.payments.total|money }}
 						</td>
 					</tr>
@@ -84,16 +84,16 @@
 			</div>
 			<div class="card-footer">
 				<div class="btn-group float-right">
-					<a href="{{ CONFIG.LINKS_USERGUIDEURL }}projects/finance" target="_blank" type="button" class="btn btn-info">Help</a>
+					<a href="{{ CONFIG.LINKS_USERGUIDEURL }}projects/finance" target="_blank" type="button" class="btn btn-info">Hilfe</a>
 
 					{% if "PROJECTS:PROJECT_PAYMENTS:CREATE"|instancePermissions %}
-						<button type="button" class="btn btn-default newPayment" data-type="1">Add Payment Received</button>
+						<button type="button" class="btn btn-default newPayment" data-type="1">Zahlungseingang erfassen</button>
 						<button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
-							<span class="sr-only">Toggle Dropdown</span>
+							<span class="sr-only">Auswahl öffnen</span>
 							<div class="dropdown-menu" role="menu">
-								<a class="dropdown-item newPayment" data-type="2" href="#">Add Sales Item</a>
-								<a class="dropdown-item newPayment" data-type="3" href="#">Add Additional Hire</a>
-								<a class="dropdown-item newPayment" data-type="4" href="#">Add Staff Cost</a>
+								<a class="dropdown-item newPayment" data-type="2" href="#">Verkaufsposition hinzufügen</a>
+								<a class="dropdown-item newPayment" data-type="3" href="#">Zumietung hinzufügen</a>
+								<a class="dropdown-item newPayment" data-type="4" href="#">Personalkosten hinzufügen</a>
 							</div>
 						</button>
 					{% endif %}
@@ -105,38 +105,38 @@
 	<div class="col-lg-6 col-md-6 col-sm-12">
 		<div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Invoice Notes</h3>
+				<h3 class="card-title">Abrechnungshinweise</h3>
 			</div>
 			<div class="card-body">
 				{% if project.projects_invoiceNotes|nl2br %}
 					{{ project.projects_invoiceNotes|nl2br }}
 				{% else %}
-					<i>None Set</i>
+					<i>Keine Angabe</i>
 				{% endif %}
 			</div>
             {% if "PROJECTS:EDIT:INVOICE_NOTES"|instancePermissions %}
 			<div class="card-footer">
 				<div class="btn-group float-right">
-                    <button type="button" class="btn btn-default editProjectInvoiceNotes" title="Edit">Edit Invoice Notes</button>
+                    <button type="button" class="btn btn-default editProjectInvoiceNotes" title="Bearbeiten">Abrechnungshinweise bearbeiten</button>
 				</div>
 			</div>
             {% endif %}
 		</div>
         <div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Delivery Notes</h3>
+				<h3 class="card-title">Lieferscheine</h3>
 			</div>
 			<div class="card-body">
 				{% if project.projects_deliveryNotes|nl2br %}
 					{{ project.projects_deliveryNotes|nl2br }}
 				{% else %}
-					<i>None Set</i>
+					<i>Keine Angabe</i>
 				{% endif %}
 			</div>
             {% if "PROJECTS:EDIT:DELIVERY_NOTES"|instancePermissions %}
 			<div class="card-footer">
 				<div class="btn-group float-right">
-                    <button type="button" class="btn btn-default editProjectDeliveryNotes" title="Edit">Edit Delivery Notes</button>
+                    <button type="button" class="btn btn-default editProjectDeliveryNotes" title="Bearbeiten">Lieferhinweise bearbeiten</button>
 				</div>
 			</div>
             {% endif %}
@@ -148,16 +148,16 @@
 		{% if FINANCIALS.payments.sales.ledger %}
 			<div class="card">
 				<div class="card-header">
-					<h3 class="card-title">Sales</h3>
+					<h3 class="card-title">Verkäufe</h3>
 				</div>
 				<div class="card-body p-0">
 					<table class="table table-bordered">
 						<thead>
 							<tr>
-								<th>Quantity</th>
-								<th style="width: 100%;">Description</th>
-								<th>Amount</th>
-								<th>Total</th>
+								<th>Menge</th>
+								<th style="width: 100%;">Beschreibung</th>
+								<th>Betrag</th>
+								<th>Gesamt</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -185,7 +185,7 @@
 											</button>
 										{% endif %}
 										{% if "PROJECTS:PROJECT_PAYMENTS:DELETE"|instancePermissions %}
-											<button title="Delete" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
+											<button title="Löschen" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
 												<i class="fa fa-trash"></i>
 											</button>
 										{% endif %}
@@ -200,16 +200,16 @@
 		{% if FINANCIALS.payments.subHire.ledger %}
 			<div class="card">
 				<div class="card-header">
-					<h3 class="card-title">Additional Hires</h3>
+					<h3 class="card-title">Zumietungen</h3>
 				</div>
 				<div class="card-body p-0">
 					<table class="table table-bordered">
 						<thead>
 							<tr>
-								<th>Quantity</th>
-								<th style="width: 100%;">Description</th>
-								<th>Amount</th>
-								<th>Total</th>
+								<th>Menge</th>
+								<th style="width: 100%;">Beschreibung</th>
+								<th>Betrag</th>
+								<th>Gesamt</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -237,7 +237,7 @@
 											</button>
 										{% endif %}
 										{% if "PROJECTS:PROJECT_PAYMENTS:DELETE"|instancePermissions %}
-											<button title="Delete" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
+											<button title="Löschen" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
 												<i class="fa fa-trash"></i>
 											</button>
 										{% endif %}
@@ -252,17 +252,17 @@
 		{% if FINANCIALS.payments.staff.ledger %}
 			<div class="card">
 				<div class="card-header">
-					<h3 class="card-title">Staff</h3>
+					<h3 class="card-title">Personal</h3>
 				</div>
 				<div class="card-body p-0">
 					<table class="table table-bordered">
 						<thead>
 							<tr>
-								<th>Quantity</th>
-								<th>Supplier</th>
-								<th style="width: 100%;">Description</th>
-								<th>Amount</th>
-								<th>Total</th>
+								<th>Menge</th>
+								<th>Lieferant</th>
+								<th style="width: 100%;">Beschreibung</th>
+								<th>Betrag</th>
+								<th>Gesamt</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -280,7 +280,7 @@
 											</button>
 										{% endif %}
 										{% if "PROJECTS:PROJECT_PAYMENTS:DELETE"|instancePermissions %}
-											<button title="Delete" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
+											<button title="Löschen" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
 												<i class="fa fa-trash"></i>
 											</button>
 										{% endif %}
@@ -297,17 +297,17 @@
 		{% if FINANCIALS.payments.received.ledger %}
 			<div class="card">
 				<div class="card-header">
-					<h3 class="card-title">Payments Received</h3>
+					<h3 class="card-title">Zahlungseingänge</h3>
 				</div>
 				<div class="card-body p-0">
 					<table class="table table-bordered">
 						<thead>
 							<tr>
-								<th>Reference</th>
-								<th>Date</th>
-								<th>Method</th>
-								<th>Comment</th>
-								<th>Amount</th>
+								<th>Referenz</th>
+								<th>Datum</th>
+								<th>Zahlungsart</th>
+								<th>Kommentar</th>
+								<th>Betrag</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -315,7 +315,7 @@
 							{% for payment in FINANCIALS.payments.received.ledger %}
 								<tr>
 									<td>{{ payment.payments_reference }}</td>
-									<td>{{ payment.payments_date|date("d/M/Y G:i:s") }}</td>
+									<td>{{ payment.payments_date|date("d.m.Y H:i:s") }}</td>
 									<td>{{ payment.payments_method }}</td>
 									<td>{{ payment.payments_comment|nl2br }}</td>
 									<td>{{ payment.payments_amount|money }}</td>
@@ -325,7 +325,7 @@
 											</button>
 										{% endif %}
 										{% if "PROJECTS:PROJECT_PAYMENTS:DELETE"|instancePermissions %}
-											<button title="Delete" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
+											<button title="Löschen" class="btn btn-sm btn-danger deletePaymentButton" data-paymentid="{{ payment.payments_id }}">
 												<i class="fa fa-trash"></i>
 											</button>
 										{% endif %}

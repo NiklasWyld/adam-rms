@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("PROJECTS:PROJECT_CREW:VIEW:VIEW_AND_APPLY_FOR_CREW_ROLES")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Crew Role Vacancies", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Offene Crew-Stellen", "BREADCRUMB" => false];
 $DBLIB->where("projectsVacantRoles.projectsVacantRoles_deleted",0);
 $DBLIB->where("projectsVacantRoles.projectsVacantRoles_open",1);
 if ($AUTH->data['instance']["instancePositions_id"]) $DBLIB->where("(projectsVacantRoles.projectsVacantRoles_visibleToGroups IS NULL OR (FIND_IN_SET(" . $AUTH->data['instance']["instancePositions_id"] . ", projectsVacantRoles.projectsVacantRoles_visibleToGroups) > 0))"); //If the user doesn't have a position - they're server admins

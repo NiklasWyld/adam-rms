@@ -14,12 +14,14 @@ test("unauthenticated visitors are pointed to the login page", async ({ page }) 
   await expect(page.locator("#emailInput")).toBeVisible();
 });
 
-test("a wrong password shows an error and stays on the login page", async ({ page }) => {
+test("a wrong password shows a German error on a narrow screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 760 });
   await page.goto("/login/");
   await page.locator("#emailInput").fill(TEST_USER.email);
   await page.locator("#passwordInput").fill("not-the-password");
-  await page.getByRole("button", { name: "Login" }).click();
-  await expect(page.locator("#errorMessageBox")).toBeVisible();
+  await page.getByRole("button", { name: "Anmelden" }).click();
+  await expect(page.locator("#errorMessageBox")).toHaveText("Benutzername, E-Mail-Adresse oder Passwort ist falsch.");
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
   await expect(page).toHaveURL(/\/login\/?/);
 });
 

@@ -18,7 +18,7 @@ if ($PAGEDATA['role']['projectsVacantRoles_privateToPM'] == 1) {
 }
 
 
-$PAGEDATA['pageConfig'] = ["TITLE" => $PAGEDATA['role']['projectsVacantRoles_name'] . " - Applications | " . $PAGEDATA['role']['projects_name'], "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => $PAGEDATA['role']['projectsVacantRoles_name'] . " – Bewerbungen | " . $PAGEDATA['role']['projects_name'], "BREADCRUMB" => false];
 
 $DBLIB->where("projectsVacantRoles_id",$PAGEDATA['role']["projectsVacantRoles_id"]);
 $DBLIB->where("projectsVacantRolesApplications_deleted",0);

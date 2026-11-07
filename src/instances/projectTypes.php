@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Project Types", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Projekttypen", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("PROJECTS:PROJECT_TYPES:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

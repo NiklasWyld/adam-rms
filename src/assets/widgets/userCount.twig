@@ -3,14 +3,14 @@
 
 <div class="card statsWidget" data-widgetname="userCount">
     <div class="card-header">
-        <h3 class="card-title">Users</h3>
+        <h3 class="card-title">Benutzer</h3>
         <div class="card-tools">
             {% if WIDGETS.checkUser('userCount') %}
-                <button type="button" class="btn btn-sm btn-tool removeWidgetButton" data-card-widget="collapse" data-widgetname="userCount" title="Remove from Dashboard">
+                <button type="button" class="btn btn-sm btn-tool removeWidgetButton" data-card-widget="collapse" data-widgetname="userCount" title="Aus Übersicht entfernen">
                     <i class="fas fa-times"></i>
                 </button>
             {% else %}
-                <button type="button" class="btn btn-sm btn-tool addWidgetButton" data-widgetname="userCount" title="Add to Dashboard">
+                <button type="button" class="btn btn-sm btn-tool addWidgetButton" data-widgetname="userCount" title="Zur Übersicht hinzufügen">
                     <i class="fas fa-plus"></i>
                 </button>
             {% endif %}
@@ -25,7 +25,7 @@
                     <span class="font-weight-bold">
                       <i class="ion ion-android-arrow-up text-warning"></i> {{ THISWIDGET.COUNT }}
                     </span>
-                <span class="text-muted">TOTAL</span>
+                <span class="text-muted">GESAMT</span>
             </p>
         </div>
     </div>

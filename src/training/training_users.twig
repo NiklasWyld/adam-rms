@@ -6,16 +6,16 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         {% if search|length > 0 %}
-                            Search results for users matching <b>{{ search }}</b>
+                            Suchergebnisse für Benutzer mit <b>{{ search }}</b>
                         {% else %}
-                            Users
+                            Benutzer
                         {% endif %}
                     </h3>
                     <div class="card-tools pull-right">
                         <form class="input-group input-group-sm" style="width: 150px;" method="GET">
                             <input type="hidden" name="users" value="true" />
                             <input type="hidden" name="id" value="{{ module.modules_id }}" />
-                            <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                            <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                                                             </div>
@@ -27,9 +27,9 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    {% if module.modules_type != 3 %}<th>Progress</th>{% endif %}
-                                    {% if module.modules_type != 1 %}<th>Certifications</th>{% endif %}
-                                    <th>Tools</th>
+                                    {% if module.modules_type != 3 %}<th>Fortschritt</th>{% endif %}
+                                    {% if module.modules_type != 1 %}<th>Zertifikate</th>{% endif %}
+                                    <th>Werkzeuge</th>
                                 </tr>
                             </thead>
                             {% if users|length > 0 %}
@@ -59,7 +59,7 @@
                                             {% endfor %}
                                             </ol>
                                             {% if user.dates.start %}
-                                                <i class="far fa-calendar-alt"></i> {{ user.dates.start|date("d M Y h:ia") }} - {{ user.dates.updated|date("d M Y h:ia") }}
+                                                <i class="far fa-calendar-alt"></i> {{ user.dates.start|date("d.m.Y H:i") }} - {{ user.dates.updated|date("d.m.Y H:i") }}
                                             {% endif %}
                                         {% endif %}
                                     </td>
@@ -68,9 +68,9 @@
                                         <td>
                                             {% for module in user.userModulesCertifications %}
                                                 {% if module.userModulesCertifications_revoked == 1 %}
-                                                REVOKED -
+                                                WIDERRUFEN –
                                                 {% endif %}
-                                                <b>{{ module.users_name1 }} {{ module.users_name2 }}</b> ({{ module.userModulesCertifications_timestamp|date("d M Y h:ia") }}): {{ module.userModulesCertifications_approvedComment }}
+                                                <b>{{ module.users_name1 }} {{ module.users_name2 }}</b> ({{ module.userModulesCertifications_timestamp|date("d.m.Y H:i") }}): {{ module.userModulesCertifications_approvedComment }}
                                                 <br/>
                                             {% endfor %}
                                         </td>
@@ -79,10 +79,10 @@
                                         <div class="btn-group">
                                             {% if module.modules_type != 1 %}
                                                 {% if "TRAINING:EDIT:CERTIFY_USER"|instancePermissions %}
-                                                    <button class="btn btn-sm btn-success certifyButton" data-userid="{{ user['users_userid'] }}">Certify</button>
+                                                    <button class="btn btn-sm btn-success certifyButton" data-userid="{{ user['users_userid'] }}">Zertifizieren</button>
                                                 {% endif %}
                                                 {% if "TRAINING:EDIT:REVOKE_USER_CERTIFICATION"|instancePermissions and user.userModulesCertifications|length >0  %}
-                                                    <button class="btn btn-sm btn-danger revokeButton" data-userid="{{ user['users_userid'] }}">Revoke all</button>
+                                                    <button class="btn btn-sm btn-danger revokeButton" data-userid="{{ user['users_userid'] }}">Alle widerrufen</button>
                                                 {% endif %}
                                             {% endif %}
                                         </div>
@@ -127,7 +127,7 @@
             {% if "TRAINING:EDIT:CERTIFY_USER"|instancePermissions %}
             $('.certifyButton').on('click', function(e){
                 var userid = $(this).data("userid");
-                bootbox.prompt("Certification Comment", function(result){
+                bootbox.prompt("Kommentar zur Zertifizierung", function(result){
                     if (result && result.length > 0) {
                         ajaxcall("training/certify.php", {
                             "userid": userid,

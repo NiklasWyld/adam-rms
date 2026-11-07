@@ -55,6 +55,7 @@
     <!--Summernote-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" integrity="sha256-CLMYHViXNCxDUd/ySLeJJjyLtteBZwjqZ4c5p6U7L78=" crossorigin="anonymous" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.min.js" integrity="sha256-jPK1ABk4CuFvSr31v4CLU7X7XCvixZSi8fTTCw/tsto=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/lang/summernote-de-DE.min.js" integrity="sha384-WnPZhn19+RKqrq7VkK+uamv559W5uag8HT4+LC2gVF8yuOFPZ9a13U1dzak2WxDM" crossorigin="anonymous"></script>
 
     <!--Sortable-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
@@ -83,8 +84,8 @@
                     {% if project.projectsStatuses_assetsReleased == 1 %}
                     <div class="col-12">
                         <div class="alert alert-danger">
-                            <h5><i class="fas fa-exclamation-triangle"></i> Assets not locked - assets are released</h5>
-                            Assets assigned to this project can be assigned to other projects that clash with this one, as the project is no longer active.
+                            <h5><i class="fas fa-exclamation-triangle"></i> Material ist freigegeben</h5>
+                            Das Projekt ist inaktiv. Zugeordnetes Material kann auch in zeitgleich laufenden Projekten verwendet werden.
                         </div>
                     </div>
                     {% endif %}
@@ -96,29 +97,29 @@
                             <ul class="nav nav-pills" id="nav-bar">
                                 <li class="nav-item"><a class="nav-link active" href="#details-view" data-toggle="tab" style="font-weight:bold;">{{project.projects_name}}</a></li>
                                 {% if project.projectsTypes_config_assets == 1 and project.projects_dates_deliver_start and project.projects_archived != 1 and "PROJECTS:PROJECT_ASSETS:CREATE:ASSIGN_AND_UNASSIGN"|instancePermissions %}
-                                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/assets.php?project={{project.projects_id}}&project_referer={{project.projects_id}}"><i class="fas fa-plus"></i> Add Assets</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/assets.php?project={{project.projects_id}}&project_referer={{project.projects_id}}"><i class="fas fa-plus"></i> Material hinzufügen</a></li>
                                 {% endif %}
                                 {% if (FINANCIALS['assetsAssigned'] or FINANCIALS['assetsAssignedSUB']) and project.projectsTypes_config_assets == 1 %}
-                                    <li class="nav-item"><a class="nav-link" href="#assets-view" data-toggle="tab"><i class="fas fa-list"></i> Assets List</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#assets-board" data-toggle="tab"><i class="fas fa-shipping-fast"></i> Asset Dispatch</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#assets-view" data-toggle="tab"><i class="fas fa-list"></i> Materialliste</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#assets-board" data-toggle="tab"><i class="fas fa-shipping-fast"></i> Materialausgabe</a></li>
                                 {% endif %}
-                                <li class="nav-item"><a class="nav-link" href="#stage-planning-view" data-toggle="tab"><i class="fas fa-map"></i> Stage Planning</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#shift-planning-view" data-toggle="tab"><i class="fas fa-calendar-alt"></i> Shift Planning</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#channel-planning-view" data-toggle="tab"><i class="fas fa-plug"></i> Channel Planning</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#task-planning-view" data-toggle="tab"><i class="fas fa-check-square"></i> Task Planning</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#room-planning-view" data-toggle="tab"><i class="fas fa-door-open"></i> Room Planning</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#file-view" data-toggle="tab"><i class="fas fa-file-alt"></i> {% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and project.projectsTypes_config_files == 1 %}Files, {% endif %}{% if project.projectsTypes_config_notes == 1 %}Notes, {% endif %} Invoices & Quotes</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#stage-planning-view" data-toggle="tab"><i class="fas fa-map"></i> Bühnenplanung</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#shift-planning-view" data-toggle="tab"><i class="fas fa-calendar-alt"></i> Schichtplanung</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#channel-planning-view" data-toggle="tab"><i class="fas fa-plug"></i> Kanalplanung</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#task-planning-view" data-toggle="tab"><i class="fas fa-check-square"></i> Aufgabenplanung</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#room-planning-view" data-toggle="tab"><i class="fas fa-door-open"></i> Raumplanung</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#file-view" data-toggle="tab"><i class="fas fa-file-alt"></i> {% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and project.projectsTypes_config_files == 1 %}Dateien, {% endif %}{% if project.projectsTypes_config_notes == 1 %}Notizen, {% endif %} Rechnungen und Angebote</a></li>
                                 {% if "PROJECTS:PROJECT_PAYMENTS:VIEW"|instancePermissions and project.projectsTypes_config_finance == 1 %}
-                                    <li class="nav-item"><a class="nav-link" href="#payments-view" data-toggle="tab"><i class="fas fa-pound-sign"></i> Finance</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#payments-view" data-toggle="tab"><i class="fas fa-pound-sign"></i> Finanzen</a></li>
                                 {% endif %}
                                 {% if "PROJECTS:PROJECT_CREW:VIEW"|instancePermissions and project.projectsTypes_config_crew == 1 %}
                                     <li class="nav-item"><a class="nav-link" href="#crew-view" data-toggle="tab"><i class="fas fa-users"></i> Crew</a></li>
                                 {% endif %}
                                 {% if project.subProjects %}
-                                    <li class="nav-item"><a class="nav-link" href="#calendar-view" data-toggle="tab"><i class="fas fa-calendar-alt"></i> Sub Projects</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#calendar-view" data-toggle="tab"><i class="fas fa-calendar-alt"></i> Teilprojekte</a></li>
                                 {% endif %}
                                 {% if project.auditLog|length > 0 %}
-                                <li class="nav-item"><a class="nav-link" href="#log-view" data-toggle="tab"><i class="fas fa-comments"></i> Comments & History</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#log-view" data-toggle="tab"><i class="fas fa-comments"></i> Kommentare und Verlauf</a></li>
                                 {% endif %}
                             </ul>
                         </div>
@@ -132,7 +133,7 @@
                                             <h3 class="card-title">{{ project.projectsTypes_name }}</h3>
                                             <div class="card-tools">
                                                 {% if project.projectsTypes_config_assets == 1 and project.projects_dates_deliver_start and project.projects_archived != 1 and "PROJECTS:PROJECT_ASSETS:CREATE:ASSIGN_ALL_BUSINESS_ASSETS"|instancePermissions %}
-                                                    <button type="button" class="btn btn-tool" title="Add all assets to Project" id="addAllAssetsToProject"><i class="fas fa-dolly"></i></button>
+                                                    <button type="button" class="btn btn-tool" title="Gesamtes Material zum Projekt hinzufügen" id="addAllAssetsToProject"><i class="fas fa-dolly"></i></button>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -147,8 +148,8 @@
                                                 <div class="col-12" id="projectDetailBox">
                                                     {% if project.projects_archived == 1 %}
                                                         <div class="alert alert-danger">
-                                                            <h5><i class="icon fas fa-ban"></i> Archived</h5>
-                                                            This project has been moved to archive
+                                                            <h5><i class="icon fas fa-ban"></i> Archiviert</h5>
+                                                            Dieses Projekt wurde archiviert.
                                                         </div>
                                                     {% endif %}
                                                     <h3 class="text-primary">{{project.projects_name}}</h3>
@@ -160,23 +161,23 @@
                                                         <div id="projectClientContainer">
                                                             {% if "PROJECTS:EDIT:CLIENT"|instancePermissions and project.projectsTypes_config_client == 1 %}
                                                                 <div class="d-flex flex-row">
-                                                                    <p class="text-sm">Client</p>
+                                                                    <p class="text-sm">Kunde</p>
                                                                     {% if "CLIENTS:CREATE"|instancePermissions and "PROJECTS:EDIT:CLIENT"|instancePermissions %}
-                                                                    <button type="button" class="btn btn-link btn-sm ml-auto" id="newClientButton">Create Client</button>
+                                                                    <button type="button" class="btn btn-link btn-sm ml-auto" id="newClientButton">Kunden anlegen</button>
                                                                     {% endif %}
                                                                 </div>
                                                                 <select class="form-control select2bs4" multiple id="editProjectClient">
                                                                     {% if project.clients_id == "" %}
-                                                                        <option value="" disabled selected>No Client Selected....</option>
+                                                                        <option value="" disabled selected>Kein Kunde ausgewählt</option>
                                                                     {% endif %}
                                                                     {% for client in clients %}
                                                                         {% if client.clients_archived == 0 or ((client.clients_archived == 1) and (project.clients_id == client.clients_id) ) %}
-                                                                            <option value="{{ client.clients_id }}" {{ project.clients_id == client.clients_id ? 'selected' }} {{ client.clients_archived == 1 ? 'disabled' }}>{{ client.clients_archived == 1 ? '[Archived] ' }}{{ client.clients_name }}</option>
+                                                                            <option value="{{ client.clients_id }}" {{ project.clients_id == client.clients_id ? 'selected' }} {{ client.clients_archived == 1 ? 'disabled' }}>{{ client.clients_archived == 1 ? '[Archiviert] ' }}{{ client.clients_name }}</option>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 </select>
                                                             {% elseif project.projectsTypes_config_client == 1  %}
-                                                                <p class="text-sm">Client
+                                                                <p class="text-sm">Kunde
                                                                     <b class="d-block">
                                                                         <a  style="color: inherit; text-decoration: inherit;"  {% if "CLIENTS:VIEW"|instancePermissions %}href="{{ CONFIG.ROOTURL }}/clients.php"{% endif %}>
                                                                             {{ project.clients_name }}</a>
@@ -186,14 +187,14 @@
                                                         </div>
                                                         <div id="projectManagerContainer">
                                                             {% if "PROJECTS:EDIT:LEAD"|instancePermissions %}
-                                                                <p class="text-sm">Project Manager</p>
+                                                                <p class="text-sm">Projektleitung</p>
                                                                 <select class="form-control select2bs4" multiple id="editProjectManager">
                                                                     {% for user in potentialProjectManagers %}
                                                                         <option value="{{ user.users_userid }}" {{ project.users_userid == user.users_userid ? 'selected' }}>{{ (user.users_name1 ~ " " ~ user.users_name2) }}</option>
                                                                     {% endfor %}
                                                                 </select>
                                                             {% else %}
-                                                                <p class="text-sm">Project Manager
+                                                                <p class="text-sm">Projektleitung
                                                                     <b class="d-block">
                                                                         {% if "BUSINESS:USERS:VIEW:INDIVIDUAL_USER"|instancePermissions %}
                                                                         <a style="color: inherit; text-decoration: inherit;" href="{{ CONFIG.ROOTURL }}/user.php?id={{ project.projects_manager }}">
@@ -209,32 +210,32 @@
                                                         <div id="projectVenueContainer">
                                                             {% if "PROJECTS:EDIT:ADDRESS"|instancePermissions and project.projectsTypes_config_venue == 1  %}
                                                                 <div class="d-flex flex-row">
-                                                                    <p class="text-sm">Venue</p>
+                                                                    <p class="text-sm">Veranstaltungsort</p>
                                                                     {% if "LOCATIONS:CREATE"|instancePermissions %}
-                                                                        <button type="button" class="btn btn-link btn-sm ml-auto" data-toggle="modal" data-target="#createLocationModal">Create Location</button>
+                                                                        <button type="button" class="btn btn-link btn-sm ml-auto" data-toggle="modal" data-target="#createLocationModal">Standort anlegen</button>
                                                                     {% endif %}
                                                                 </div>
                                                                 <select class="form-control select2bs4" multiple id="editProjectAddress">
                                                                     {% if project.locations_id == "" %}
-                                                                        <option value="" disabled selected>No Location Selected....</option>
+                                                                        <option value="" disabled selected>Kein Standort ausgewählt</option>
                                                                     {% endif %}
                                                                     {% for location in locations %}
-                                                                        <option value="{{ location.locations_id }}" {{ project.locations_id == location.locations_id ? 'selected' }} {{ location.locations_archived == 1 ? 'disabled' }}>{{ location.locations_archived == 1 ? '[Archived] ' }}{{ location.locations_name }}</option>
+                                                                        <option value="{{ location.locations_id }}" {{ project.locations_id == location.locations_id ? 'selected' }} {{ location.locations_archived == 1 ? 'disabled' }}>{{ location.locations_archived == 1 ? '[Archiviert] ' }}{{ location.locations_name }}</option>
                                                                         {% for subLocation in location.linkedToThis %}
                                                                             <option value="{{ subLocation.locations_id }}" {{ project.locations_id == subLocation.locations_id ? 'selected' }}  {{ subLocation.locations_archived == 1 ? 'disabled' }} title="{% for i in range(1, subLocation['tier']) %}{% if loop.last %}&#8627;{% else %}&nbsp;&nbsp;{% endif %}{% endfor %}">
-                                                                                {{ subLocation.locations_archived == 1 ? '[Archived] ' }}{{ subLocation.locations_name }}
+                                                                                {{ subLocation.locations_archived == 1 ? '[Archiviert] ' }}{{ subLocation.locations_name }}
                                                                             </option>
                                                                         {% endfor %}
                                                                     {% endfor %}
                                                                 </select>
                                                             {% elseif project.projectsTypes_config_venue == 1 %}
-                                                                <p class="text-sm">Venue
+                                                                <p class="text-sm">Veranstaltungsort
                                                                     <b class="d-block"><a  style="color: inherit; text-decoration: inherit;"  {% if "LOCATIONS:VIEW"|instancePermissions %}href="{{ CONFIG.ROOTURL }}/location/"{% endif %}>{{ project.locations_name }}</a></b>
                                                                 </p>
                                                             {% endif %}
                                                         </div>
                                                         <div id="projectDatesContainer">
-                                                            <p class="text-sm">Dates</p>
+                                                            <p class="text-sm">Termine</p>
                                                             {% if "PROJECTS:EDIT:DATES"|instancePermissions %}
                                                             <div class="input-group">
                                                                 <div class="input-group-prepend">
@@ -243,15 +244,15 @@
                                                                 <input type="text" class="form-control float-right" id="datePickerInput">
                                                             </div>
                                                             {% else %}
-                                                            <b class="d-block">{{project.projects_dates_use_start ? project.projects_dates_use_start|date("Y-m-d h:i:sa")  ~ ' - ' ~  project.projects_dates_use_end|date("Y-m-d h:i:sa") }}</b>
+                                                            <b class="d-block">{{project.projects_dates_use_start ? project.projects_dates_use_start|date("d.m.Y H:i")  ~ ' - ' ~  project.projects_dates_use_end|date("d.m.Y H:i") }}</b>
                                                             {% endif %}
                                                         </div>
                                                         {% if project.projectsTypes_config_assets == 1 %}
                                                         <div id="projectAssetDatesContainer">
                                                             <div class="d-flex flex-row">
-                                                                <p class="text-sm">Dates assets in use</p>
+                                                                <p class="text-sm">Zeitraum der Materialnutzung</p>
                                                                 {% if "PROJECTS:EDIT:DATES"|instancePermissions and project.projects_dates_use_start %}
-                                                                <button type="button" class="btn btn-link btn-sm ml-auto" id="copyProjectDatesToDeliverDates">Copy from Project Dates</button>
+                                                                <button type="button" class="btn btn-link btn-sm ml-auto" id="copyProjectDatesToDeliverDates">Projekttermine übernehmen</button>
                                                                 {% endif %}
                                                             </div>
                                                             {% if "PROJECTS:EDIT:DATES"|instancePermissions %}
@@ -262,41 +263,41 @@
                                                                     <input type="text" class="form-control float-right" id="datePickerInputDeliver">
                                                                 </div>
                                                             {% else %}
-                                                                <b class="d-block">{{project.projects_dates_deliver_start ? project.projects_dates_deliver_start|date("Y-m-d h:i:sa") ~ ' - ' ~ project.projects_dates_deliver_end|date("Y-m-d h:i:sa") }}</b>
+                                                                <b class="d-block">{{project.projects_dates_deliver_start ? project.projects_dates_deliver_start|date("d.m.Y H:i") ~ ' - ' ~ project.projects_dates_deliver_end|date("d.m.Y H:i") }}</b>
                                                             {% endif %}
                                                         </div>
                                                         <div id="projectDurationContainer">
-                                                            <p class="text-sm">Project duration for asset pricing purposes</p>
+                                                            <p class="text-sm">Projektdauer für die Materialabrechnung</p>
                                                             {% if "PROJECTS:EDIT:DATES"|instancePermissions %}
                                                                 <div class="input-group">
                                                                     <div class="input-group-prepend">
-                                                                        <span class="input-group-text">Weeks</span>
+                                                                        <span class="input-group-text">Wochen</span>
                                                                     </div>
                                                                     <input type="number" min="0" step="1" max="256" value="{{ FINANCIALS['priceMaths']["weeks"] }}" class="form-control float-right" required id="financeDurationMathsWeeks">
-                                                                    <span class="input-group-text">Days</span>
+                                                                    <span class="input-group-text">Tage</span>
                                                                     <input type="number" min="0" step="1" max="256" value="{{ FINANCIALS['priceMaths']["days"] }}" class="form-control float-right" required id="financeDurationMathsDays">
                                                                     <div class="input-group-append">
-                                                                        <button class="btn btn-default" type="button" id="financeDurationMathsSave">Save</button>
+                                                                        <button class="btn btn-default" type="button" id="financeDurationMathsSave">Speichern</button>
                                                                     </div>
                                                                 </div>
                                                                 {% if project.projects_dates_use_start %}
                                                                 <div style="width: 100%;text-align: right;">
                                                                     {% if project.projects_dates_finances_days is same as(null) and project.projects_dates_finances_weeks is same as (null) %}
-                                                                        <p class="text-sm">Project duration is currently based on project dates</p>
+                                                                        <p class="text-sm">Die Projektdauer ergibt sich aktuell aus den Projektterminen.</p>
                                                                     {% else %}
-                                                                     <button type="button" class="btn btn-link btn-sm" id="copyProjectDatesToFinanceDurationMaths">Sync to Project Dates ({{ FINANCIALS['priceMaths']["calendarDays"] }} day{{ FINANCIALS['priceMaths']["calendarDays"] == 1 ? '' : 's' }})</button>
+                                                                     <button type="button" class="btn btn-link btn-sm" id="copyProjectDatesToFinanceDurationMaths">An Projekttermine anpassen ({{ FINANCIALS['priceMaths']["calendarDays"] }} Kennung{{ FINANCIALS['priceMaths']["calendarDays"] == 1 ? '' : 's' }})</button>
                                                                     {% endif %}
                                                                 </div>
                                                                 {% endif %}
                                                             {% else %}
-                                                                <b class="d-block">{{ FINANCIALS['priceMaths']["weeks"] }} week{{ FINANCIALS['priceMaths']["weeks"] != 1 ? 's' : '' }} and {{ FINANCIALS['priceMaths']["days"] }} day{{ FINANCIALS['priceMaths']["days"] != 1 ? 's' : ''}}</b>
+                                                                <b class="d-block">{{ FINANCIALS['priceMaths']["weeks"] }} Woche{{ FINANCIALS['priceMaths']["weeks"] != 1 ? 'en' : '' }} und {{ FINANCIALS['priceMaths']["days"] }} Kennung{{ FINANCIALS['priceMaths']["days"] != 1 ? 's' : ''}}</b>
                                                             {% endif %}
                                                         </div>
                                                         {% endif %}
                                                     </div>
                                                     <br/>
                                                     {% if project.projects_parent_project_id and project.projects_status_follow_parent %}
-                                                    <div class="alert alert-info mb-1"><p>This sub-project is following the status of its parent project</p></div> 
+                                                    <div class="alert alert-info mb-1"><p>Dieses Teilprojekt übernimmt den Status des Hauptprojekts.</p></div>
                                                     {% endif %}
                                                     <div class="alert" style="background-color: {{ project.projectsStatuses_backgroundColour }}; color: {{ project.projectsStatuses_foregroundColour }};">
                                                         <h5><b>Status: </b>{{ project.projectsStatuses_name }}</h5>
@@ -307,26 +308,26 @@
                                         </div>
                                         <div class="card-footer">
                                             <div class="btn-group float-right">
-                                                <button type="button" class="btn btn-default quickAddCommentButton">New Comment</button>
+                                                <button type="button" class="btn btn-default quickAddCommentButton">Neuer Kommentar</button>
                                                 {% if "PROJECTS:EDIT:STATUS"|instancePermissions and not( project.projects_parent_project_id and project.projects_status_follow_parent) %}
-                                                    <button type="button" class="btn btn-secondary" id="editProjectStatus">Change Status</button>
+                                                    <button type="button" class="btn btn-secondary" id="editProjectStatus">Status ändern</button>
                                                 {% endif %}
                                                 <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                                                    <span class="sr-only">Toggle Dropdown</span>
+                                                    <span class="sr-only">Auswahl öffnen</span>
                                                     <div class="dropdown-menu" role="menu">
                                                         {% if "PROJECTS:CREATE"|instancePermissions %}
                                                             {% if project.subProjects == null %}
-                                                                <a class="dropdown-item" id="assignParentProject">Assign Parent Project</a>
+                                                                <a class="dropdown-item" id="assignParentProject">Hauptprojekt zuordnen</a>
                                                             {% endif %}
                                                             {% if project.projects_parent_project_id == null %}
                                                                 {% if canCreateSubProjects %}
-                                                                    <a class="dropdown-item" id="newSubProject">New Sub-Project</a>
+                                                                    <a class="dropdown-item" id="newSubProject">Neues Teilprojekt</a>
                                                                 {% endif %}
                                                             {% else %}
                                                                 {% if project.projects_status_follow_parent %}
-                                                                    <a class="dropdown-item" id="stopFollowParent">Stop Following Parent Status</a>
+                                                                    <a class="dropdown-item" id="stopFollowParent">Eigenen Status verwenden</a>
                                                                 {% else %}
-                                                                    <a class="dropdown-item" id="followParent">Follow Parent Status</a>
+                                                                    <a class="dropdown-item" id="followParent">Status des Hauptprojekts übernehmen</a>
                                                                 {% endif %}
                                                             {% endif %}
                                                             {% if project.projects_parent_project_id == null or project.subProjects == null %}
@@ -334,25 +335,25 @@
                                                             {% endif %}
                                                         {% endif %}
                                                         {% if "PROJECTS:EDIT:NAME"|instancePermissions %}
-                                                            <a class="dropdown-item" id="editProjectName" href="#">Edit Name</a>
+                                                            <a class="dropdown-item" id="editProjectName" href="#">Namen bearbeiten</a>
                                                         {% endif %}
                                                         {% if "PROJECTS:EDIT:DESCRIPTION_AND_SUB_PROJECTS"|instancePermissions %}
-                                                            <a class="dropdown-item" id="editProjectDescription" href="#">Edit Description</a>
+                                                            <a class="dropdown-item" id="editProjectDescription" href="#">Beschreibung bearbeiten</a>
                                                         {% endif %}
                                                         {% if "PROJECTS:EDIT:NAME"|instancePermissions or "PROJECTS:EDIT:DESCRIPTION_AND_SUB_PROJECTS"|instancePermissions%}
                                                             <div class="dropdown-divider"></div>
                                                         {% endif %}
                                                         {% if "PROJECTS:EDIT:PROJECT_TYPE"|instancePermissions and potentialProjectTypes|length > 1 %}
-                                                            <a class="dropdown-item" id="editProjectType" href="#">Change Project Type</a>
+                                                            <a class="dropdown-item" id="editProjectType" href="#">Projekttyp ändern</a>
                                                         {% endif %}
                                                         {% if "PROJECTS:ARCHIVE"|instancePermissions %}
                                                             {% if project.projects_archived == 1 %}
-                                                                <a class="dropdown-item" id="archiveProject" href="#">Remove from Archive</a>
+                                                                <a class="dropdown-item" id="archiveProject" href="#">Aus Archiv holen</a>
                                                             {% else %}
-                                                                <a class="dropdown-item" id="archiveProject" href="#">Archive</a>
+                                                                <a class="dropdown-item" id="archiveProject" href="#">Archivieren</a>
                                                             {% endif %}
                                                         {% endif %}
-                                                        {% if "PROJECTS:DELETE"|instancePermissions %}<a class="dropdown-item" id="deleteProject" href="#">Delete</a>{% endif %}
+                                                        {% if "PROJECTS:DELETE"|instancePermissions %}<a class="dropdown-item" id="deleteProject" href="#">Löschen</a>{% endif %}
                                                     </div>
                                                 </button>
                                             </div>
@@ -363,9 +364,9 @@
                                     {% if project.auditLog|length > 0 %}
                                         <div class="card">
                                             <div class="card-header">
-                                                <h3 class="card-title">Comments</h3>
+                                                <h3 class="card-title">Kommentare</h3>
                                                 <div class="card-tools">
-                                                    <button type="button" class="btn btn-tool quickAddCommentButton" title="New Project comment" >
+                                                    <button type="button" class="btn btn-tool quickAddCommentButton" title="Neuer Projektkommentar" >
                                                         <i class="fas fa-plus"></i></button>
                                                 </div>
                                             </div>
@@ -373,14 +374,14 @@
                                                 <!-- The time line -->
                                                 {% set commentEvents = project.auditLog|filter(event => event.auditLog_actionType in ['QUICKCOMMENT']) %}
                                                 {% if commentEvents|length == 0 %}
-                                                    <i>Nobody has commented on this project</i>
+                                                    <i>Für dieses Projekt gibt es noch keine Kommentare.</i>
                                                 {% else %}
                                                     <div class="timeline">
                                                         {% set currentDate = '' %}
                                                         {% for event in commentEvents %}
                                                             {% if event.auditLog_timestamp|date("Y-m-d") != currentDate %}
                                                                 <div class="time-label">
-                                                                    <span class="bg-red">{{ event.auditLog_timestamp|date("D jS M Y") }}</span>
+                                                                    <span class="bg-red">{{ event.auditLog_timestamp|date("d.m.Y") }}</span>
                                                                 </div>
                                                                 {% set currentDate = event.auditLog_timestamp|date("Y-m-d") %}
                                                             {% endif %}
@@ -389,12 +390,12 @@
                                                                 <div class="timeline-item" data-comment-id="{{ event.auditLog_id }}">
                                                                     <span class="time">
                                                                         {% if event.users_userid == USERDATA.users_userid or "PROJECTS:PROJECT_NOTES:EDIT:NOTES"|instancePermissions %}
-                                                                            <a href="#" class="editQuickCommentButton mr-2" data-comment-id="{{ event.auditLog_id }}">Edit</a>
-                                                                            <a href="#" class="deleteQuickCommentButton mr-2" data-comment-id="{{ event.auditLog_id }}">Delete</a>
+                                                                            <a href="#" class="editQuickCommentButton mr-2" data-comment-id="{{ event.auditLog_id }}">Bearbeiten</a>
+                                                                            <a href="#" class="deleteQuickCommentButton mr-2" data-comment-id="{{ event.auditLog_id }}">Löschen</a>
                                                                         {% endif %}
-                                                                        <i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}
+                                                                        <i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("H:i") }}
                                                                     </span>
-                                                                    <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a> commented
+                                                                    <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a> hat kommentiert
                                                                     </h3>
                                                                     <div class="timeline-body">{{ event.auditLog_actionData|raw }}</div>
                                                                 </div>
@@ -462,7 +463,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="newPaymentModal-title"></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>  
@@ -472,57 +473,57 @@
                     <input type="hidden" name="projects_id" value="{{ project.projects_id }}"/>
                     <div class="input-group newPaymentModal-paymentOnly" style="margin-bottom: 5px;">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Date</span>
+                            <span class="input-group-text">Datum</span>
                         </div>
                         <input type="text" class="form-control" name="payments_date" id="newPaymentModal-form-date">
                     </div>
                     <div class="input-group newPaymentModal-paymentOnly" style="margin-bottom: 5px;">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Reference</span>
+                            <span class="input-group-text">Referenz</span>
                         </div>
                         <input type="text" class="form-control" name="payments_reference">
                     </div>
                     <div class="input-group newPaymentModal-paymentOnly" style="margin-bottom: 5px;">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Payment Method</span>
+                            <span class="input-group-text">Zahlungsart</span>
                         </div>
                         <select class="form-control" name="payments_method">
                             <option selected></option>
-                            <option>Credit Card</option>
-                            <option>Debit Card</option>
-                            <option>Bank Transfer</option>
-                            <option>Cash</option>
-                            <option>Cheque</option>
-                            <option>Other</option>
+                            <option>Kreditkarte</option>
+                            <option>Debitkarte</option>
+                            <option>Überweisung</option>
+                            <option>Barzahlung</option>
+                            <option>Scheck</option>
+                            <option>Sonstiges</option>
                         </select>
                     </div>
                     <div class="input-group mb-3 newPaymentModal-nonPaymentOnly">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Quantity</span>
+                            <span class="input-group-text">Menge</span>
                         </div>
                         <input class="form-control" type="number" step="1" min="0" value="1" name="payments_quantity">
                     </div>
                     <div class="input-group mb-3 newPaymentModal-nonPaymentOnly">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Supplier</span>
+                            <span class="input-group-text">Lieferant</span>
                         </div>
                         <input class="form-control" type="text" name="payments_supplier">
                     </div>
                     <div class="input-group" style="margin-bottom: 5px;">
-                        <div class="input-group-prepend"><span class="input-group-text">Description</span></div>
+                        <div class="input-group-prepend"><span class="input-group-text">Beschreibung</span></div>
                         <textarea class="form-control" rows="3" name="payments_comment"  placeholder=""></textarea>
                     </div>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Amount {{ moneySymbol() }}</span>
+                            <span class="input-group-text">Betrag {{ moneySymbol() }}</span>
                         </div>
                         <input class="form-control" type="number" step="0.01" min="0" value="0" name="payments_amount">
                     </div>
                 </form>
             </div>
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="newPaymentModal-button">Save changes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                <button type="button" class="btn btn-primary" id="newPaymentModal-button">Änderungen speichern</button>
             </div>
         </div>
     </div>
@@ -534,8 +535,8 @@
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title">Edit {{ note.projectsNotes_title }}</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <h4 class="modal-title">Bearbeiten {{ note.projectsNotes_title }}</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -543,8 +544,8 @@
                             <div class="summernote" data-noteid="{{ note.projectsNotes_id }}">{{ note.projectsNotes_text|raw }}</div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-default btn-sm noteModal-save" data-noteid="{{ note.projectsNotes_id }}" data-callback="print"><i class="fas fa-print"></i> Save & Print</button>
-                            <button type="button" class="btn btn-default btn-sm noteModal-save" data-noteid="{{ note.projectsNotes_id }}" data-callback="none"><i class="far fa-save"></i> Save</button>
+                            <button type="button" class="btn btn-default btn-sm noteModal-save" data-noteid="{{ note.projectsNotes_id }}" data-callback="print"><i class="fas fa-print"></i> Speichern und drucken</button>
+                            <button type="button" class="btn btn-default btn-sm noteModal-save" data-noteid="{{ note.projectsNotes_id }}" data-callback="none"><i class="far fa-save"></i> Speichern</button>
                         </div>
                     </div>
                 </div>
@@ -556,8 +557,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Add Crew to {{ project.projects_name }}</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title">Crew hinzufügen zu {{ project.projects_name }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -565,23 +566,23 @@
                         <form id="addCrewModal-form">
                             <input type="hidden" name="projects_id" value="{{ project.projects_id }}"/>
                             <div class="input-group mb-3">
-                                <select class="form-control" multiple="multiple" id="addCrewModal-users" placeholder="Enter names here"></select>
+                                <select class="form-control" multiple="multiple" id="addCrewModal-users" placeholder="Namen eingeben"></select>
                             </div>
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Role</span>
+                                    <span class="input-group-text">Rolle</span>
                                 </div>
-                                <input class="form-control" type="text" name="crewAssignments_role" minlength="2" required placeholder="Head Flyman">
+                                <input class="form-control" type="text" name="crewAssignments_role" minlength="2" required placeholder="Leitung Bühnentechnik">
                             </div>
                             <div class="input-group">
-                                <div class="input-group-prepend"><span class="input-group-text">Comment</span></div>
-                                <textarea class="form-control" rows="3" name="crewAssignments_comment" placeholder="Making own way to venue - bringing key to operate drum revolve. Designated FirstAider"></textarea>
+                                <div class="input-group-prepend"><span class="input-group-text">Kommentar</span></div>
+                                <textarea class="form-control" rows="3" name="crewAssignments_comment" placeholder="Beispiel: Eigene Anreise, bringt den Schlüssel für die Drehbühne mit. Als Ersthelfer eingeteilt."></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="addCrewModal-button">Add</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button type="button" class="btn btn-primary" id="addCrewModal-button">Hinzufügen</button>
                     </div>
                 </div>
             </div>
@@ -592,8 +593,8 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Crew Emails for {{ project.projects_name }}</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title">Crew-E-Mail-Adressen für {{ project.projects_name }}</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -601,8 +602,8 @@
                         <pre>{% for crew in project.crewAssignments  %}{% if crew.users_email != null %}{{ crew.users_name1 }} {{ crew.users_name2 }} &lt;{{ crew.users_email }}&gt;,{% endif %}{% endfor %}</pre>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <a href="mailto:?subject={{ project.projects_name }}&bcc={% for crew in project.crewAssignments  %}{% if crew.users_email != null %}{{ crew.users_email }},{% endif %}{% endfor %}" type="button" class="btn btn-primary">Launch Email Client</a>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <a href="mailto:?subject={{ project.projects_name }}&bcc={% for crew in project.crewAssignments  %}{% if crew.users_email != null %}{{ crew.users_email }},{% endif %}{% endfor %}" type="button" class="btn btn-primary">E-Mail-App öffnen</a>
                     </div>
                 </div>
             </div>
@@ -614,8 +615,8 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Payment Files</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title">Zahlungsbelege</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -643,8 +644,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Project Files</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Projektdateien</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -669,8 +670,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Project Delivery Notes</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Projektlieferscheine</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -687,8 +688,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Project Quotes</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Projektangebote</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -705,8 +706,8 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Project Invoices</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Projektrechnungen</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -723,7 +724,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title"></h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -907,13 +908,13 @@
             function quickCommentEditor(commentId, content) {
                 var editor = $('<div></div>');
                 var dialog = bootbox.dialog({
-                    title: commentId ? "Edit comment" : "Enter comment",
+                    title: commentId ? "Kommentar bearbeiten" : "Kommentar eingeben",
                     size: 'large',
                     message: editor,
                     buttons: {
-                        cancel: { label: "Cancel", className: "btn-default" },
+                        cancel: { label: "Abbrechen", className: "btn-default" },
                         ok: {
-                            label: "Save",
+                            label: "Speichern",
                             className: "btn-info",
                             callback: function () {
                                 if (editor.summernote('isEmpty')) return false;
@@ -927,7 +928,7 @@
                     }
                 });
                 dialog.on('shown.bs.modal', function () {
-                    editor.summernote({ minHeight: 300 });
+                    editor.summernote({ lang: 'de-DE', minHeight: 300 });
                     editor.summernote('code', content || '');
                 });
                 dialog.on('hidden.bs.modal', function () { editor.summernote('destroy'); });
@@ -940,13 +941,13 @@
             $(".deleteQuickCommentButton").click(function (event) {
                 event.preventDefault();
                 var commentId = $(this).data('comment-id');
-                bootbox.confirm("Delete this comment?", function (confirmed) {
+                bootbox.confirm("Diesen Kommentar löschen?", function (confirmed) {
                     if (confirmed) ajaxcall("projects/deleteQuickComment.php", { comment_id: commentId }, function () { location.reload(); });
                 });
             });
             {% if "CLIENTS:CREATE"|instancePermissions and "PROJECTS:EDIT:CLIENT"|instancePermissions %}
             $("#newClientButton").click(function () {
-                bootbox.prompt("Enter Client Name", function (result) {
+                bootbox.prompt("Kundenname eingeben", function (result) {
                     if (result) {
                         ajaxcall("clients/new.php", {"clients_name": result}, function (data) {
                             if (data.result && data.response.clients_id) {
@@ -983,7 +984,7 @@
             {% if "PROJECTS:EDIT:PROJECT_TYPE"|instancePermissions %}
             $("#editProjectType").click(function () {
                 bootbox.prompt({
-                    title: "Change Project Type",
+                    title: "Projektart ändern",
                     inputType: 'select',
                     value: {{ project.projectsTypes_id }},
                     inputOptions: [
@@ -1028,7 +1029,7 @@
             {% if "PROJECTS:EDIT:DESCRIPTION_AND_SUB_PROJECTS"|instancePermissions %}
             $("#editProjectDescription").click(function () {
                 bootbox.prompt({
-                    title: "Edit Project Description",
+                    title: "Projektbeschreibung bearbeiten",
                     inputType: 'textarea',
                     value: "{{ project.projects_description|escape("js") }}",
                     callback: function (result) {
@@ -1047,7 +1048,7 @@
             {% if "PROJECTS:EDIT:INVOICE_NOTES"|instancePermissions %}
             $(".editProjectInvoiceNotes").click(function () {
                 bootbox.prompt({
-                    title: "Edit Project Invoice Notes",
+                    title: "Rechnungshinweise bearbeiten",
                     inputType: 'textarea',
                     value: `{{ project.projects_invoiceNotes|escape("js") }}`,
                     callback: function (result) {
@@ -1066,7 +1067,7 @@
             {% if "PROJECTS:EDIT:DELIVERY_NOTES"|instancePermissions %}
             $(".editProjectDeliveryNotes").click(function () {
                 bootbox.prompt({
-                    title: "Edit Project Delivery Notes",
+                    title: "Lieferscheinhinweise bearbeiten",
                     inputType: 'textarea',
                     value: `{{ project.projects_deliveryNotes|escape("js") }}`,
                     callback: function (result) {
@@ -1086,14 +1087,14 @@
             $("#archiveProject").click(function () {
                 {% if project.projects_archived != 1 %}
                 bootbox.confirm({
-                    message: "Are you sure you wish to archive the project?",
+                    message: "Dieses Projekt archivieren?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -1107,14 +1108,14 @@
                 });
                 {% else %}
                 bootbox.confirm({
-                    message: "Are you sure you wish to remove this project from the archive?",
+                    message: "Dieses Projekt wiederherstellen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -1132,14 +1133,14 @@
             {% if "PROJECTS:DELETE"|instancePermissions %}
             $("#deleteProject").click(function () {
                 bootbox.confirm({
-                    message: "Are you sure you wish to delete the project?",
+                    message: "Dieses Projekt löschen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -1158,6 +1159,7 @@
                 timePicker: true,
                 timePickerIncrement: 15,
                 locale: {
+                    ...adamDatePickerLabels,
                     format: 'DD MMM YYYY hh:mm A'
                 },
                 {% if project.projects_dates_use_start %}
@@ -1176,6 +1178,7 @@
                 timePicker: true,
                 timePickerIncrement: 15,
                 locale: {
+                    ...adamDatePickerLabels,
                     format: 'DD MMM YYYY hh:mm A'
                 },
             {% if project.projects_dates_deliver_start %}
@@ -1190,7 +1193,7 @@
                     if (data.response.changed) {
                         location.reload();
                     } else {
-                        var message = "The dates of this project can't be changed because assets assigned to it have been assigned to other projects that clash. <br/><br/> Would you like to automatically remove the following assets from this project? This will have billing implications<br/><br/><br/><table class='table table-bordered'><tr><th>Tag</th><th>Name</th><th>Project Clashing</th></tr>";
+                        var message = "Die Termine können wegen überschneidender Materialzuordnungen nicht geändert werden. <br/><br/> Soll das folgende Material aus diesem Projekt entfernt werden? Das wirkt sich auf die Abrechnung aus.<br/><br/><br/><table class='table table-bordered'><tr><th>Kennung</th><th>Name</th><th>Überschneidendes Projekt</th></tr>";
                         $.each(data.response.assets, function( index, value ) {
                             message += "<tr><td>" + value['assets_tag'] + "</td><td>" + value['assetTypes_name'] + "</td><td>" + value['projects_name'] + "</td></tr>";
                         });
@@ -1198,11 +1201,11 @@
                             message: message + "</table>",
                             buttons: {
                                 cancel: {
-                                    label: 'No - cancel date change',
+                                    label: 'Nein, Datumsänderung abbrechen',
                                     className: 'btn-success'
                                 },
                                 confirm: {
-                                    label: 'Yes',
+                                    label: 'Ja',
                                     className: 'btn-danger'
                                 }
                             },
@@ -1220,7 +1223,7 @@
                                         changeProjectDeliverDates(start, end);
                                     });
                                     {% else %}
-                                    bootbox.alert("Sorry - you don't have permission to remove these assets");
+                                    bootbox.alert("Du darfst dieses Material nicht entfernen.");
                                     {% endif %}
                                 }
                             }
@@ -1253,7 +1256,7 @@
             {% if "PROJECTS:EDIT:NAME"|instancePermissions %}
             $("#editProjectName").click(function () {
                 bootbox.prompt({
-                    title: "Change Project Name",
+                    title: "Projektnamen ändern",
                     inputType: 'text',
                     value: `{{ project.projects_name|escape("js") }}`,
                     callback: function (result) {
@@ -1278,7 +1281,7 @@
                     if (data.response.changed) {
                         location.reload();
                     } else {
-                        var message = "The status of this project can't be changed because assets assigned to it have been assigned to other projects that clash. <br/><br/> Would you like to automatically remove the following assets from this project? This will have billing implications<br/><br/><br/><table class='table table-bordered'><tr><th>Tag</th><th>Name</th><th>Project Clashing</th></tr>";
+                        var message = "Der Status kann wegen überschneidender Materialzuordnungen nicht geändert werden. <br/><br/> Soll das folgende Material aus diesem Projekt entfernt werden? Das wirkt sich auf die Abrechnung aus.<br/><br/><br/><table class='table table-bordered'><tr><th>Kennung</th><th>Name</th><th>Überschneidendes Projekt</th></tr>";
                         $.each(data.response.assets, function( index, value ) {
                             message += "<tr><td>" + value['assets_tag'] + "</td><td>" + value['assetTypes_name'] + "</td><td>" + value['projects_name'] + "</td></tr>";
                         });
@@ -1286,11 +1289,11 @@
                             message: message + "</table>",
                             buttons: {
                                 cancel: {
-                                    label: 'No',
+                                    label: 'Nein',
                                     className: 'btn-success'
                                 },
                                 confirm: {
-                                    label: 'Yes',
+                                    label: 'Ja',
                                     className: 'btn-danger'
                                 }
                             },
@@ -1308,7 +1311,7 @@
                                             changeStatus(newStatus);
                                         });
                                     {% else %}
-                                    bootbox.alert("Sorry - you don't have permission to remove these assets");
+                                    bootbox.alert("Du darfst dieses Material nicht entfernen.");
                                     {% endif %}
                                 }
                             }
@@ -1318,7 +1321,7 @@
             }
             $("#editProjectStatus").click(function () {
                 bootbox.prompt({
-                    title: "Set project status",
+                    title: "Projektstatus festlegen",
                     inputType: 'select',
                     value: {{ project.projectsStatuses_id }},
                     inputOptions: [
@@ -1338,14 +1341,14 @@
                             var newStatus = result;                            
                             if ([{{ STATUSESAVAILABLE|join(",") }}].includes(parseInt(newStatus))) {
                                 bootbox.confirm({
-                                    message: "This will allow assets assigned to this project to be assigned to other clashing projects - are you sure you wish to continue?",
+                                    message: "Das zugeordnete Material kann dann auch in zeitlich überschneidenden Projekten eingeplant werden. Fortfahren?",
                                     buttons: {
                                         confirm: {
-                                            label: 'Yes',
+                                            label: 'Ja',
                                             className: 'btn-danger'
                                         },
                                         cancel: {
-                                            label: 'No',
+                                            label: 'Nein',
                                             className: 'btn-success'
                                         }
                                     },
@@ -1393,14 +1396,14 @@
             {% if "PROJECTS:PROJECT_ASSETS:CREATE:ASSIGN_ALL_BUSINESS_ASSETS"|instancePermissions %}
             $("#addAllAssetsToProject").click(function () {
                 bootbox.confirm({
-                    message: "Are you sure you wish to add all assets in the business that are available to the project?",
+                    message: "Das gesamte verfügbare Material des Unternehmens zum Projekt hinzufügen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-success'
                         },
                         cancel: {
-                            label: 'Cancel',
+                            label: 'Abbrechen',
                             className: 'btn-default'
                         }
                     },
@@ -1420,6 +1423,7 @@
                 timePickerIncrement: 1,
                 singleDatePicker: true,
                 locale: {
+                    ...adamDatePickerLabels,
                     format: 'DD MMM YYYY hh:mm A'
                 },
                 startDate: "{{ "now"|date("j M Y h:i:sa") }}",
@@ -1433,18 +1437,18 @@
                 $(".newPaymentModal-nonPaymentOnly").show();
                 switch(type) {
                     case 1:
-                        $("#newPaymentModal-title").html("Add payment received");
+                        $("#newPaymentModal-title").html("Zahlungseingang erfassen");
                         $(".newPaymentModal-paymentOnly").show();
                         $(".newPaymentModal-nonPaymentOnly").hide();
                         break;
                     case 2:
-                        $("#newPaymentModal-title").html("Add Sales Item");
+                        $("#newPaymentModal-title").html("Verkaufsposition hinzufügen");
                         break;
                     case 3:
-                        $("#newPaymentModal-title").html("Add Additional Hire Cost");
+                        $("#newPaymentModal-title").html("Zusätzliche Mietkosten hinzufügen");
                         break;
                     case 4:
-                        $("#newPaymentModal-title").html("Add Staff cost");
+                        $("#newPaymentModal-title").html("Personalkosten hinzufügen");
                         break;
                 }
             });
@@ -1459,14 +1463,14 @@
             $(".deletePaymentButton").click(function () {
                 var id = $(this).data("paymentid");
                 bootbox.confirm({
-                    message: "Are you sure you wish to delete this payment?",
+                    message: "Diesen Zahlungseingang löschen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-success'
                         },
                         cancel: {
-                            label: 'Cancel',
+                            label: 'Abbrechen',
                             className: 'btn-default'
                         }
                     },
@@ -1482,11 +1486,12 @@
             {% endif %}
             {% if "PROJECTS:PROJECT_NOTES:EDIT:NOTES"|instancePermissions %}
             $('.summernote').summernote({
+                lang: 'de-DE',
                 minHeight: 500,             // set minimum height of editor
                 maxHeight: null,             // set maximum height of editor
                 focus: true,
                 disableDragAndDrop: true, //We're using fineuploader for that
-                placeholder: 'Your epic note goes here',
+                placeholder: 'Notiz eingeben',
                 toolbar: [
                     ['oops', ['undo', 'redo']],
                     ['font', ['style', 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
@@ -1524,7 +1529,7 @@
             {% if "PROJECTS:PROJECT_NOTES:CREATE:NOTES"|instancePermissions %}
             $("#newProjectNote").click(function () {
                 bootbox.prompt({
-                    title: "Note Title",
+                    title: "Titel der Notiz",
                     inputType: 'text',
                     callback: function (result) {
                         if (result) {
@@ -1544,7 +1549,7 @@
                 var id = $(this).data("assignment");
                 var role = $(this).data("role");
                 bootbox.prompt({
-                    title: "Edit Role Name", 
+                    title: "Rollennamen ändern",
                     value: role,
                     callback: function (roleResult) {
                         if (roleResult && roleResult != null) {
@@ -1559,7 +1564,7 @@
                 var id = $(this).data("assignment");
                 var comment = $(this).data("comment");
                 bootbox.prompt({
-                    title: "Edit Role Comment", 
+                    title: "Rollenkommentar bearbeiten",
                     value: comment,
                     callback: function (commentResult) {
                         console.log(commentResult);
@@ -1572,14 +1577,14 @@
             $(".deleteCrewAssignment").click(function () {
                 var id = $(this).data("assignment");
                 bootbox.confirm({
-                    message: "Are you sure you wish to remove this crew member - they will be notified?",
+                    message: "Dieses Crewmitglied entfernen? Die Person wird benachrichtigt.",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-success'
                         },
                         cancel: {
-                            label: 'Cancel',
+                            label: 'Abbrechen',
                             className: 'btn-default'
                         }
                     },
@@ -1606,16 +1611,16 @@
                 },
                 templateResult: function(selection) {
                     if (selection.email) {
-                        return $.parseHTML(selection.text + ' (' + selection.email + ') ' + (selection.clashes.length > 0 ? '<span class="badge badge-danger">Clash with ' + selection.clashes + '</span>' : ''));
+                        return $.parseHTML(selection.text + ' (' + selection.email + ') ' + (selection.clashes.length > 0 ? '<span class="badge badge-danger">Überschneidung mit ' + selection.clashes + '</span>' : ''));
                     } else {
-                        return "Add name: " + selection.text;
+                        return "Name: " + selection.text;
                     }
                 },
                 multiple: true,
                 theme: "bootstrap4",
                 minimumInputLength: 0,
                 width: '100%',
-                placeholder: "Search for existing {{ CONFIG.PROJECT_NAME }} users to add to crew",
+                placeholder: "Nach Benutzern in {{ CONFIG.PROJECT_NAME }} suchen",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/projects/crew/searchUser.php",
                     dataType: "json",
@@ -1678,7 +1683,7 @@
             {% if "PROJECTS:CREATE"|instancePermissions %}
             $("#newSubProject").click(function () {
                 bootbox.prompt({
-                    title: "Select Sub-Project Type",
+                    title: "Projektart für das Teilprojekt auswählen",
                     inputType: 'select',
                     inputOptions: [
                         {% for type in potentialProjectTypes %}
@@ -1691,7 +1696,7 @@
                     callback: function (result){
                         if (result) {
                             var projectType = result;
-                            bootbox.prompt("Enter Sub-Project Name", function (result) {
+                            bootbox.prompt("Namen des Teilprojekts eingeben", function (result) {
                                 if (result) {
                                     ajaxcall("projects/new.php", {
                                         "projects_name": result,
@@ -1710,12 +1715,12 @@
 
             $("#assignParentProject").click(function () {
                 bootbox.prompt({
-                    title: "Choose Parent Project",
+                    title: "Übergeordnetes Projekt auswählen",
                     inputType: 'select',
                     value: "{{ (project.projects_parent_project_id ?: '-1') }}",
                     inputOptions: [
                         {
-                            text: 'No Parent',
+                            text: 'Kein übergeordnetes Projekt',
                             value: -1,
                         },
                         {% for allProject in projects %}

@@ -7,23 +7,23 @@
             <div class="card-header">
                 <h3 class="card-title">
                     {% if search|length > 0 %}
-                        Search results for locations matching <b>{{ search }}</b>. Archived locations not shown. 
+                        Suchergebnisse für Standorte mit <b>{{ search }}</b>. Archivierte Standorte sind ausgeblendet.
                     {% elseif showArchived %}
-                        Archived Locations
+                        Archivierte Standorte
                     {% else %}
-                        Locations
+                        Standorte
                     {% endif %}
                 </h3>
                 <div class="card-tools pull-right">
                     <form class="input-group input-group-sm" method="GET">
                         <div class="input-group-prepend">
                             {% if showArchived %}
-                                <a href="?" type="button" class="btn btn-default">Show Locations</a>
+                                <a href="?" type="button" class="btn btn-default">Standorte anzeigen</a>
                             {% else %}
-                                <a href="?archive" type="button" class="btn btn-default">Show Archived Locations</a>
+                                <a href="?archive" type="button" class="btn btn-default">Archivierte Standorte anzeigen</a>
                             {% endif %}
                         </div>
-                        <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                        <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                         <div class="input-group-append">
                             <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                             {% if "LOCATIONS:CREATE"|instancePermissions %}
@@ -41,13 +41,13 @@
                             Name
                         </th>
                         <th>
-                            Notes
+                            Notizen
                         </th>
                         <th style="width: 15%">
-                            Address
+                            Anschrift
                         </th>
                         <th style="width: 15%">
-                            Client
+                            Kunde
                         </th>
                         <th style="width: 20px">
                         </th>
@@ -164,8 +164,8 @@
                 <form class="editForm" data-id="{{ location.locations_id }}">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Edit Location</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h4 class="modal-title">Standort bearbeiten</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -179,19 +179,19 @@
                             </div>
                             <div class="input-group" style="margin-bottom: 5px;">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Address</span>
+                                    <span class="input-group-text">Anschrift</span>
                                 </div>
                                 <textarea type="text" class="form-control" name="locations_address" rows="6">{{ location.locations_address }}</textarea>
                             </div>
                             <div class="input-group" style="margin-bottom: 5px;">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Notes</span>
+                                    <span class="input-group-text">Notizen</span>
                                 </div>
                                 <textarea type="text" class="form-control" name="locations_notes" rows="3">{{ location.locations_notes }}</textarea>
                             </div>
                             <div class="input-group" style="margin-bottom: 5px;">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Client</span>
+                                    <span class="input-group-text">Kunde</span>
                                 </div>
                                 <select class="form-control" name="clients_id">
                                     <option></option>
@@ -202,7 +202,7 @@
                             </div>
                             <div class="input-group" style="margin-bottom: 5px;">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text">Sub Location of</span>
+                                    <span class="input-group-text">Unterstandort von</span>
                                 </div>
                                 <select class="form-control" name="locations_subOf">
                                     <option></option>
@@ -216,8 +216,8 @@
 
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary saveEdit" data-id="{{ location.locations_id }}">Save</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                        <button type="submit" class="btn btn-primary saveEdit" data-id="{{ location.locations_id }}">Speichern</button>
                     </div>
                     </form>
                 </div>
@@ -239,14 +239,14 @@
             $(".archiveButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    message: "Are you sure you want to archive this location?",
+                    message: "Diesen Standort archivieren?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -262,14 +262,14 @@
             $(".unarchiveButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    message: "Are you sure you want to restore this location?",
+                    message: "Diesen Standort wiederherstellen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -287,14 +287,14 @@
             $(".deleteButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    message: "Are you sure you want to delete this location?",
+                    message: "Diesen Standort löschen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },

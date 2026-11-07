@@ -123,7 +123,7 @@ export async function problemsOpening(page: Page, url: string) {
   const status = response?.status() ?? 0;
   if (status >= 500) problems.push(`HTTP ${status}`);
   const html = await page.content();
-  for (const text of ["Fatal error", "Uncaught ", "Parse error", "Oops! Page not found."]) {
+  for (const text of ["Fatal error", "Uncaught ", "Parse error", "Seite nicht gefunden"]) {
     if (html.includes(text)) problems.push(`page contains "${text}"`);
   }
   return problems;

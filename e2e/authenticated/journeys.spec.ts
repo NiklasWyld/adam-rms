@@ -111,7 +111,7 @@ test("reporting a fault on an asset from the New Maintenance Job page", async ({
   await page.locator("#addAssetModal-assets + .select2 .select2-selection").click();
   await page.locator(".select2-search__field").fill(tag);
   await page.locator(".select2-results__option", { hasText: tag }).click();
-  await page.getByRole("button", { name: "Create" }).click();
+  await page.getByRole("button", { name: "Erstellen" }).click();
 
   await page.waitForURL(/\/maintenance\/job\.php\?id=\d+/);
   const id = Number(new URL(page.url()).searchParams.get("id"));
@@ -128,7 +128,7 @@ test("changing the business address on Business Settings without a website", asy
   try {
     await page.goto("/instances/settings.php");
     await page.locator('#basicSettings textarea[name="instances_address"]').fill("1 New Street");
-    await page.locator("#basicSettings").getByRole("button", { name: "Save" }).click();
+    await page.locator("#basicSettings").getByRole("button", { name: "Speichern" }).click();
     await expect.poll(address).toEqual({ address: "1 New Street", website: null });
   } finally {
     dbQuery("UPDATE instances SET instances_address = ? WHERE instances_id = ?", [`${a.marker} address`, a.instanceId]);

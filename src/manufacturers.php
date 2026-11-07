@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Manufacturers", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Hersteller", "BREADCRUMB" => false];
 
 if (isset($_GET['q'])) $PAGEDATA['search'] = $bCMS->sanitizeString($_GET['q']);
 else $PAGEDATA['search'] = null;

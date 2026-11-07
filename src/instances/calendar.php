@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Business Calendar", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Unternehmenskalender", "BREADCRUMB" => false];
 
 if ($AUTH->data['instance']['instances_calendarHash'] == null) {
    $characters = 'abcdefghijklmnopqrstuvwxyz';
@@ -22,7 +22,7 @@ if (isset($_GET['location'])) {
     $DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']);
     $DBLIB->where("locations_id", $_GET['location']);
     $PAGEDATA['LOCATION'] = $DBLIB->getone("locations", ["locations_id", "locations_name"]);
-    if ($PAGEDATA['LOCATION']) $PAGEDATA['pageConfig']['TITLE'] = $PAGEDATA['LOCATION']['locations_name'] . " Project Calendar";
+    if ($PAGEDATA['LOCATION']) $PAGEDATA['pageConfig']['TITLE'] = $PAGEDATA['LOCATION']['locations_name'] . " – Projektkalender";
 } else $PAGEDATA['LOCATION'] = false;
 
 $DBLIB->where("projects.instances_id", $AUTH->data['instance']['instances_id']);

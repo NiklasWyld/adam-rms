@@ -8,31 +8,31 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         {% if search|length > 0 %}
-                            Search results for clients matching <b>{{ search }}</b>
+                            Suchergebnisse für Kunden mit <b>{{ search }}</b>
                         {% else %}
-                            Clients
+                            Kunden
                         {% endif %}
                     </h3>
                     <div class="card-tools pull-right">
                         <form class="input-group input-group-sm" method="GET">
                             <div class="input-group-prepend">
                                 {% if includeFuture %}
-                                    <a href="?" type="button" class="btn btn-default">Hide future projects</a>
+                                    <a href="?" type="button" class="btn btn-default">Zukünftige Projekte ausblenden</a>
                                 {% else %}
-                                    <a href="?future" type="button" class="btn btn-default">Include future projects</a>
+                                    <a href="?future" type="button" class="btn btn-default">Zukünftige Projekte einbeziehen</a>
                                 {% endif %}
                                 {% if includeReleased %}
-                                    <a href="?" type="button" class="btn btn-default">Hide projects where assets are released</a>
+                                    <a href="?" type="button" class="btn btn-default">Projekte mit freigegebenem Material ausblenden</a>
                                 {% else %}
-                                    <a href="?released" type="button" class="btn btn-default">Include projects where assets are released</a>
+                                    <a href="?released" type="button" class="btn btn-default">Projekte mit freigegebenem Material einbeziehen</a>
                                 {% endif %}
                                 {% if showArchived %}
-                                    <a href="?" type="button" class="btn btn-default">Show active Clients</a>
+                                    <a href="?" type="button" class="btn btn-default">Aktive Kunden anzeigen</a>
                                 {% else %}
-                                    <a href="?archive" type="button" class="btn btn-default">Show archived Clients</a>
+                                    <a href="?archive" type="button" class="btn btn-default">Archivierte Kunden anzeigen</a>
                                 {% endif %}
                             </div>
-                            <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                            <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                                 {% if "CLIENTS:CREATE"|instancePermissions %}
@@ -49,13 +49,13 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Address</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
+                                    <th>Anschrift</th>
+                                    <th>Telefon</th>
+                                    <th>E-Mail</th>
                                     <th>Website</th>
-                                    <th>Notes</th>
-                                    <th>Total Paid</th>
-                                    <th>To Pay</th>
+                                    <th>Notizen</th>
+                                    <th>Bereits bezahlt</th>
+                                    <th>Offener Betrag</th>
                                     {% if "CLIENTS:EDIT"|instancePermissions %}<th></th>{% endif %}
                                 </tr>
                             </thead>
@@ -95,8 +95,8 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h4 class="modal-title">Edit {{ client.clients_name }}</h4>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <h4 class="modal-title">Bearbeiten {{ client.clients_name }}</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
@@ -110,7 +110,7 @@
                                                                 <input type="text" class="form-control" name="clients_name" value="{{ client.clients_name }}">
                                                             </div>
                                                             <div class="input-group" style="margin-bottom: 5px;">
-                                                                <div class="input-group-prepend"><span class="input-group-text">Address</span></div>
+                                                                <div class="input-group-prepend"><span class="input-group-text">Anschrift</span></div>
                                                                 <textarea class="form-control" rows="6" name="clients_address"  placeholder="">{{ client.clients_address }}</textarea>
                                                             </div>
                                                             <div class="input-group" style="margin-bottom: 5px;">
@@ -121,25 +121,25 @@
                                                             </div>
                                                             <div class="input-group" style="margin-bottom: 5px;">
                                                                 <div class="input-group-prepend">
-                                                                    <span class="input-group-text">Phone</span>
+                                                                    <span class="input-group-text">Telefon</span>
                                                                 </div>
                                                                 <input type="text" class="form-control" name="clients_phone" value="{{ client.clients_phone }}">
                                                             </div>
                                                             <div class="input-group" style="margin-bottom: 5px;">
                                                                 <div class="input-group-prepend">
-                                                                    <span class="input-group-text">Email</span>
+                                                                    <span class="input-group-text">E-Mail</span>
                                                                 </div>
                                                                 <input type="text" class="form-control" name="clients_email" value="{{ client.clients_email }}">
                                                             </div>
                                                             <div class="input-group" style="margin-bottom: 5px;">
-                                                                <div class="input-group-prepend"><span class="input-group-text">Notes</span></div>
+                                                                <div class="input-group-prepend"><span class="input-group-text">Notizen</span></div>
                                                                 <textarea class="form-control" rows="3" name="clients_notes"  placeholder="">{{ client.clients_notes }}</textarea>
                                                             </div>
                                                         </form>
                                                     </div>
                                                     <div class="modal-footer justify-content-between">
-                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                        <button type="button" class="btn btn-primary saveClientEdit-button" data-clientid="{{ client.clients_id }}">Save changes</button>
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                                                        <button type="button" class="btn btn-primary saveClientEdit-button" data-clientid="{{ client.clients_id }}">Änderungen speichern</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -151,7 +151,7 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <center><p style="margin: 10px;"><i>No results</i><br/><a href="?">Remove any filters</a></p></center>
+                        <center><p style="margin: 10px;"><i>Keine Ergebnisse</i><br/><a href="?">Filter zurücksetzen</a></p></center>
                     {% endif %}
                 </div>
                 <div class="overlay" id="loadingoverlay">
@@ -187,7 +187,7 @@
                 $("#loadingoverlay").hide();
                 {% if "CLIENTS:CREATE"|instancePermissions %}
                 $("#newClientButton").click(function () {
-                    bootbox.prompt("Enter Client Name", function (result) {
+                    bootbox.prompt("Kundenname eingeben", function (result) {
                         if (result) {
                             ajaxcall("clients/new.php", {"clients_name": result}, function (data) {
                                 location.reload();
@@ -206,15 +206,15 @@
                 $(".archiveButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    title: "Are you sure you want to archive this client?",
-                    message: "This will not delete the client, but will prevent it from being used in new projects.",
+                    title: "Diesen Kunden archivieren?",
+                    message: "Der Kunde bleibt gespeichert und kann keinen neuen Projekten mehr zugeordnet werden.",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },
@@ -230,14 +230,14 @@
             $(".unarchiveButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    message: "Are you sure you want to restore this client?",
+                    message: "Diesen Kunden wiederherstellen?",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },

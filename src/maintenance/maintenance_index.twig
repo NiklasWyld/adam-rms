@@ -2,18 +2,18 @@
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Maintenance Jobs</h3>
+        <h3 class="card-title">Wartungsaufträge</h3>
 
         <div class="card-tools btn-group pull-right">
-<a href="{{ CONFIG.LINKS_USERGUIDEURL }}assets/maintenance" target="_blank" type="button" class="btn btn-info btn-sm">Help</a>
+<a href="{{ CONFIG.LINKS_USERGUIDEURL }}assets/maintenance" target="_blank" type="button" class="btn btn-info btn-sm">Hilfe</a>
 
             {% if showCompleted %}
-                <a href="?" class="btn btn-sm btn-default">Show Outstanding Jobs</a>
+                <a href="?" class="btn btn-sm btn-default">Offene Aufträge anzeigen</a>
             {% else %}
-                <a href="?completed" class="btn btn-sm btn-default">Show Completed Jobs</a>
+                <a href="?completed" class="btn btn-sm btn-default">Abgeschlossene Aufträge anzeigen</a>
             {% endif %}
             {% if "MAINTENANCE_JOBS:VIEW"|instancePermissions %}
-                <a href="job.php" class="btn btn-sm btn-success">New Job</a>
+                <a href="job.php" class="btn btn-sm btn-success">Neuer Wartungsauftrag</a>
             {% endif %}
         </div>
     </div>
@@ -25,19 +25,19 @@
                     #
                 </th>
                 <th style="width: 20%">
-                    Title
+                    Titel
                 </th>
                 <th style="width: 5%">
-                    Creator
+                    Erstellt von
                 </th>
                 <th style="width: 5%">
-                    Assigned
+                    Zugewiesen
                 </th>
                 <th>
-                    Deadline
+                    Frist
                 </th>
                 <th style="width: 8%" class="text-center">
-                    Priority
+                    Priorität
                 </th>
                 <th style="width: 8%" class="text-center">
                     Status
@@ -64,7 +64,7 @@
                     </a>
                     <br/>
                     <small>
-                        Created {{job.maintenanceJobs_timestamp_added|date("d M Y h:i:sa")}}
+                        Erstellt {{job.maintenanceJobs_timestamp_added|date("d.m.Y H:i")}}
                     </small>
                 </td>
                 <td>
@@ -107,7 +107,7 @@
                     {% if job.maintenanceJobsStatuses_name %}
                     <span class="badge badge-default">{{ job.maintenanceJobsStatuses_name }}</span>
                     {% else %}
-                        <span class="badge badge-default">Awaiting Sorting</span>
+                        <span class="badge badge-default">Wartet auf Einordnung</span>
                     {% endif %}
                 </td>
                 <td >

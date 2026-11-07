@@ -8,16 +8,16 @@
         <div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
 					{% if "PROJECTS:PROJECT_TYPES:VIEW"|instancePermissions %}
-                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/projectTypes.php">Project Types</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/projectTypes.php">Projekttypen</a></li>
                     {% endif %}
 					{% if "PROJECTS:PROJECT_STATUSES:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/projectStatuses.php">Project Statuses</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/projectStatuses.php">Projektstatus</a></li>
                     {% endif %}
 					{% if "BUSINESS:BUSINESS_SETTINGS:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/configuration/asset-status.php">Asset Statuses</a></li>
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/invoices.php">Invoices</a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/configuration/asset-status.php">Materialstatus</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/invoices.php">Rechnungen</a></li>
                     {% endif %}
 				</ul>
 			</div>
@@ -29,7 +29,7 @@
         <div class="card">
             <form id="asstStatuses">
                 <div class="card-header">
-                    <h3 class="card-title">Asset Status</h3>
+                    <h3 class="card-title">Materialstatus</h3>
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless" id="statusTable">
@@ -57,7 +57,7 @@
                 </div>
                 <div class="card-footer">
                     {% if "BUSINESS:BUSINESS_SETTINGS:EDIT"|instancePermissions %}
-                        <button type="button" class="btn btn-default" id="newStatus">Add Row</button>
+                        <button type="button" class="btn btn-default" id="newStatus">Zeile hinzufügen</button>
                     {% endif %}
                 </div>
             </form>
@@ -75,7 +75,7 @@
                     });
                     $("#newStatus").on("click", function () {
                         bootbox.prompt({
-                            title: "Create New Asset Status",
+                            title: "Materialstatus anlegen",
                             inputType: "text",
                             callback: function (result) {
                                 ajaxcall(

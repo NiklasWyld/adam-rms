@@ -2,7 +2,7 @@
 require_once __DIR__ . '/common/headSecure.php';
 use Money\Currency;
 use Money\Money;
-$PAGEDATA['pageConfig'] = ["TITLE" => "Ledger", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Zahlungen", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("FINANCE:PAYMENTS_LEDGER:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

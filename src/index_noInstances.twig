@@ -6,14 +6,14 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    Welcome to {{ CONFIG.PROJECT_NAME }}
+                    Willkommen bei {{ CONFIG.PROJECT_NAME }}
                 </h3>
             </div>
             <div class="card-body">
-                <p>AdamRMS is a free, open source advanced Rental Management System for Theatre, AV & Broadcast</p>
-                <a href="https://adam-rms.com/" class="btn btn-default" target="_blank">Learn More</a>
+                <p>AdamRMS ist eine freie Open-Source-Software für Vermietung und Materialverwaltung in Theater, Veranstaltungstechnik und Rundfunk.</p>
+                <a href="https://adam-rms.com/" class="btn btn-default" target="_blank">Mehr erfahren</a>
                 <hr />
-                <p>{{ CONFIG.PROJECT_NAME }} has separate areas for separate businesses, and is designed to be used by multiple businesses all with one account (that you're logged into now). To get started, you need to join a business {% if CONFIG["NEW_INSTANCE_ENABLED"] == "Enabled" or "INSTANCES:CREATE"|serverPermissions %}or create one{% endif %}</p>
+                <p>{{ CONFIG.PROJECT_NAME }} bietet getrennte Bereiche für mehrere Unternehmen. Mit deinem Konto kannst du einem Unternehmen beitreten {% if CONFIG["NEW_INSTANCE_ENABLED"] == "Enabled" or "INSTANCES:CREATE"|serverPermissions %}oder ein neues erstellen{% endif %}</p>
             </div>
         </div>
         {% include 'assets/templates/joinInstance.twig' %}

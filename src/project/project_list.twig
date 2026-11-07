@@ -2,19 +2,19 @@
 {% block content %}
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">{{ CLIENT['clients_name'] ?: '' }}{{ CLIENT['clients_name'] and LOCATION['locations_name'] ? ' & ' : '' }}{{ LOCATION['locations_name'] ?: '' }} Projects {{ search ? " matching " ~ search : "" }} {{ STATUS ? ' with status ' ~ STATUS.projectsStatuses_name : ''}}</h3>
+            <h3 class="card-title">{{ CLIENT['clients_name'] ?: '' }}{{ CLIENT['clients_name'] and LOCATION['locations_name'] ? ' & ' : '' }}{{ LOCATION['locations_name'] ?: '' }} Projekte {{ search ? " zur Suche nach " ~ search : "" }} {{ STATUS ? ' mit Status ' ~ STATUS.projectsStatuses_name : ''}}</h3>
             {% if CLIENT['clients_archived'] %}
-            <span class="badge badge-warning ml-2">Client Archived</span>
+            <span class="badge badge-warning ml-2">Kunde archiviert</span>
             {% endif %}
             {% if LOCATION['locations_archived'] %}
-            <span class="badge badge-warning ml-2">Location Archived</span>
+            <span class="badge badge-warning ml-2">Standort archiviert</span>
             {% endif %}
             <div class="card-tools">
                 <form class="input-group input-group-sm"  method="GET">
-                    <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                    <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                     <div class="input-group-append">
-                        <button type="submit" class="btn btn-default"><i class="fa fa-search" title="Search"></i></button>
-                        {% if "PROJECTS:CREATE"|instancePermissions %}<a type="button" class="btn btn-default" href="{{ CONFIG.ROOTURL }}/project/new.php" title="Add new project"><i class="fa fa-plus"></i></a>{% endif %}
+                        <button type="submit" class="btn btn-default"><i class="fa fa-search" title="Suchen"></i></button>
+                        {% if "PROJECTS:CREATE"|instancePermissions %}<a type="button" class="btn btn-default" href="{{ CONFIG.ROOTURL }}/project/new.php" title="Neues Projekt anlegen"><i class="fa fa-plus"></i></a>{% endif %}
                     </div>
                 </form>
             </div>
@@ -27,22 +27,22 @@
                         #
                     </th>
                     <th>
-                        Title
+                        Titel
                     </th>
                     <th style="width: 10%">
-                        Type
+                        Typ
                     </th>
                     <th style="width: 24%">
-                        Client
+                        Kunde
                     </th>
                     <th style="width: 6rem;">
-                        Manager
+                        Leitung
                     </th>
                     <th style="width: 8rem;">
-                        Outstanding
+                        Offen
                     </th>
                     <th style="width: 11rem;">
-                        Payments Received
+                        Zahlungseingänge
                     </th>
                     <th style="width: 15%">
                         Status
@@ -56,7 +56,7 @@
                         {% set archive = true %}
                         <tr style="background-color: #ffffff;">
                             <td colspan="8">
-                                <b>Archived Projects</b>
+                                <b>Archivierte Projekte</b>
                             </td>
                         </tr>
                     {% endif %}
@@ -70,7 +70,7 @@
                             </a>
                             <br/>
                             <small>
-                                {{project.projects_dates_use_start|date("d M Y h:ia")}} - {{project.projects_dates_use_end|date("d M Y h:ia")}}
+                                {{project.projects_dates_use_start|date("d.m.Y H:i")}} - {{project.projects_dates_use_end|date("d.m.Y H:i")}}
                             </small>
                         </td>
                         <td>
@@ -122,13 +122,13 @@
                                     </a>
                                     <br/>
                                     <small>
-                                        {{subProject.projects_dates_use_start|date("d M Y h:ia")}} - {{subProject.projects_dates_use_end|date("d M Y h:ia")}}
+                                        {{subProject.projects_dates_use_start|date("d.m.Y H:i")}} - {{subProject.projects_dates_use_end|date("d.m.Y H:i")}}
                                     </small>
                                 </td>
                                 <td>
                                     {{ subProject.projectsTypes_name }}
                                     <br>
-                                    (Subproject)
+                                    (Teilprojekt)
                                 </td>
                                 <td>
                                     {% if subProject.projectsTypes_config_client == 1 %}

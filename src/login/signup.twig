@@ -1,17 +1,17 @@
 {% extends "login/login_template.twig" %}
 {% block content %}
    <div class="spinner-border" role="status" id="loadingOverlay" style="display: none;">
-        <span class="sr-only">Loading...</span>
+        <span class="sr-only">Wird geladen …</span>
     </div>
     <form id="signupForm">
         <div id="errorMessageBox" class="alert alert-danger"></div>
-        <input class="form-control form-control-lg" id="signupForm_users_email" maxlength="100" required placeholder="Enter your email address" autocomplete="email" type="email" style="margin-top: 10px; margin-bottom: 10px;">
-        <input class="form-control form-control-lg" id="signupForm_users_username" minlength="6" maxlength="100" required placeholder="Choose a username" autocomplete="username"  type="text" style="margin-top: 10px; margin-bottom: 10px;">
-        <input class="form-control form-control-lg" id="signupForm_users_password" minlength="12" maxlength="100" required placeholder="Choose a password (min. 12 characters)" autocomplete="new-password"  type="password" style="margin-top: 10px; margin-bottom: 5px;">
-        <p class="text-muted small" style="margin-top: 0; margin-bottom: 10px;">Choose a strong, unique password. We recommend using a password manager such as <a href="https://bitwarden.com" target="_blank" rel="noopener noreferrer">Bitwarden</a> to generate and store secure passwords.</p>
-        <input class="form-control form-control-lg" id="signupForm_users_name1" minlength="1" maxlength="100" required autocomplete="given-name" placeholder="First Name" type="text" style="margin-top: 10px; margin-bottom: 10px;">
-        <input class="form-control form-control-lg" id="signupForm_users_name2" minlength="1" maxlength="100" required autocomplete="family-name" placeholder="Last Name" type="text" style="margin-top: 10px; margin-bottom: 10px;">
-        <button class="btn btn-secondary" type="submit" value="Submit">Sign Up</button>
+        <input class="form-control form-control-lg" id="signupForm_users_email" maxlength="100" required placeholder="E-Mail-Adresse eingeben" autocomplete="email" type="email" style="margin-top: 10px; margin-bottom: 10px;">
+        <input class="form-control form-control-lg" id="signupForm_users_username" minlength="6" maxlength="100" required placeholder="Benutzernamen wählen" autocomplete="username"  type="text" style="margin-top: 10px; margin-bottom: 10px;">
+        <input class="form-control form-control-lg" id="signupForm_users_password" minlength="12" maxlength="100" required placeholder="Passwort wählen (mindestens 12 Zeichen)" autocomplete="new-password"  type="password" style="margin-top: 10px; margin-bottom: 5px;">
+        <p class="text-muted small" style="margin-top: 0; margin-bottom: 10px;">Wähle ein starkes, einzigartiges Passwort. Wir empfehlen einen Passwortmanager wie <a href="https://bitwarden.com" target="_blank" rel="noopener noreferrer">Bitwarden</a> , um sichere Passwörter zu erstellen und zu speichern.</p>
+        <input class="form-control form-control-lg" id="signupForm_users_name1" minlength="1" maxlength="100" required autocomplete="given-name" placeholder="Vorname" type="text" style="margin-top: 10px; margin-bottom: 10px;">
+        <input class="form-control form-control-lg" id="signupForm_users_name2" minlength="1" maxlength="100" required autocomplete="family-name" placeholder="Nachname" type="text" style="margin-top: 10px; margin-bottom: 10px;">
+        <button class="btn btn-secondary" type="submit" value="Submit">Registrieren</button>
     </form>
 	<script>
 		$( document ).ready(function() {
@@ -42,27 +42,27 @@
                                     } else {
                                         $("#signupForm").show();
                                         $("#loadingOverlay").hide();
-                                        $("#errorMessageBox").html(result.error.message);
+                                        $("#errorMessageBox").html(adamUiError(result.error.message));
                                         $("#errorMessageBox").show();
                                     }
                                 },
                                 error: function(){
                                     $("#signupForm").show();
                                     $("#loadingOverlay").hide();
-                                    $("#errorMessageBox").html("Account created, but login unsuccessful: please refresh the page and check your internet connection");
+                                    $("#errorMessageBox").html("Das Konto wurde erstellt. Die Anmeldung ist fehlgeschlagen. Prüfe deine Internetverbindung und lade die Seite neu.");
                                     $("#errorMessageBox").show();
                                 }
                             });
                         } else {
                             $("#signupForm").show();
                             $("#loadingOverlay").hide();
-                            $("#errorMessageBox").html(result.error.message);
+                            $("#errorMessageBox").html(adamUiError(result.error.message));
                             $("#errorMessageBox").show();
                         }
                     }, error: function () {
                         $("#signupForm").show();
                         $("#loadingOverlay").hide();
-                        $("#errorMessageBox").html("Please refresh the page and check your internet connection");
+                        $("#errorMessageBox").html("Prüfe deine Internetverbindung und lade die Seite neu.");
                         $("#errorMessageBox").show();
                     }
                 });
@@ -83,12 +83,12 @@
                         "userid": userid
                     }, success: function (result) {
                         if (result.result) {
-                            toastr.success("E-Mail re-sent");
+                            toastr.success("E-Mail erneut gesendet");
                         } else {
-                            toastr.error("Error verifying email address - please contact support");
+                            toastr.error("Die E-Mail-Adresse konnte nicht bestätigt werden. Wende dich an den Support.");
                         }
                     }, error: function () {
-                        toastr.error("Please refresh the page and check your internet connection");
+                        toastr.error("Prüfe deine Internetverbindung und lade die Seite neu.");
                     }
                 });
             }

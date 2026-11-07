@@ -3,7 +3,7 @@ require_once __DIR__ . '/common/headSecure.php';
 use Money\Currency;
 use Money\Money;
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Clients", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Kunden", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("CLIENTS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

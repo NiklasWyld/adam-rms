@@ -85,12 +85,12 @@ test("JSON request bodies are redacted and OAuth uses the saved business app wit
   expect(connect.json?.result,connect.body).toBe(true);
   const url=new URL(connect.json.response.url);expect(url.hostname).toBe("ticktick.com");expect(url.searchParams.get("client_id")).toBe(id);expect(url.searchParams.get("redirect_uri")).toBe(callback);
   await page.context().addCookies((await asA.request.storageState()).cookies);await cacheCdn(page.context());
-  await page.goto("/instances/navigation.php");await expect(page.getByRole("link",{name:"TickTick Settings"})).toBeVisible();
-  await page.getByRole("link",{name:"TickTick Settings"}).click();await expect(page.locator("#tick-settings-status")).toContainText("configured");
+  await page.goto("/instances/navigation.php");await expect(page.getByRole("link",{name:"TickTick-Einstellungen"})).toBeVisible();
+  await page.getByRole("link",{name:"TickTick-Einstellungen"}).click();await expect(page.locator("#tick-settings-status")).toContainText("eingerichtet");
   await expect(page.locator("#tick-client-id")).toHaveValue(id);await expect(page.locator("#tick-client-secret")).toHaveValue("");
   await expect(page.locator("#tick-client-secret")).toHaveAttribute("type","password");
   await page.locator("#tick-client-id").fill(id+"-edited");
-  page.once("dialog",d=>d.accept());await page.locator("#tick-settings-save").click();await expect(page.locator("#tick-settings-status")).toContainText("configured");
+  page.once("dialog",d=>d.accept());await page.locator("#tick-settings-save").click();await expect(page.locator("#tick-settings-status")).toContainText("eingerichtet");
   await expect(page.locator("#tick-client-secret")).toHaveValue("");expect((await read(asA)).settings.clientId).toBe(id+"-edited");
   await page.reload();await expect(page.locator("#tick-client-id")).toHaveValue(id+"-edited");
   await page.locator("#tick-settings").screenshot({path:"/tmp/ticktick-settings-ui.png"});

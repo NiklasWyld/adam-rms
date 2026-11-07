@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-12">
             <div class="float-right mb-2">
-                <a class="btn btn-sm btn-info" href="{{ CONFIG.ROOTURL }}/maintenance/barcodeGenerator.php">Generate/Export Barcodes</a>
+                <a class="btn btn-sm btn-info" href="{{ CONFIG.ROOTURL }}/maintenance/barcodeGenerator.php">Barcodes erstellen und exportieren</a>
             </div>
         </div>
     </div>
@@ -15,32 +15,32 @@
                 <div class="card-header">
                     <h3 class="card-title" id="currentLocationText"></h3>
                     <div class="card-tools">
-                        <button class="btn btn-tool btn-default" title="Change Location Set" id="changeLocationButton">Change location</button>
+                        <button class="btn btn-tool btn-default" title="Standort ändern" id="changeLocationButton">Standort ändern</button>
                     </div>
                 </div>
             </div>
             <div class="card" id="setLocationCard">
                 <div class="card-header">
-                    <h3 class="card-title">Set Location to begin scanning</h3>
+                    <h3 class="card-title">Wähle zum Scannen zuerst einen Standort</h3>
                 </div>
                 <div class="card-body">
-                    <p>Set your location by:</p>
+                    <p>So legst du den Standort fest:</p>
                     <ul>
-                        <li>Scanning a location barcode</li>
-                        <li>Scanning an asset barcode (to set that asset as your location)</li>
-                        <li>Manually entering a location below</li>
+                        <li>Standortbarcode scannen</li>
+                        <li>Materialbarcode scannen (das Material dient dann als Standort)</li>
+                        <li>Standort unten manuell eingeben</li>
                     </ul>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="customLocationText" placeholder="Enter Location">
+                        <input type="text" class="form-control" id="customLocationText" placeholder="Standort eingeben">
                         <div class="input-group-append">
-                            <button class="btn btn-default" id="setCustomLocationButton">Set Location</button>
+                            <button class="btn btn-default" id="setCustomLocationButton">Standort festlegen</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Assets Scanned</h3>
+                    <h3 class="card-title">Gescanntes Material</h3>
                 </div>
                 <div class="card-body">
                     <div class="row d-flex align-items-stretch" id="assetsScannedList"></div>
@@ -52,18 +52,18 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Associate Barcode with Asset</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Barcode mit Material verknüpfen</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-control" multiple="multiple" id="selectAnAssetToAssign-assets" placeholder="Enter asset tags here"></select>
+                    <select class="form-control" multiple="multiple" id="selectAnAssetToAssign-assets" placeholder="Materialkennungen eingeben"></select>
                     <input type="hidden" id="selectAnAssetToAssign-barcode" value="">
                     <input type="hidden" id="selectAnAssetToAssign-barcodetype" value="">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="selectAnAssetToAssign-button">Associate</button>
+                    <button type="button" class="btn btn-primary" id="selectAnAssetToAssign-button">Verknüpfen</button>
                 </div>
             </div>
         </div>
@@ -77,7 +77,7 @@
         var barcodeRequestInProgress = false
         function mainBarcodeScanned(value, type) {
             if (barcodeRequestInProgress) {
-                console.log("Request already in progress")
+                console.log("Der Vorgang läuft bereits.")
                 return
             }
             if (barcodeScanLocation.type === false) {
@@ -95,16 +95,16 @@
             }, function (data) {
                 if (data.response.location) {
                     setScanLocation(data.response.location["locationsBarcodes_id"], data.response.location['locations_name'], "barcode")
-                    bootbox.alert("Location set to " + data.response.location['locations_name'], function () {
+                    bootbox.alert("Standort gesetzt auf " + data.response.location['locations_name'], function () {
                         barcodeRequestInProgress = false
                     });
                 } else if (data.response.asset) {
                     setScanLocation(data.response.asset['assets_id'], data.response.asset['assets_tag'] + " " + data.response.asset['assetTypes_name'], "asset")
-                    bootbox.alert("Location set to asset " + data.response.asset['assets_tag'] + " " + data.response.asset['assetTypes_name'], function () {
+                    bootbox.alert("Material als Standort festgelegt " + data.response.asset['assets_tag'] + " " + data.response.asset['assetTypes_name'], function () {
                         barcodeRequestInProgress = false
                     });
                 } else {
-                    bootbox.alert("Sorry location not found");
+                    bootbox.alert("Standort nicht gefunden");
                     barcodeRequestInProgress = false
                 }
             });
@@ -114,15 +114,15 @@
             ajaxcall("assets/barcodes/search.php", {"text":barcodeValue,"type":barcodeType,"location":barcodeScanLocation.value,"locationType":barcodeScanLocation.type,"scanned": true}, function (assetResult) {
                 if (assetResult.response.asset === false && assetResult.response.location !== false) {
                     bootbox.confirm({
-                        title: "Location Barcode Scanned",
-                        message: 'Would you like to change your location to ' + assetResult.response.location['locations_name'] + '?',
+                        title: "Standort-Barcode erfasst",
+                        message: 'Möchtest du zu diesem Standort wechseln: ' + assetResult.response.location['locations_name'] + '?',
                         buttons: {
                             confirm: {
-                                label: 'Yes',
+                                label: 'Ja',
                                 className: 'btn-danger'
                             },
                             cancel: {
-                                label: 'No',
+                                label: 'Nein',
                                 className: 'btn-default'
                             }
                         
@@ -130,22 +130,22 @@
                     callback: function (result) {
                         if (result) {
                             setScanLocation(assetResult.response.location["locationsBarcodes_id"], assetResult.response.location['locations_name'], "barcode")
-                            bootbox.alert("Location set to " + assetResult.response.location['locations_name']);
+                            bootbox.alert("Standort gesetzt auf " + assetResult.response.location['locations_name']);
                         }
                         barcodeRequestInProgress = false
                     }});
                 } else if (assetResult.response.asset === false) {
                     {% if "ASSETS:ASSET_BARCODES:EDIT:ASSOCIATE_UNNASOCIATED_BARCODES_WITH_ASSETS"|instancePermissions %}
                         bootbox.confirm({
-                            title: "Unassociated Barcode",
-                            message: `No asset found with this barcode in {{ USERDATA.instance.instances_name }}.<br/>Would you like to associate the barcode ${barcodeValue} (type ${barcodeType}) with an asset in {{ USERDATA.instance.instances_name }}?`,
+                            title: "Nicht zugeordneter Barcode",
+                            message: `In {{ USERDATA.instance.instances_name }} wurde kein Material mit diesem Barcode gefunden.<br/>Möchtest du den Barcode ${barcodeValue} (Typ ${barcodeType}) in {{ USERDATA.instance.instances_name }} einem Material zuordnen?`,
                             buttons: {
                                 confirm: {
-                                    label: 'Yes',
+                                    label: 'Ja',
                                     className: 'btn-success'
                                 },
                                 cancel: {
-                                    label: 'No',
+                                    label: 'Nein',
                                     className: 'btn-default'
                                 }
                             },
@@ -153,15 +153,15 @@
                                 if (result) {
                                     if (assetResult.response.assetSuggest != false) {
                                         bootbox.confirm({
-                                            title: "Change Asset Tag",
-                                            message: 'Would you like to assciate this barcode with the asset in {{ USERDATA.instance.instances_name }} that has the Tag ' + assetResult.response.assetSuggest['assets_tag'] + '? The asset is a ' + assetResult.response.assetSuggest['assetTypes_name'] + ' (' + assetResult.response.assetSuggest['manufacturers_name'] + ')',
+                                            title: "Materialzuordnung ändern",
+                                            message: 'Diesen Barcode in {{ USERDATA.instance.instances_name }} dem Material mit dieser Kennung zuordnen: ' + assetResult.response.assetSuggest['assets_tag'] + '? Materialtyp: ' + assetResult.response.assetSuggest['assetTypes_name'] + ' (' + assetResult.response.assetSuggest['manufacturers_name'] + ')',
                                             buttons: {
                                                 confirm: {
-                                                    label: 'Yes',
+                                                    label: 'Ja',
                                                     className: 'btn-default'
                                                 },
                                                 cancel: {
-                                                    label: 'No - pick a different asset',
+                                                    label: 'Nein, anderes Material auswählen',
                                                     className: 'btn-default'
                                                 }
                                             
@@ -229,15 +229,15 @@
         }
         function deleteBarcode(barcodeId) {
             bootbox.confirm({
-                title: "Delete Barcode",
-                message: 'Are you sure you wish to delete this barcode? All scan history for this barcode will be lost',
+                title: "Barcode löschen",
+                message: 'Diesen Barcode und seinen Scanverlauf löschen?',
                 buttons: {
                     confirm: {
-                        label: 'Yes',
+                        label: 'Ja',
                         className: 'btn-danger'
                     },
                     cancel: {
-                        label: 'No',
+                        label: 'Nein',
                         className: 'btn-success'
                     }
                 
@@ -247,7 +247,7 @@
                     ajaxcall("assets/barcodes/delete.php", {
                         "barcodes_id": barcodeId,
                     }, function (result) {
-                        bootbox.alert("Barcode deleted");
+                        bootbox.alert("Barcode gelöscht");
                         $("button.deleteBarcodeButton[data-barcode='" + barcodeId + "']").remove();
                     });
                 }
@@ -263,10 +263,10 @@
                 type: type
             }
             $("#setLocationCard").hide()
-            $("#currentLocationText").html("Current Location: " + name)
+            $("#currentLocationText").html("Aktueller Standort: " + name)
             $("#assetsScannedList").parent().show()
             $("#currentLocationCard").show()
-            $("#barcodeScanStartButton").html("Start Scanning Assets")
+            $("#barcodeScanStartButton").html("Material scannen")
         }
         function clearScanLocation() {
             localStorage.removeItem("adamrms-barcode-scan-location-value")
@@ -277,7 +277,7 @@
                 name: null,
                 type: false
             }
-            $("#barcodeScanStartButton").html("Start Scanning to Set Location")
+            $("#barcodeScanStartButton").html("Standort scannen")
             $("#assetsScannedList").parent().hide()
             $("#setLocationCard").show()
             $("#currentLocationCard").hide()
@@ -305,7 +305,7 @@
                 width: '100%',
 
                 minimumResultsForSearch: 1,
-                placeholder: "Enter asset numbers to search for assets",
+                placeholder: "Nach Inventarnummern suchen",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/assets/searchAssets.php",
                     dataType: "json",
@@ -341,15 +341,15 @@
                     $('#selectAnAssetToAssign').modal('hide');
                     {% if "ASSETS:EDIT"|instancePermissions %}
                     bootbox.confirm({
-                        title: "Change Asset Tag",
-                        message: 'Would you like to change the assets tag to ' + $("#selectAnAssetToAssign-barcode").val() + '?',
+                        title: "Materialzuordnung ändern",
+                        message: 'Diesen Barcode folgendem Material zuordnen: ' + $("#selectAnAssetToAssign-barcode").val() + '?',
                         buttons: {
                             confirm: {
-                                label: 'Yes',
+                                label: 'Ja',
                                 className: 'btn-default'
                             },
                             cancel: {
-                                label: 'No',
+                                label: 'Nein',
                                 className: 'btn-default'
                             }
                     },

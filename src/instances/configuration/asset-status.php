@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Business Asset Status Settings", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Einstellungen für Materialstatus", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("BUSINESS:BUSINESS_SETTINGS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

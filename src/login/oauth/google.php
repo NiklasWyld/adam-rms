@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../common/head.php';
 
 use \Firebase\JWT\JWT;
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Login with Google"];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Mit Google anmelden"];
 $PAGEDATA['googleAuthAvailable'] = $CONFIGCLASS->get("AUTH_PROVIDERS_GOOGLE_KEYS_ID") != false and $CONFIGCLASS->get("AUTH_PROVIDERS_GOOGLE_KEYS_SECRET") != false;
 
 if (!$PAGEDATA['googleAuthAvailable']) {

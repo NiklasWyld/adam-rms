@@ -21,13 +21,20 @@
                 initialView: '{{USERDATA['instance']['calendarSettings'].defaultView ?: "dayGridMonth"}}',
                 nextDayThreshold: '05:00:00',
                 height: 800,
-                firstDay: 1,
+                locale: {
+                    code: 'de',
+                    week: { dow: 1, doy: 4 },
+                    weekText: 'KW',
+                    allDayText: 'Ganztägig',
+                    moreLinkText: 'weitere',
+                    noEventsText: 'Keine Termine in diesem Zeitraum',
+                },
                 buttonText:  {
-                    today:    'Today',
-                    month:    'Month',
-                    week:     'Week',
-                    day:      'Day',
-                    list:     'List'
+                    today:    'Heute',
+                    month:    'Monat',
+                    week:     'Woche',
+                    day:      'Tag',
+                    list:     'Liste'
                 },
                 headerToolbar: {
                     left  : 'prev,next today',
@@ -35,12 +42,8 @@
                     right : 'dayGridMonth,timeGridWeek,timeGridDay,listYear'
                 },
                 titleFormat: function(date) {
-                    const monthNames = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"
-                    ]
-                    const prefix = "{{LOCATION ? LOCATION.locations_name ~ ': ' : USER ? 'Your Calendar: ' : '' }}"
-
-                    return prefix + monthNames[date['date']['month']] + " " + date['date']['year'];
+                    const prefix = "{{ (LOCATION ? LOCATION.locations_name ~ ': ' : USER ? 'Mein Kalender: ' : '')|escape('js') }}";
+                    return prefix + adamDatePickerLabels.monthNames[date.date.month] + ' ' + date.date.year;
                 },
                 events : [
                     {% set startDate = false %}

@@ -27,6 +27,7 @@ x-amz-meta-size
         }
         {% if planningCategory is defined %}var {{ thisElementID }}Registrations = [];{% endif %}
         {{ thisElementID }} = new Uppy.Core({
+            locale: adamUppyLocale,
             debug: true,
             allowMultipleUploads: true,
             autoProceed: false,
@@ -58,7 +59,7 @@ x-amz-meta-size
                         //Checking on the form completed
                         //value.name =
                     } else {
-                        uppy.info(`Please specify an image credit`, 'error')
+                        uppy.info(`Gib die Bildquelle an.`, 'error')
                         return false;
                     }
                     {% endif %}
@@ -67,7 +68,7 @@ x-amz-meta-size
         }).use(Uppy.Dashboard, {
             inline: true,
             target: '#{{ thisElementID }}',
-            note: '{% if imagesOnly is defined and imagesOnly %}Images only{% endif %}',
+            note: '{% if imagesOnly is defined and imagesOnly %}Nur Bilder{% endif %}',
             height: {% if licenceCredit != true and fileLimit < 2 %}300{% else %}500{% endif %},
             browserBackButtonClose: false,
             showLinkToFileUploadResult: false,
@@ -82,10 +83,10 @@ x-amz-meta-size
             showProgressDetails: true,
             metaFields: [
                 {% if licenceCredit %}
-                { id: 'title', name: 'Title', placeholder: 'filetitle' },
-                { id: 'license', name: 'License', placeholder: 'specify license' },
-                { id: 'credit', name: 'Credit', placeholder: 'How should the image be credited? Don\'t include "Image:"' },
-                { id: 'ownwork', name: 'Photo from a member of the Nouse Team?', render: function({value, onChange}, h) {
+                { id: 'title', name: 'Titel', placeholder: 'Dateititel' },
+                { id: 'license', name: 'Lizenz', placeholder: 'Lizenz angeben' },
+                { id: 'credit', name: 'Bildquelle', placeholder: 'Welche Bildquelle soll genannt werden? Gib nur den Namen an.' },
+                { id: 'ownwork', name: 'Stammt das Foto aus dem Nouse-Team?', render: function({value, onChange}, h) {
                         return h('input', { type: 'checkbox', onChange: (ev) => onChange(ev.target.checked ? 'on' : 'off'), defaultChecked: value === 'off' })
                     } }
                 {% endif %}
@@ -116,7 +117,7 @@ x-amz-meta-size
                 }).then((data) => {
                     // Return an object in the correct shape.
                     if (data.result === false) {
-                        throw new Error(data.error.message)
+                        throw new Error(adamUiError(data.error.message))
                     }
                     return {
                         method: data.method,
@@ -171,7 +172,7 @@ x-amz-meta-size
                 },
                 success: function (result) {
                     if (!result.result) {
-                        bootbox.alert("Sorry - Upload encountered a problem", function () {
+                        bootbox.alert("Die Datei konnte nicht hochgeladen werden.", function () {
                             location.reload();
                         });
                     } else {
@@ -185,7 +186,7 @@ x-amz-meta-size
                     }
                 },
                 error: function (error) {
-                    bootbox.alert("Sorry - Upload encountered a problem", function () {
+                    bootbox.alert("Die Datei konnte nicht hochgeladen werden.", function () {
                         location.reload();
                     });
                 }

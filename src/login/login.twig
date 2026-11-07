@@ -1,10 +1,10 @@
 {% extends "login/login_template.twig" %}
 {% block content %}
     {% if googleAuthAvailable %}
-    <a href="{{CONFIG.ROOTURL}}/login/oauth/google.php" class="btn btn-default btn-lg m-2 border shadow-sm"><img src="{{ CONFIG.ROOTURL}}/static-assets/img/login/google.svg" alt="" role="presentation" style="height: 1.2em; vertical-align: text-top;" /> Login{% if signupEnabled %} or Signup{% endif %} with Google</a><br/>
+    <a href="{{CONFIG.ROOTURL}}/login/oauth/google.php" class="btn btn-default btn-lg m-2 border shadow-sm"><img src="{{ CONFIG.ROOTURL}}/static-assets/img/login/google.svg" alt="" role="presentation" style="height: 1.2em; vertical-align: text-top;" /> Anmelden{% if signupEnabled %} oder registrieren{% endif %} mit Google</a><br/>
     {% endif %}
     {% if microsoftAuthAvailable %}
-    <a href="{{CONFIG.ROOTURL}}/login/oauth/microsoft.php" class="btn btn-default btn-lg m-2 border shadow-sm"><img src="{{ CONFIG.ROOTURL}}/static-assets/img/login/microsoft.svg" alt="" role="presentation" style="height: 1.2em; vertical-align: text-top;" /> Login{% if signupEnabled %} or Signup{% endif %} with Microsoft</a><br/>
+    <a href="{{CONFIG.ROOTURL}}/login/oauth/microsoft.php" class="btn btn-default btn-lg m-2 border shadow-sm"><img src="{{ CONFIG.ROOTURL}}/static-assets/img/login/microsoft.svg" alt="" role="presentation" style="height: 1.2em; vertical-align: text-top;" /> Anmelden{% if signupEnabled %} oder registrieren{% endif %} mit Microsoft</a><br/>
     {% endif %}
     {% if signupEnabled %}
     <a href="?signup" class="btn btn-default btn-lg m-2 border shadow-sm">
@@ -13,20 +13,20 @@
         {% else %}
         <img src="{{ CONFIG.ROOTURL}}/static-assets/img/logoicon.png" alt="AdamRMS Logo" role="presentation" style="height: 1.2em; vertical-align: text-top;" />
         {% endif %}
-        Create new {{ CONFIG.PROJECT_NAME }} account
+        Neues {{ CONFIG.PROJECT_NAME }} Konto erstellen
     </a>
-    <p>or</p>
+    <p>oder</p>
     {% endif %}
     <div class="spinner-border" role="status" id="loadingOverlay" style="display: none;">
-        <span class="sr-only">Loading...</span>
+        <span class="sr-only">Wird geladen …</span>
     </div>
     <form id="loginForm">
         <div id="errorMessageBox" class="alert alert-danger"></div>
-		<input class="form-control form-control-lg" id="emailInput" autocomplete="username" placeholder="Login with Username or Email" type="text" required style="margin-top: 10px; margin-bottom: 10px;" autofocus>
-        <input class="form-control form-control-lg" id="passwordInput" placeholder="Password" autocomplete="current-password" type="password" required style="margin-top: 10px; margin-bottom: 10px;">
+		<input class="form-control form-control-lg" id="emailInput" autocomplete="username" placeholder="Mit Benutzername oder E-Mail anmelden" type="text" required style="margin-top: 10px; margin-bottom: 10px;" autofocus>
+        <input class="form-control form-control-lg" id="passwordInput" placeholder="Passwort" autocomplete="current-password" type="password" required style="margin-top: 10px; margin-bottom: 10px;">
 		<div style="width: 100%; text-align:right;">
-            <button type="button" class="btn btn-default" id="passwordResetButton">Reset my password</button>
-            <button class="btn btn-secondary" type="submit" value="Submit">Login</button>
+            <button type="button" class="btn btn-default" id="passwordResetButton">Passwort zurücksetzen</button>
+            <button class="btn btn-secondary" type="submit" value="Submit">Anmelden</button>
 		</div>
 	</form>
 	<script>
@@ -45,21 +45,21 @@
                     } else {
                         $("#loginForm").show();
                         $("#loadingOverlay").hide();
-                        $("#errorMessageBox").html(result.error.message);
+                        $("#errorMessageBox").html(adamUiError(result.error.message));
                         $("#errorMessageBox").show();
                     }
                 },
                 error: function(){
                     $("#loginForm").show();
                     $("#loadingOverlay").hide();
-                    $("#errorMessageBox").html("Please refresh the page and check your internet connection");
+                    $("#errorMessageBox").html("Prüfe deine Internetverbindung und lade die Seite neu.");
                     $("#errorMessageBox").show();
                 }
             });
         });
         $('#passwordResetButton').click(function(){
             if ($("#emailInput").val().length <= 0) {
-                $("#errorMessageBox").html("Please enter your username/email into the address box to reset your password.");
+                $("#errorMessageBox").html("Gib deinen Benutzernamen oder deine E-Mail-Adresse ein, um dein Passwort zurückzusetzen.");
                 $("#errorMessageBox").show();
                 return;
             }
@@ -75,16 +75,16 @@
                     $("#loginForm").show();
                     $("#loadingOverlay").hide();
                     if (result.result) {
-                        $("#errorMessageBox").html("If an account exists with the email address you entered, a password reset link has been sent to that address. Please check your email and follow the instructions provided.");
+                        $("#errorMessageBox").html("Wenn zu dieser Adresse ein Konto besteht, erhältst du per E-Mail einen Link zum Zurücksetzen des Passworts. Folge den Anweisungen in der E-Mail.");
                         $("#errorMessageBox").show();
                     } else {
-                        $("#errorMessageBox").html("Please contact the support team for a new password");
+                        $("#errorMessageBox").html("Wende dich für ein neues Passwort an den Support.");
                         $("#errorMessageBox").show();
                     }
                 }, error: function(){
                     $("#loginForm").show();
                     $("#loadingOverlay").hide();
-                    $("#errorMessageBox").html("Please refresh the page and check your internet connection");
+                    $("#errorMessageBox").html("Prüfe deine Internetverbindung und lade die Seite neu.");
                     $("#errorMessageBox").show();
                 }
             });

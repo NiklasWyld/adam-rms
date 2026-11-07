@@ -20,11 +20,11 @@
 
                     <ul class="list-group list-group-unbordered mb-3">
                         <li class="list-group-item">
-                            <b>Crew Roles</b> <a href="#roles" data-toggle="tab"
+                            <b>Crew-Rollen</b> <a href="#roles" data-toggle="tab"
                                     class="float-right">{{ user.crewAssignments|length }}</a>
                         </li>
                         <li class="list-group-item">
-                            <b>Projects Managed</b> <a href="#projects" data-toggle="tab"
+                            <b>Geleitete Projekte</b> <a href="#projects" data-toggle="tab"
                                     class="float-right">{{ user.projectManagement|length }}</a>
                         </li>
                         {% if user.users_social_facebook != "" %}
@@ -78,20 +78,20 @@
                 <div class="card-header p-2">
                     <ul class="nav nav-pills">
                         {% if user.users_userid == USERDATA.users_userid or "USERS:EDIT"|serverPermissions %}
-                            <li class="nav-item"><a class="nav-link" href="#account" data-toggle="tab">Account Settings</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#notifications" data-toggle="tab">Notifications</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#profilepicture" data-toggle="tab">Profile Picture</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#account" data-toggle="tab">Kontoeinstellungen</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#notifications" data-toggle="tab">Benachrichtigungen</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#profilepicture" data-toggle="tab">Profilbild</a></li>
                         {% endif %}
                         {% if user.users_userid == USERDATA.users_userid %}
-                            <li class="nav-item"><a class="nav-link" href="#passwordsocial" data-toggle="tab">Password & Sign-in</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#passwordsocial" data-toggle="tab">Passwort und Anmeldung</a></li>
                         {% endif %}
                         {% if (16|serverPermissions and user.users_userid == USERDATA.users_userid) or "USERS:EDIT"|serverPermissions %}
-                            <li class="nav-item"><a class="nav-link" href="#positions" data-toggle="tab">{{ CONFIG.PROJECT_NAME }} Positions</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#positions" data-toggle="tab">{{ CONFIG.PROJECT_NAME }} Rollen</a></li>
                         {% endif %}
-                        {% if user.crewAssignments|length > 0 %}<li class="nav-item"><a class="nav-link" href="#roles" data-toggle="tab">Crew Roles</a></li>{% endif %}
-                        {% if user.projectManagement|length > 0 %}<li class="nav-item"><a class="nav-link" href="#projects" data-toggle="tab">Projects Managed</a></li>{% endif %}
+                        {% if user.crewAssignments|length > 0 %}<li class="nav-item"><a class="nav-link" href="#roles" data-toggle="tab">Crew-Rollen</a></li>{% endif %}
+                        {% if user.projectManagement|length > 0 %}<li class="nav-item"><a class="nav-link" href="#projects" data-toggle="tab">Geleitete Projekte</a></li>{% endif %}
                         {% if user.users_userid == USERDATA.users_userid %}
-                        <li class="nav-item"><a class="nav-link" href="#export" data-toggle="tab">Export Calendar</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#export" data-toggle="tab">Kalender exportieren</a></li>
                         {% endif %}
                         <li class="nav-item"><a class="nav-link active" href="#calendar" data-toggle="tab"><i class="far fa-calendar-alt"></i></a></li>
                     </ul>
@@ -102,22 +102,22 @@
                             <div class="tab-pane p-3" id="account">
                                 <form id="account-form">
                                     <div class="form-group">
-                                        <label for="username">Username:</label>
+                                        <label for="username">Benutzername:</label>
                                         <input type="username" class="form-control" name="users_username" required  value="{{user['users_username']}}" />
                                     </div>
                                     <div class="form-group">
-                                        <label>First Name:</label>
+                                        <label>Vorname:</label>
                                         <input type="text" class="form-control" name="users_name1" required value="{{user['users_name1']}}" />
                                     </div>
                                     <div class="form-group">
-                                        <label>Last Name:</label>
+                                        <label>Nachname:</label>
                                         <input type="text" class="form-control" name="users_name2" required  value="{{user['users_name2']}}" />
                                     </div>
                                     <div class="form-group">
-                                        <label>Email address:</label>
+                                        <label>E-Mail-Adresse:</label>
                                         <input type="email" class="form-control" name="users_email" required value="{{user['users_email']}}" />
                                     </div>
-                                    <p>Share links to your social media profiles to be displayed on your user profile page</p>
+                                    <p>Hinterlege Links zu sozialen Netzwerken, die auf deinem Profil angezeigt werden sollen.</p>
                                     <label>Facebook</label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -153,7 +153,7 @@
                                         <input type="text" class="form-control" name="users_social_snapchat" value="{{ user.users_social_snapchat }}">
                                     </div><br/>
                                     <input type="hidden" name="users_userid" value="{{ user.users_userid }}" />
-                                    <button type="submit" class="btn btn-default">Save</button>
+                                    <button type="submit" class="btn btn-default">Speichern</button>
                                 </form>
                                 <script>
                                     $(document).ready(function() {
@@ -166,12 +166,43 @@
                                 </script>
                             </div>
                             <div class="tab-pane p-0" id="notifications">
+                                {% set notificationLabels = {
+                                    methods: {0: 'Post', 1: 'E-Mail'},
+                                    groups: {
+                                        'Account': 'Benutzerkonto',
+                                        'Crewing': 'Crew-Planung',
+                                        'Maintenance': 'Wartung',
+                                        'Asset Groups Watching': 'Beobachtete Materialgruppen',
+                                        'Business - Users': 'Mitglieder im Unternehmen',
+                                        'Project': 'Projekt'
+                                    },
+                                    types: {
+                                        1: 'Passwort zurücksetzen',
+                                        2: 'In ein Unternehmen aufgenommen',
+                                        3: 'E-Mail-Adresse bestätigen',
+                                        4: 'Anmeldelink per E-Mail',
+                                        10: 'Aus Projektcrew entfernt',
+                                        11: 'Zu Projektcrew hinzugefügt',
+                                        12: 'In einem neuen Wartungsauftrag erwähnt',
+                                        13: 'Neue Nachricht im Wartungsauftrag',
+                                        14: 'Status eines Wartungsauftrags geändert',
+                                        15: 'Wartungsauftrag zugewiesen',
+                                        16: 'Material zur Gruppe hinzugefügt',
+                                        17: 'Material aus Gruppe entfernt',
+                                        18: 'Material einem Projekt zugeordnet',
+                                        19: 'Material aus Projekt entfernt',
+                                        20: 'Crew-Rolle umbenannt',
+                                        30: 'Neues Mitglied per Einladungscode beigetreten',
+                                        40: 'Neue Crew-Bewerbung in einem von dir geleiteten Projekt',
+                                        41: 'Neues zu deiner Crew-Bewerbung'
+                                    }
+                                } %}
                                 <table class="table table-striped">
                                     <thead>
                                     <tr>
-                                        <th><button type="button" id="save-notification-settings" class="btn btn-success btn-sm">Save</button></th>
-                                        {% for method in NOTIFICATIONTYPES.METHODS %}
-                                            <th>{{method}}</th>
+                                        <th><button type="button" id="save-notification-settings" class="btn btn-success btn-sm">Speichern</button></th>
+                                        {% for methodid, method in NOTIFICATIONTYPES.METHODS %}
+                                            <th>{{ notificationLabels.methods[methodid] ?? method }}</th>
                                         {% endfor %}
                                     </tr>
                                     </thead>
@@ -180,12 +211,12 @@
                                     {% for notification in NOTIFICATIONTYPES.TYPES %}
                                         {% if category != notification.group %}
                                             <tr>
-                                                <td colspan="{{ 1+NOTIFICATIONTYPES.METHODS|length }}"><h3>{{ notification.group }}</h3></td>
+                                                <td colspan="{{ 1+NOTIFICATIONTYPES.METHODS|length }}"><h3>{{ notificationLabels.groups[notification.group] ?? notification.group }}</h3></td>
                                             </tr>
                                             {% set category = notification.group %}
                                         {% endif %}
                                         <tr>
-                                            <td>{{ notification.name }}</td>
+                                            <td>{{ notificationLabels.types[notification.id] ?? notification.name }}</td>
                                             {% for methodid,method in NOTIFICATIONTYPES.METHODS %}
                                                 <td>
                                                     {% if methodid in notification.methods %}
@@ -241,24 +272,24 @@
                         {% endif %}
                         {% if user.users_userid == USERDATA.users_userid %}
                         <div class="tab-pane p-3" id="passwordsocial">
-                            <h2>Password</h2>
+                            <h2>Passwort</h2>
                             <div class="form-group">
-                                <label for="username">Current Password</label>
-                                <input type="password" placeholder="Current Password" class="form-control" id="current_pass" />
+                                <label for="username">Aktuelles Passwort</label>
+                                <input type="password" placeholder="Aktuelles Passwort" class="form-control" id="current_pass" />
                             </div>
                             <div class="form-group">
-                                <label for="username">New Password</label>
-                                <input type="password" placeholder="New Password (min. 12 characters)" class="form-control" id="passnew" /><br/>
-                                <input type="password" placeholder="Confirm New Password" class="form-control" id="passconf" />
-                                <small class="form-text text-muted">Choose a strong, unique password. We recommend using a password manager such as <a href="https://bitwarden.com" target="_blank" rel="noopener noreferrer">Bitwarden</a> to generate and store secure passwords.</small>
+                                <label for="username">Neues Passwort</label>
+                                <input type="password" placeholder="Neues Passwort (mindestens 12 Zeichen)" class="form-control" id="passnew" /><br/>
+                                <input type="password" placeholder="Neues Passwort bestätigen" class="form-control" id="passconf" />
+                                <small class="form-text text-muted">Wähle ein starkes, einzigartiges Passwort. Wir empfehlen einen Passwortmanager wie <a href="https://bitwarden.com" target="_blank" rel="noopener noreferrer">Bitwarden</a> , um sichere Passwörter zu erstellen und zu speichern.</small>
                             </div>
-                            <button id="save-password-settings" class="btn btn-default">Change Password</button>
+                            <button id="save-password-settings" class="btn btn-default">Passwort ändern</button>
                             <script>
                                 $(document).ready(function() {
                                     $('#save-password-settings').on('click', function() {
                                         if ($('#passnew').val() != $('#passconf').val()) {
-                                            bootbox.alert("Sorry - Your new password's don't match!");
-                                        } else if ($("#passnew").val().length < 12) bootbox.alert("Sorry - Your password is too short - please choose a password of at least 12 characters!");
+                                            bootbox.alert("Die neuen Passwörter stimmen nicht überein.");
+                                        } else if ($("#passnew").val().length < 12) bootbox.alert("Das Passwort muss mindestens 12 Zeichen lang sein.");
                                         else {
                                             ajaxcall("account/changePass.php", {
                                                 "users_userid": "{{ user.users_userid }}",
@@ -272,11 +303,11 @@
                                 });
                             </script>
                             <hr/>
-                            <h2>Authentication Providers</h2>
+                            <h2>Anmeldedienste</h2>
                             {% if googleAuthAvailable %}
                                 <h4>Google</h4>
                                 {% if user.users_oauth_googleid %}
-                                    <button class="btn btn-danger" id="disconnectOAuthGoogle"><i class="fab fa-google"></i> Disconnect Google Account</button>
+                                    <button class="btn btn-danger" id="disconnectOAuthGoogle"><i class="fab fa-google"></i> Google-Konto trennen</button>
                                     <script>
                                         $(document).ready(function() {
                                             $('#disconnectOAuthGoogle').on('click', function() {
@@ -290,13 +321,13 @@
                                         });
                                     </script>
                                 {% else %}
-                                    <a href="{{ CONFIG.ROOTURL }}/api/account/oauth-link/google.php" class="btn btn-default"><i class="fab fa-google"></i> Link to Google Account</a>
+                                    <a href="{{ CONFIG.ROOTURL }}/api/account/oauth-link/google.php" class="btn btn-default"><i class="fab fa-google"></i> Google-Konto verknüpfen</a>
                                 {% endif %}
                             {% endif %}
                             {% if microsoftAuthAvailable %}
                                 <h4>Microsoft</h4>
                                 {% if user.users_oauth_microsoftid %}
-                                    <button class="btn btn-danger" id="disconnectOAuthMicrosoft"><i class="fab fa-microsoft"></i> Disconnect Microsoft Account</button>
+                                    <button class="btn btn-danger" id="disconnectOAuthMicrosoft"><i class="fab fa-microsoft"></i> Microsoft-Konto trennen</button>
                                     <script>
                                         $(document).ready(function() {
                                             $('#disconnectOAuthMicrosoft').on('click', function() {
@@ -310,7 +341,7 @@
                                         });
                                     </script>
                                 {% else %}
-                                    <a href="{{ CONFIG.ROOTURL }}/api/account/oauth-link/microsoft.php" class="btn btn-default"><i class="fab fa-microsoft"></i> Link to Microsoft Account</a>
+                                    <a href="{{ CONFIG.ROOTURL }}/api/account/oauth-link/microsoft.php" class="btn btn-default"><i class="fab fa-microsoft"></i> Microsoft-Konto verknüpfen</a>
                                 {% endif %}
                             {% endif %}
                         </div>
@@ -320,9 +351,9 @@
                             <table class="table" border="0" style="overflow-x: scroll;">
                                 <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>From</th>
-                                    <th>To</th>
+                                    <th>Titel</th>
+                                    <th>Von</th>
+                                    <th>Bis</th>
                                     {% if user.users_userid != USERDATA.users_userid and "PERMISSIONS:EDIT:USER_POSITION"|serverPermissions %}
                                         <th></th>
                                     {% endif %}
@@ -360,8 +391,8 @@
                                             </td>#}
                                             <td>
                                                 <div class="btn-group">
-                                                    <button type="button" title="Delete" data-positionid="{{ position.userPositions_id }}" class="btn btn-danger deletePermissionEdit"><i class="fa fa-trash"></i></button>
-                                                    <button type="button" title="Save" data-positionid="{{ position.userPositions_id }}" class="btn btn-default savePermissionEdit"><i class="fa fa-save"></i></button>
+                                                    <button type="button" title="Löschen" data-positionid="{{ position.userPositions_id }}" class="btn btn-danger deletePermissionEdit"><i class="fa fa-trash"></i></button>
+                                                    <button type="button" title="Speichern" data-positionid="{{ position.userPositions_id }}" class="btn btn-default savePermissionEdit"><i class="fa fa-save"></i></button>
                                                 </div>
                                             </td>
                                         {% else %}
@@ -380,7 +411,7 @@
                                     </tr>
                                     {% endfor %}
                                 {% if user.users_userid != USERDATA.users_userid and "PERMISSIONS:EDIT:USER_POSITION"|serverPermissions %}
-                                    <tr><td colspan="999" style="font-weight: bold;">Add position</td></tr>
+                                    <tr><td colspan="999" style="font-weight: bold;">Rolle hinzufügen</td></tr>
                                     <tr>
                                         <td>
                                             <div class="form-group">
@@ -408,7 +439,7 @@
                                             </div>
                                         </td> #}
                                         <td>
-                                            <button type="button" title="Save" data-positionid="new" class="btn btn-default savePermissionEdit"><i class="fa fa-plus"></i></button>
+                                            <button type="button" title="Speichern" data-positionid="new" class="btn btn-default savePermissionEdit"><i class="fa fa-plus"></i></button>
                                         </td>
                                     </tr>
                                 {% endif %}
@@ -432,14 +463,14 @@
                                         $('.deletePermissionEdit').on('click', function() {
                                             thispositonid = $(this).data("positionid");
                                             bootbox.confirm({
-                                                message: "Are you sure you wish to delete this position record? <br/> Positions should be normally kept as an important matter of record - if this user has now left the position please instead set the end date as appropriate",
+                                                message: "Diesen Rolleneintrag löschen?<br/>Rolleneinträge dienen der Dokumentation. Wenn die Person die Rolle abgegeben hat, trage im Eintrag ein Enddatum ein.",
                                                 buttons: {
                                                     confirm: {
-                                                        label: 'Yes',
+                                                        label: 'Ja',
                                                         className: 'btn-success'
                                                     },
                                                     cancel: {
-                                                        label: 'No',
+                                                        label: 'Nein',
                                                         className: 'btn-danger'
                                                     }
                                                 },
@@ -466,9 +497,9 @@
                         <div class="tab-pane table-responsive p-0" id="roles" style="height: 600px;">
                             <table class="table table-head-fixed">
                                 <tr>
-                                    <th>Project</th>
+                                    <th>Projekt</th>
                                     <th></th>
-                                    <th>Role</th>
+                                    <th>Rolle</th>
                                 </tr>
                                 {% for project in user.crewAssignments %}
                                     <tr>
@@ -476,7 +507,7 @@
                                             <a href="{{ CONFIG.ROOTURL }}/project/?id={{ project.projects_id }}">{{ project.clients_name ? project.clients_name ~ " - " }}{{ project.projects_name }}</a>
                                         </td>
                                         <td>
-                                            {{ project.projects_dates_use_start|date("M Y") }}
+                                            {{ project.projects_dates_use_start|date("m/Y") }}
                                         </td>
                                         <td>
                                             {{ project.crewAssignments_role }}
@@ -488,7 +519,7 @@
                         <div class="tab-pane table-responsive p-0" id="projects" style="height: 600px;">
                             <table class="table table-head-fixed">
                                 <tr>
-                                    <th>Project</th>
+                                    <th>Projekt</th>
                                     <th></th>
                                 </tr>
                                 {% for project in user.projectManagement %}
@@ -497,7 +528,7 @@
                                             <a href="{{ CONFIG.ROOTURL }}/project/?id={{ project.projects_id }}">{{ project.clients_name ? project.clients_name ~ " - " }}{{ project.projects_name }}</a>
                                         </td>
                                         <td>
-                                            {{ project.projects_dates_use_start|date("M Y") }}
+                                            {{ project.projects_dates_use_start|date("m/Y") }}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -515,35 +546,31 @@
                             <br/>
                             <h2>Google Calendar</h2>
                             <ol>
-                                <li>Copy the URL at the top.</li>
-                                <li><a href="https://calendar.google.com" target="_blank">Open Google Calendar</a>,
-                                    click the <em>+</em> above <em>My calendars</em> and choose <em>From URL</em>.
+                                <li>Kopiere die oben angezeigte URL.</li>
+                                <li><a href="https://calendar.google.com" target="_blank">Öffne Google Kalender</a>, klicke auf das <em>+</em> über <em>Meine Kalender</em> und wähle <em>Per URL</em>.
                                 </li>
-                                <li>Paste the URL into the field named <em>URL of calendar</em> that appears and click
-                                    <em>Add calendar</em>.
+                                <li>Füge die URL in das Feld <em>Kalender-URL</em> ein und klicke auf
+                                    <em>Kalender hinzufügen</em>.
                                 </li>
-                                <li>After a few seconds, it should appear in your calendar. If it does not, try
-                                    reloading Google Calendar.
+                                <li>Nach wenigen Sekunden sollte der Kalender erscheinen. Lade Google Kalender bei Bedarf neu.
                                 </li>
                             </ol>
-                            <h2>Apple Calendar</h2>
+                            <h2>Apple Kalender</h2>
                             <ol>
-                                <li>Copy the URL at the top.</li>
-                                <li>In Apple Calendar, click the <em>File</em> menu and choose <em>New Calendar
-                                        Subscription…</em>.
+                                <li>Kopiere die oben angezeigte URL.</li>
+                                <li>Wähle in Apple Kalender im Menü <em>Datei</em> den Eintrag <em>Neues Kalenderabonnement …</em>.
                                 </li>
-                                <li>Paste the URL into the dialog that appears and click <em>Subscribe</em>.</li>
-                                <li>A window with settings of the calendar subscription will appear. Set <em>Auto-refresh</em>
-                                    to <em>Every hour</em> to keep your calendar up to date and click <em>OK</em>.
+                                <li>Füge die URL im Dialog ein und klicke auf <em>Abonnieren</em>.</li>
+                                <li>Öffne die Einstellungen des Kalenderabonnements und setze <em>Automatisch aktualisieren</em>
+                                    auf <em>Stündlich</em> . Bestätige mit <em>OK</em>.
                                 </li>
                             </ol>
                             <h2>Outlook</h2>
                             <ol>
-                                <li>Copy the URL at the top.</li>
-                                <li>In Outlook, click <em>Open Calendar</em> and choose <em>From Internet…</em>.</li>
-                                <li>Paste the URL into the Outlook dialog that appears and click <em>OK</em>.</li>
-                                <li>After a few seconds, Outlook will ask if the internet calendar should be added.
-                                    Click <em>Yes</em>.
+                                <li>Kopiere die oben angezeigte URL.</li>
+                                <li>Klicke in Outlook auf <em>Kalender öffnen</em> und wähle <em>Aus dem Internet …</em>.</li>
+                                <li>Füge die URL in den Outlook-Dialog ein und klicke auf <em>OK</em>.</li>
+                                <li>Outlook fragt, ob der Internetkalender hinzugefügt werden soll. Klicke auf <em>Ja</em>.
                                 </li>
                             </ol>
                         </div>

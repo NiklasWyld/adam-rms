@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Business Invoice Settings", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Rechnungseinstellungen", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("BUSINESS:BUSINESS_SETTINGS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

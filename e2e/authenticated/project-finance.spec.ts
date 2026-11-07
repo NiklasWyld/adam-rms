@@ -92,15 +92,18 @@ test("a project's finances add up, and its running totals keep up, through every
     await expectFinances(asA, a, project, now);
   });
 
-  await test.step("the invoice and quote show the same totals", async () => {
+  await test.step("the German invoice and quote receive the same net amounts", async () => {
+    const [{ currency }] = dbQuery<{ currency: string }>(
+      "SELECT instances_config_currency currency FROM instances WHERE instances_id = ?", [a.instanceId],
+    );
+    const suffix = currency === "EUR" ? "€" : currency;
     expect(await documentSummary(asA, project, "invoice")).toEqual({
-      "Equipment SubTotal": "£70.00", "Sales": "£10.00", "Discounts": "-£25.00", "Staffing": "£3.00", "Equipment Total": "£45.00",
-      "Sub Hires": "£7.00", "SubTotal": "£65.00", "Payments Received to Date": "-£10.00", "Grand Total Outstanding": "£55.00",
+      net: "65,00 " + suffix, vat: "12,35 " + suffix, gross: "77,35 " + suffix, received: "10,00 " + suffix,
     });
-    // The quote's Grand Total takes off payments received too, though it doesn't list them
     expect(await documentSummary(asA, project, "quote")).toEqual({
-      "Equipment SubTotal": "£70.00", "Sales": "£10.00", "Discounts": "-£25.00", "Staffing": "£3.00", "Equipment Total": "£45.00",
-      "Sub Hires": "£7.00", "Grand Total": "£55.00",
+      "Material vor Rabatt": "70,00 " + suffix, "Verkäufe": "10,00 " + suffix, "Rabatte": "25,00 " + suffix,
+      "Personal": "3,00 " + suffix, "Material nach Rabatt": "45,00 " + suffix,
+      "Zumietungen": "7,00 " + suffix, "Projektentgelt": "65,00 " + suffix,
     });
   });
 

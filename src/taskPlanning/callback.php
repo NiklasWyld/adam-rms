@@ -17,7 +17,7 @@ try {
     header('Location: ' . $CONFIG['ROOTURL'] . ($project ? '/project/?id=' . $project . '#task-planning-view' : '/taskPlanning/'));
     exit;
 } catch (Throwable $e) {
-    $PAGEDATA['pageConfig'] = ['TITLE' => 'TickTick connection', 'BREADCRUMB' => false];
+    $PAGEDATA['pageConfig'] = ['TITLE' => 'TickTick-Verbindung', 'BREADCRUMB' => false];
     $PAGEDATA['connectionError'] = $e instanceof DomainException || $e instanceof InvalidArgumentException ? $e->getMessage() : 'TickTick could not be connected. Return to Task Planning and try again.';
     echo $TWIG->render('taskPlanning/callback.twig', $PAGEDATA);
 }

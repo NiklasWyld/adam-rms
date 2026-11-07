@@ -8,14 +8,14 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         {% if search|length > 0 %}
-                            Search results for manufacturers matching <b>{{ search }}</b>
+                            Suchergebnisse für Hersteller mit <b>{{ search }}</b>
                         {% else %}
-                            Manufacturers
+                            Hersteller
                         {% endif %}
                     </h3>
                     <div class="card-tools pull-right">
                         <form class="input-group input-group-sm" style="width: 150px;" method="GET">
-                            <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                            <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                                 {% if "ASSETS:MANUFACTURERS:CREATE"|instancePermissions %}
@@ -47,8 +47,8 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h4 class="modal-title">Edit {{ manufacturer.manufacturers_name }}</h4>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <h4 class="modal-title">Bearbeiten {{ manufacturer.manufacturers_name }}</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
@@ -68,14 +68,14 @@
                                                                 <input type="text" class="form-control" name="manufacturers_website" value="{{ manufacturer.manufacturers_website }}">
                                                             </div>
                                                             <div class="input-group" style="margin-bottom: 5px;">
-                                                                <div class="input-group-prepend"><span class="input-group-text">Notes</span></div>
+                                                                <div class="input-group-prepend"><span class="input-group-text">Notizen</span></div>
                                                                 <textarea class="form-control" rows="3" name="manufacturers_notes"  placeholder="">{{ manufacturer.manufacturers_notes }}</textarea>
                                                             </div>
                                                         </form>
                                                     </div>
                                                     <div class="modal-footer justify-content-between">
-                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                                        <button type="button" class="btn btn-primary saveManufacturerEdit-button" data-manufacturerid="{{ manufacturer.manufacturers_id }}">Save changes</button>
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                                                        <button type="button" class="btn btn-primary saveManufacturerEdit-button" data-manufacturerid="{{ manufacturer.manufacturers_id }}">Änderungen speichern</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -87,7 +87,7 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <center><p style="margin: 10px;"><i>No results</i><br/><a href="?">Remove any filters</a></p></center>
+                        <center><p style="margin: 10px;"><i>Keine Ergebnisse</i><br/><a href="?">Filter zurücksetzen</a></p></center>
                     {% endif %}
                 </div>
                 <div class="overlay" id="loadingoverlay">
@@ -100,7 +100,7 @@
                 $("#loadingoverlay").hide();
                 {% if "ASSETS:MANUFACTURERS:CREATE"|instancePermissions %}
                 $("#newManufacturerButton").click(function () {
-                    bootbox.prompt("Enter Manufacturer Name", function (result) {
+                    bootbox.prompt("Herstellername eingeben", function (result) {
                         if (result) {
                             ajaxcall("manufacturer/new.php", {"manufacturers_name": result}, function (data) {
                                 location.reload();

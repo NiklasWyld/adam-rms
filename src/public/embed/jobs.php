@@ -2,7 +2,7 @@
 require_once 'head.php';
 if (!isset($PAGEDATA['INSTANCE']['publicData']['enableVacancies']) or !$PAGEDATA['INSTANCE']['publicData']['enableVacancies']) die("Disabled by your AdamRMS administrator");
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Crew Role Vacancies", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Offene Crew-Stellen", "BREADCRUMB" => false];
 $DBLIB->where("projectsVacantRoles.projectsVacantRoles_deleted",0);
 $DBLIB->where("projectsVacantRoles.projectsVacantRoles_open",1);
 $DBLIB->where("projectsVacantRoles.projectsVacantRoles_visibleToGroups IS NULL"); //if only visible to certain groups, should not be public - this is just a check

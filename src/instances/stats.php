@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Business Stats", "BREADCRUMB" => true];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Unternehmensstatistik", "BREADCRUMB" => true];
 
 if (!$AUTH->instancePermissionCheck("BUSINESS:BUSINESS_STATS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

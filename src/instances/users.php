@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Users in Business", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Benutzer im Unternehmen", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("BUSINESS:USERS:VIEW:LIST")) die($TWIG->render('404.twig', $PAGEDATA));
 

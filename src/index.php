@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Dashboard", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Übersicht", "BREADCRUMB" => false];
 
 if (isset($_GET['i'])) {
     if ($AUTH->serverPermissionCheck("INSTANCES:FULL_PERMISSIONS_IN_INSTANCE")) {

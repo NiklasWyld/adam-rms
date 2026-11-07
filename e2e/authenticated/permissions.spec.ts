@@ -129,7 +129,7 @@ const refusedPages: { file: string; url: string | ((a: Tenant) => string); permi
   ].map(([file, permission]) => ({ file, url: `/${file}`, permission })),
   { file: "project/crew/vacancies.php", url: "/project/crew/vacancies.php", permission: "PROJECTS:PROJECT_CREW:VIEW:VIEW_AND_APPLY_FOR_CREW_ROLES" },
 ];
-const NOT_FOUND = "Oops! Page not found.";
+const NOT_FOUND = "Seite nicht gefunden";
 
 const maybeFixme = (fixme: string | undefined) => (fixme ? test.fixme : test);
 

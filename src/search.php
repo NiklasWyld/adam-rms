@@ -9,7 +9,7 @@ require_once __DIR__ . '/common/libs/Search/Search.php';
 $PAGEDATA['term'] = isset($_GET['term']) && is_string($_GET['term']) ? $_GET['term'] : "";
 $PAGEDATA['offset'] = isset($_GET['offset']) && is_numeric($_GET['offset']) ? intval($_GET['offset']) : 0;
 $PAGEDATA['limit'] = isset($_GET['limit']) && is_numeric($_GET['limit']) ? intval($_GET['limit']) : 25;
-$PAGEDATA['pageConfig'] = ["TITLE" => $PAGEDATA['term'] ? "Search result for: " . $PAGEDATA['term'] : "Search" , "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => $PAGEDATA['term'] ? "Suchergebnisse für " . $PAGEDATA['term'] : "Suche" , "BREADCRUMB" => false];
 
 
 /**
@@ -39,15 +39,15 @@ $TWIG->addFunction($function);
 $function = new TwigFunction('generate_result_tag', function ($result) {
     switch ($result['type']){
         case "project":
-            return ["pink", "Project"];
+            return ["pink", "Projekt"];
         case "location":
-            return ["indigo", "Location"];
+            return ["indigo", "Standort"];
         case "client":
-            return ["lightblue", "Client"];
+            return ["lightblue", "Kunde"];
         case "page":
-            return ["primary", "CMS Page"];
+            return ["primary", "CMS-Seite"];
         case "user":
-            return ["secondary", "User"];
+            return ["secondary", "Benutzer"];
         default:
             return null;
     }

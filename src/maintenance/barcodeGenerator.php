@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("ASSETS:ASSET_BARCODES:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Generate Asset Barcodes", "BREADCRUMB" => true];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Materialbarcodes erstellen", "BREADCRUMB" => true];
 
 $PAGEDATA['preFetch'] = [];
 if (isset($_GET['all'])) {

@@ -6,7 +6,9 @@ test("the seeded super admin can log in and reach the app", async ({ page }) => 
   // The super admin belongs to no business, so headSecure.php drops them into the first business on the
   // server as a server admin (globalSetup always creates at least the tenant isolation businesses). Which
   // one that is depends on the database, so only check they reach a business's dashboard.
-  await expect(page).toHaveTitle(/Dashboard/);
+  await expect(page).toHaveTitle(/Übersicht/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "de");
+  await expect(page.locator(".main-sidebar").getByText("Übersicht", { exact: true })).toBeVisible();
 });
 
 test("logging out returns to the login page", async ({ page }) => {

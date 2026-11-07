@@ -8,14 +8,14 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         {% if search|length > 0 %}
-                            Search results for payments matching <b>{{ search }}</b>
+                            Suchergebnisse für Zahlungen mit <b>{{ search }}</b>
                         {% else %}
-                            Payments
+                            Zahlungen
                         {% endif %}
                     </h3>
                     <div class="card-tools pull-right">
                         <form class="input-group input-group-sm" style="width: 150px;" method="GET">
-                            <input type="text" name="q" class="form-control" placeholder="Search" value="{{ search }}" />
+                            <input type="text" name="q" class="form-control" placeholder="Suchen" value="{{ search }}" />
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
                             </div>
@@ -28,13 +28,13 @@
                         <table class="table table-head-fixed table-striped" border="0" style="overflow-x: scroll;">
                             <thead>
                             <tr>
-                                <th>Reference</th>
-                                <th>Date</th>
-                                <th>From</th>
-                                <th>Method</th>
-                                <th>Comment</th>
-                                <th>Amount</th>
-                                <th>Project</th>
+                                <th>Referenz</th>
+                                <th>Datum</th>
+                                <th>Von</th>
+                                <th>Zahlungsart</th>
+                                <th>Kommentar</th>
+                                <th>Betrag</th>
+                                <th>Projekt</th>
                                 {% if "PROJECTS:PROJECT_PAYMENTS:VIEW:FILE_ATTACHMENTS"|instancePermissions %}
                                 <th></th>
                                 {% endif %}
@@ -44,7 +44,7 @@
                             {% for payment in payments %}
                                 <tr>
                                     <td>{{ payment.payments_reference }}</td>
-                                    <td>{{ payment.payments_date|date("d/M/Y G:i:s") }}</td>
+                                    <td>{{ payment.payments_date|date("d.m.Y H:i:s") }}</td>
                                     <td><a href="{{ CONFIG.ROOTURL }}/clients.php?q={{ payment.clients_name }}">{{ payment.clients_name }}</a></td>
                                     <td>{{ payment.payments_method }}</td>
                                     <td>{{ payment.payments_comment|nl2br }}</td>
@@ -61,7 +61,7 @@
                             </tbody>
                         </table>
                     {% else %}
-                        <center><p style="margin: 10px;"><i>No results</i><br/><a href="?">Remove any filters</a></p></center>
+                        <center><p style="margin: 10px;"><i>Keine Ergebnisse</i><br/><a href="?">Filter zurücksetzen</a></p></center>
                     {% endif %}
                 </div>
                 {% if pagination.total > 1 %}
@@ -95,8 +95,8 @@
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h4 class="modal-title">Payment Files</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <h4 class="modal-title">Zahlungsbelege</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>

@@ -8,7 +8,10 @@
         const global = root.dataset.global === '1';
         let data, csrf, anchor, mode = 'list', busy = false, started = false, booking, master, previewTimer, previewSerial = 0;
         const el = (tag, text, cls) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; if (cls) n.className = cls; return n; };
-        const showError = (id, message) => { const n = $id(id); n.textContent = message || ''; n.hidden = !message; };
+        const showError = (id, message) => { const n = $id(id); n.textContent = adamUiError(message) || ''; n.hidden = !message; };
+        const statusLabels = {planned:'Geplant', requested:'Angefragt', confirmed:'Bestätigt', rejected:'Abgelehnt', cancelled:'Storniert'};
+        const statuses = () => Object.entries(data.statuses).map(([key, label]) => [key, statusLabels[key] ?? label]);
+        const statusLabel = key => statusLabels[key] ?? data.statuses[key];
         const status = text => { $id('room-status').textContent = text; };
         const roomName = room => room.rooms_name + (room.rooms_number ? ' (' + room.rooms_number + ')' : '');
         const projectUrl = id => root.dataset.projectUrl + '?id=' + encodeURIComponent(id) + '#room-planning-view';
@@ -19,8 +22,8 @@
             if (csrf) body.set('csrf', csrf);
             const response = await fetch(root.dataset.endpoint, {method: 'POST', credentials: 'same-origin', body});
             let result;
-            try { result = await response.json(); } catch (_) { throw new Error('The server did not return room planning. Reload the page and sign in if needed.'); }
-            if (!response.ok || !result.result) throw new Error(result.error?.message || result.message || 'Room planning could not be loaded.');
+            try { result = await response.json(); } catch (_) { throw new Error('Der Server hat keine Raumplanung geliefert. Lade die Seite neu und melde dich bei Bedarf erneut an.'); }
+            if (!response.ok || !result.result) throw new Error(result.error?.message || result.message || 'Die Raumplanung konnte nicht geladen werden.');
             return result.response;
         }
         function localDate(date = new Date()) {
@@ -58,12 +61,12 @@
             if (busy) return;
             busy = true;
             if (global) ['room-period-previous','room-period-next','room-period-today','room-timeline-date','room-timeline-scale'].forEach(id => $id(id).disabled = true);
-            status('Loading room planning…'); showError('room-error', '');
+            status('Raumplanung wird geladen …'); showError('room-error', '');
             try {
                 const fields = global && data ? {from:range().from,to:range().to} : {};
                 accept(await api('data', fields));
-                status('Room planning is up to date.');
-            } catch (e) { showError('room-error',e.message); status('Could not load room planning.'); }
+                status('Die Raumplanung ist aktuell.');
+            } catch (e) { showError('room-error',e.message); status('Die Raumplanung konnte nicht geladen werden.'); }
             finally { busy = false; if (global) ['room-period-previous','room-period-next','room-period-today','room-timeline-date','room-timeline-scale'].forEach(id => $id(id).disabled = false); }
         }
         function accept(result) {
@@ -79,23 +82,23 @@
         function render() {
             const p = data.permissions;
             $id('room-zone').textContent = data.timeZone;
-            $id('booking-zone').textContent = 'All times: ' + data.timeZone + '. Confirmed is an internal, manually set status.';
+            $id('booking-zone').textContent = 'Zeitzone: ' + data.timeZone + '. Der Status „Bestätigt“ wird intern manuell gesetzt.';
             if (!global) {
                 $id('room-add-booking').disabled = !p.editBookings || !data.rooms.some(r => +r.rooms_active);
-                $id('room-add-booking').title = !p.editBookings ? 'Room planning is read-only for your role or this archived project.' : 'Add a reservation';
+                $id('room-add-booking').title = !p.editBookings ? 'Die Raumplanung ist für deine Rolle oder dieses archivierte Projekt schreibgeschützt.' : 'Reservierung hinzufügen';
                 $id('room-generate-request').disabled = false;
                 $id('room-export').href = exportUrl('plan');
                 $id('room-readonly').hidden = p.editBookings;
                 $id('room-empty-rooms').hidden = !p.editBookings || data.rooms.some(r => +r.rooms_active);
-                $id('room-readonly').textContent = 'Read-only: your role cannot edit room planning, or this project is archived. Ask a business administrator for Projects: Room Planning: Edit.';
-                if (p.editBookings && !data.rooms.some(r => +r.rooms_active)) status('Create an active room in Rooms before adding a reservation.');
+                $id('room-readonly').textContent = 'Die Raumplanung ist schreibgeschützt. Prüfe, ob das Projekt archiviert ist oder lass dir die Berechtigung zum Bearbeiten der Raumplanung geben.';
+                if (p.editBookings && !data.rooms.some(r => +r.rooms_active)) status('Lege unter „Räume“ einen aktiven Raum an, bevor du eine Reservierung hinzufügst.');
             }
             ['rooms','confirmed','open','requested','conflicts'].forEach(k => {
                 const id = k === 'rooms' ? 'room-count' : 'room-' + k;
-                if ($id(id)) $id(id).textContent = k === 'requested' ? data.summary[k] + ' already requested' : data.summary[k];
+                if ($id(id)) $id(id).textContent = k === 'requested' ? data.summary[k] + ' bereits angefragt' : data.summary[k];
             });
-            optionList($id('room-filter'), [['','All rooms'],...data.rooms.map(r => [r.rooms_id,roomName(r)])],$id('room-filter').value);
-            optionList($id('room-status-filter'), [['','All statuses'],...Object.entries(data.statuses)],$id('room-status-filter').value);
+            optionList($id('room-filter'), [['','Alle Räume'],...data.rooms.map(r => [r.rooms_id,roomName(r)])],$id('room-filter').value);
+            optionList($id('room-status-filter'), [['','Alle Status'],...statuses()],$id('room-status-filter').value);
             renderCatalogue();
             renderBookings();
             renderRequest();
@@ -110,12 +113,12 @@
                 const row=el('tr'); row.dataset.room=r.rooms_id;
                 [roomName(r),r.building || '—',r.rooms_capacity || '—'].forEach(t => row.append(el('td',t)));
                 const details=el('td', [r.rooms_description,r.rooms_equipment && 'Equipment: '+r.rooms_equipment,r.rooms_notes && 'Notes: '+r.rooms_notes].filter(Boolean).join('\n'), 'rp-description');
-                row.append(details,el('td',+r.rooms_active ? 'Active' : 'Inactive'));
+                row.append(details,el('td',+r.rooms_active ? 'Aktiv' : 'Inaktiv'));
                 const actions=el('td');
-                if(data.permissions.manageRooms) { const edit=el('button','Edit','btn btn-sm btn-outline-primary'); edit.type='button'; edit.addEventListener('click',()=>openRoom(r)); actions.append(edit); }
+                if(data.permissions.manageRooms) { const edit=el('button','Bearbeiten','btn btn-sm btn-outline-primary'); edit.type='button'; edit.addEventListener('click',()=>openRoom(r)); actions.append(edit); }
                 row.append(actions); body.append(row);
             });
-            if(!body.children.length) { const cell=el('td','No rooms match these filters.'); cell.colSpan=6; const row=el('tr');row.append(cell);body.append(row); }
+            if(!body.children.length) { const cell=el('td','Keine Räume entsprechen den Filtern.'); cell.colSpan=6; const row=el('tr');row.append(cell);body.append(row); }
             if ($id('room-timezone')) optionList($id('room-timezone'), (data.timeZones || [data.timeZone]).map(z=>[z,z]),data.timeZone);
         }
         function filtered() {
@@ -124,41 +127,41 @@
             return (data.bookings || []).filter(r => (!room || String(r.rooms_id)===room) && (!s || r.roomReservations_status===s) && (a===null || Date.parse(r.endUtc)>a) && (b===null || Date.parse(r.startUtc)<b));
         }
         function conflictNodes(target, conflicts) {
-            if(!conflicts?.length) { target.append(el('span','No active overlap','text-muted')); return; }
+            if(!conflicts?.length) { target.append(el('span','Keine aktive Überschneidung','text-muted')); return; }
             conflicts.forEach(c => {
                 const item=el('div',undefined,'mb-2');
-                item.append(el('strong',c.severity==='confirmed'?'Confirmed overlap: ':'Potential overlap: '));
+                item.append(el('strong',c.severity==='confirmed'?'Bestätigte Überschneidung: ':'Mögliche Überschneidung: '));
                 const link=el('a',c.projects_name);link.href=projectUrl(c.projects_id);item.append(link);
-                item.append(el('div',c.period+' · '+data.statuses[c.roomReservations_status],'small'));
+                item.append(el('div',c.period+' · '+statusLabel(c.roomReservations_status),'small'));
                 target.append(item);
             });
         }
         function renderBookings() {
             const bookings=filtered(), body=$id('room-bookings-table').tBodies[0];body.replaceChildren();
-            $id('room-shown').textContent=bookings.length+' of '+(data.bookings?.length || 0)+' reservations'+(global?' · '+range().from+' – '+addDays(range().to,-1):'');
+            $id('room-shown').textContent=bookings.length+' von '+(data.bookings?.length || 0)+' Reservierungen'+(global?' · '+range().from+' – '+addDays(range().to,-1):'');
             bookings.forEach(r=>{
                 const row=el('tr');row.dataset.booking=r.roomReservations_id;
                 const name=el('td');name.append(el('strong',roomName(r)),el('div',r.building || '', 'small text-muted'));row.append(name,el('td',r.period,'rp-interval'));
                 const purpose=el('td',r.roomReservations_purpose,'rp-description');if(r.roomReservations_notes)purpose.append(el('div',r.roomReservations_notes,'small text-muted'));row.append(purpose);
-                const sc=el('td'), badge=el('span',data.statuses[r.roomReservations_status],'badge rp-'+r.roomReservations_status);
+                const sc=el('td'), badge=el('span',statusLabel(r.roomReservations_status),'badge rp-'+r.roomReservations_status);
                 if(data.permissions.editBookings){
-                    const select=el('select',undefined,'form-control form-control-sm rp-status-select');select.setAttribute('aria-label','Status for '+roomName(r)); optionList(select,Object.entries(data.statuses),r.roomReservations_status);
+                    const select=el('select',undefined,'form-control form-control-sm rp-status-select');select.setAttribute('aria-label','Status für '+roomName(r)); optionList(select,statuses(),r.roomReservations_status);
                     select.addEventListener('change',async()=>{
                         select.disabled=true;showError('room-error','');
-                        try {accept(await api('setStatus',{id:r.roomReservations_id,revision:r.roomReservations_revision,status:select.value}));status('Reservation status saved.');}
+                        try {accept(await api('setStatus',{id:r.roomReservations_id,revision:r.roomReservations_revision,status:select.value}));status('Reservierungsstatus gespeichert.');}
                         catch(e){select.value=r.roomReservations_status;showError('room-error',e.message);}finally{select.disabled=false;}
                     });sc.append(select,badge);
                 } else sc.append(badge);
                 const overlaps=el('td');conflictNodes(overlaps,r.conflicts);if(r.conflicts?.length)row.classList.add(r.conflicts.some(c=>c.severity==='confirmed')?'rp-conflict-confirmed':'rp-conflict-potential');row.append(sc,overlaps);
                 if(global){const cell=el('td'),a=el('a',r.projects_name);a.href=projectUrl(r.projects_id);cell.append(a);row.append(cell);}
-                const actions=el('td'), edit=el('button',data.permissions.editBookings?'Edit':'Details','btn btn-sm btn-outline-primary mb-1');edit.type='button';edit.addEventListener('click',()=>openBooking(r));actions.append(edit);
-                if(data.permissions.editBookings){const remove=el('button','Remove','btn btn-sm btn-outline-danger ml-1 mb-1');remove.type='button';remove.addEventListener('click',async()=>{
-                    if(!window.confirm('Remove this reservation for '+roomName(r)+'?'))return;
-                    remove.disabled=true;try{accept(await api('deleteBooking',{id:r.roomReservations_id,revision:r.roomReservations_revision}));status('Reservation removed.');}catch(e){showError('room-error',e.message);remove.disabled=false;}
+                const actions=el('td'), edit=el('button',data.permissions.editBookings?'Bearbeiten':'Details','btn btn-sm btn-outline-primary mb-1');edit.type='button';edit.addEventListener('click',()=>openBooking(r));actions.append(edit);
+                if(data.permissions.editBookings){const remove=el('button','Entfernen','btn btn-sm btn-outline-danger ml-1 mb-1');remove.type='button';remove.addEventListener('click',async()=>{
+                    if(!window.confirm('Reservierung entfernen für '+roomName(r)+'?'))return;
+                    remove.disabled=true;try{accept(await api('deleteBooking',{id:r.roomReservations_id,revision:r.roomReservations_revision}));status('Reservierung entfernt.');}catch(e){showError('room-error',e.message);remove.disabled=false;}
                 });actions.append(remove);}
                 row.append(actions);body.append(row);
             });
-            if(!bookings.length){const row=el('tr'),cell=el('td','No reservations match this view.');cell.colSpan=global?7:6;row.append(cell);body.append(row);}
+            if(!bookings.length){const row=el('tr'),cell=el('td','Keine Reservierungen in dieser Ansicht.');cell.colSpan=global?7:6;row.append(cell);body.append(row);}
             renderTimeline(bookings);
         }
         function renderTimeline(bookings) {
@@ -169,11 +172,11 @@
             const width=period.scale==='day'?Math.round(span/3600000)*54:days*(period.scale==='week'?145:62);
             $id('room-timeline-range').textContent=period.from+' – '+addDays(period.to,-1)+' · '+data.timeZone;
             const inner=el('div',undefined,'rp-timeline-inner');inner.style.minWidth=(width+180)+'px';
-            const head=el('div',undefined,'rp-timeline-row rp-timeline-head'),label=el('div','Room','rp-resource'),track=el('div',undefined,'rp-track');track.style.width=width+'px';head.append(label,track);
+            const head=el('div',undefined,'rp-timeline-row rp-timeline-head'),label=el('div','Raum','rp-resource'),track=el('div',undefined,'rp-track');track.style.width=width+'px';head.append(label,track);
             const ticks=[];
             if(period.scale==='day'){for(let ms=period.start;ms<period.end;ms+=3600000)ticks.push(ms);}
             else for(let d=period.from;d<period.to;d=addDays(d,1))ticks.push(midnight(d));
-            const fmt=new Intl.DateTimeFormat('en-GB',{timeZone:data.timeZone,...(period.scale==='day'?{hour:'2-digit',minute:'2-digit',hourCycle:'h23'}:{weekday:period.scale==='week'?'short':undefined,day:'2-digit',month:'2-digit'})});
+            const fmt=new Intl.DateTimeFormat('de-DE',{timeZone:data.timeZone,...(period.scale==='day'?{hour:'2-digit',minute:'2-digit',hourCycle:'h23'}:{weekday:period.scale==='week'?'short':undefined,day:'2-digit',month:'2-digit'})});
             ticks.forEach((ms,i)=>{const tick=el('div',fmt.format(ms),'rp-tick');tick.style.left=((ms-period.start)/span*width)+'px';tick.style.width=(((ticks[i+1] || period.end)-ms)/span*width)+'px';track.append(tick);});
             inner.append(head);
             const roomFilter=$id('room-filter').value;
@@ -190,26 +193,26 @@
                     const overlaps=r.conflicts?.length,confirmed=r.conflicts?.some(c=>c.severity==='confirmed');
                     const bar=el('button',(overlaps?'⚠ ':'')+r.roomReservations_purpose+(global?' · '+r.projects_name:''),'rp-bar rp-'+r.roomReservations_status+(overlaps?(confirmed?' rp-conflict-confirmed':' rp-conflict-potential'):''));
                     bar.type='button';bar.style.left=((Math.max(start,period.start)-period.start)/span*width)+'px';bar.style.width=(Math.max(4,(Math.min(end,period.end)-Math.max(start,period.start))/span*width))+'px';bar.style.top=(8+index*31)+'px';
-                    bar.title=roomName(room)+' · '+r.projects_name+'\n'+r.period+'\n'+data.statuses[r.roomReservations_status]+(overlaps?' · Overlap':'');
+                    bar.title=roomName(room)+' · '+r.projects_name+'\n'+r.period+'\n'+statusLabel(r.roomReservations_status)+(overlaps?' · Überschneidung':'');
                     bar.setAttribute('aria-label',bar.title);bar.dataset.booking=r.roomReservations_id;bar.addEventListener('click',()=>openBooking(r));lane.append(bar);
                 });
                 row.style.height=Math.max(55,ends.length*31+16)+'px';row.append(resource,lane);inner.append(row);
             });
-            if(!rooms.length)inner.append(el('p','No reservations in this period. Use the date or arrow buttons to change the period.','p-3'));
+            if(!rooms.length)inner.append(el('p','Keine Reservierungen in diesem Zeitraum. Wähle ein Datum oder nutze die Pfeiltasten.','p-3'));
             view.append(inner);
-            const legend=$id('room-legend');legend.replaceChildren();Object.entries(data.statuses).forEach(([s,t])=>legend.append(el('span',t,'badge rp-'+s+' mr-2')));legend.append(el('span','⚠ Overlap (red: confirmed, amber: potential)','small'));
+            const legend=$id('room-legend');legend.replaceChildren();statuses().forEach(([s,t])=>legend.append(el('span',t,'badge rp-'+s+' mr-2')));legend.append(el('span','⚠ Überschneidung (Rot: bestätigt, Gelb: möglich)','small'));
         }
         function openBooking(record) {
             booking=record || null;showError('room-booking-error','');$id('room-preview').replaceChildren();previewSerial++;
             const editable=data.permissions.editBookings;
-            $id('room-booking-title').textContent=record?(editable?'Edit reservation':'Reservation details'):'Add Room';
-            optionList($id('booking-room'),[['','Choose a room'],...data.rooms.filter(r=>+r.rooms_active || String(r.rooms_id)===String(record?.rooms_id)).map(r=>[r.rooms_id,roomName(r)+(+r.rooms_active?'':' (inactive)')])],record?.rooms_id);
+            $id('room-booking-title').textContent=record?(editable?'Reservierung bearbeiten':'Reservierungsdetails'):'Reservierung hinzufügen';
+            optionList($id('booking-room'),[['','Raum auswählen'],...data.rooms.filter(r=>+r.rooms_active || String(r.rooms_id)===String(record?.rooms_id)).map(r=>[r.rooms_id,roomName(r)+(+r.rooms_active?'':' (inaktiv)')])],record?.rooms_id);
             const day=data.project?.projects_dates_use_start?.slice(0,10) || anchor || localDate();
             $id('booking-start').value=record?.start || day+'T08:00';
             $id('booking-end').value=record?.end || day+'T22:00';
             $id('booking-purpose').value=record?.roomReservations_purpose || '';
             $id('booking-notes').value=record?.roomReservations_notes || '';
-            optionList($id('booking-status'),Object.entries(data.statuses),record?.roomReservations_status || 'planned');
+            optionList($id('booking-status'),statuses(),record?.roomReservations_status || 'planned');
             ['room','start','end','purpose','notes','status'].forEach(k=>$id('booking-'+k).disabled=!editable);
             $id('booking-save').hidden=!editable;
             const link=$id('booking-project-link');link.hidden=!global;link.href=record?projectUrl(record.projects_id):'#';
@@ -230,17 +233,17 @@
             if(!data.permissions.editBookings)return;
             const fields=bookingFields();
             if(!fields.roomId || !fields.start || !fields.end)return;
-            $id('room-preview').textContent='Checking overlaps…';
+            $id('room-preview').textContent='Überschneidungen werden geprüft …';
             previewTimer=setTimeout(async()=>{
                 try {const result=await api('check',fields);if(serial!==previewSerial)return;$id('room-preview').replaceChildren();conflictNodes($id('room-preview'),result.conflicts);}
-                catch(e){if(serial===previewSerial)$id('room-preview').textContent=e.message;}
+                catch(e){if(serial===previewSerial)$id('room-preview').textContent=adamUiError(e.message);}
             },350);
         }
         function openRoom(record) {
-            master=record || null;showError('room-master-error','');$id('room-master-title').textContent=record?'Edit room':'Add Room';
+            master=record || null;showError('room-master-error','');$id('room-master-title').textContent=record?'Raum bearbeiten':'Raum hinzufügen';
             ['name','number','building','capacity','description','equipment','notes'].forEach(k=>$id('master-'+k).value=record?.['rooms_'+k] || '');
             $id('master-active').value=record?String(record.rooms_active):'1';
-            optionList($id('master-location'),[['','No linked location'],...(data.locations || []).map(l=>[l.locations_id,l.locations_name+(+l.locations_archived?' (archived)':'')])],record?.locations_id);
+            optionList($id('master-location'),[['','Kein Standort verknüpft'],...(data.locations || []).map(l=>[l.locations_id,l.locations_name+(+l.locations_archived?' (archiviert)':'')])],record?.locations_id);
             window.jQuery('#room-master-modal').modal('show');
         }
         function renderRequest() {
@@ -273,7 +276,7 @@
         $id('room-booking-form').addEventListener('submit',async event=>{
             event.preventDefault();if(!data.permissions.editBookings)return;
             const button=$id('booking-save');if(button.disabled)return;button.disabled=true;showError('room-booking-error','');
-            try {accept(await api('saveBooking',bookingFields()));window.jQuery('#room-booking-modal').modal('hide');status('Reservation saved. Overlaps have been checked again.');}
+            try {accept(await api('saveBooking',bookingFields()));window.jQuery('#room-booking-modal').modal('hide');status('Reservierung gespeichert. Überschneidungen wurden erneut geprüft.');}
             catch(e){showError('room-booking-error',e.message);}finally{button.disabled=false;}
         });
         if ($id('room-master-form')) {
@@ -297,7 +300,7 @@
 
                 try {
                     if (deleting) {
-                        if (!fields.id) throw new Error('No room selected.');
+                        if (!fields.id) throw new Error('Kein Raum ausgewählt.');
                     } else {
                         [
                             'name', 'number', 'building', 'capacity',
@@ -311,7 +314,7 @@
 
                     accept(await api(deleting ? 'deleteRoom' : 'saveRoom', fields));
                     window.jQuery('#room-master-modal').modal('hide');
-                    status(deleting ? 'Room deleted.' : 'Room saved.');
+                    status(deleting ? 'Raum gelöscht.' : 'Raum gespeichert.');
                 } catch (e) {
                     showError('room-master-error', e.message);
                 } finally {
@@ -324,12 +327,12 @@
         ['room-catalogue-search','room-active-filter'].forEach(id=>{if($id(id))$id(id).addEventListener('input',()=>{if(data)renderCatalogue();});});
         if($id('room-timezone-form'))$id('room-timezone-form').addEventListener('submit',async event=>{
             event.preventDefault();const button=event.target.querySelector('button');button.disabled=true;
-            try{accept(await api('timezone',{timeZone:$id('room-timezone').value}));status('Business timezone saved. Stored reservation instants are unchanged.');}
+            try{accept(await api('timezone',{timeZone:$id('room-timezone').value}));status('Zeitzone gespeichert. Bestehende Reservierungen behalten ihren Zeitpunkt.');}
             catch(e){showError('room-error',e.message);}finally{button.disabled=false;}
         });
         $id('room-copy-request').addEventListener('click',async()=>{
-            try{await navigator.clipboard.writeText($id('room-request-body').value);$id('room-copy-status').textContent='Email text copied.';}
-            catch(_){$id('room-request-body').focus();$id('room-request-body').select();$id('room-copy-status').textContent=document.execCommand('copy')?'Email text copied.':'Select the text above and copy it.';}
+            try{await navigator.clipboard.writeText($id('room-request-body').value);$id('room-copy-status').textContent='E-Mail-Text kopiert.';}
+            catch(_){$id('room-request-body').focus();$id('room-request-body').select();$id('room-copy-status').textContent=document.execCommand('copy')?'E-Mail-Text kopiert.':'Markiere und kopiere den Text oben.';}
         });
         function start(){if(!started){started=true;if(global)$id('room-timeline-scale').value='month';load();}}
         if(global)start();

@@ -7,35 +7,35 @@
             <div class="card-header">
                 <h3 class="card-title">
                     {% if USERDATA.instance.instances_suspendedReasonType == "noplan" %}
-                    Choose a plan for {{ USERDATA.instance.instances_name }} to start a trial
+                    Wähle einen Tarif für {{ USERDATA.instance.instances_name }} , um einen Testzeitraum zu starten.
                     {% else %}
-                    {{ USERDATA.instance.instances_name }} is suspended
+                    {{ USERDATA.instance.instances_name }} ist gesperrt
                     {% endif %}
                 </h3>
             </div>
             <div class="card-body">
                 {% if USERDATA.instance.instances_suspendedReasonType != "noplan" %}
-                    <p>The business {{ USERDATA.instance.instances_name }} has been suspended on {{ CONFIG.PROJECT_NAME }}, {{ USERDATA.instance.instances_suspendedReason }}</p>
+                    <p>Das Unternehmen {{ USERDATA.instance.instances_name }} wurde gesperrt am {{ CONFIG.PROJECT_NAME }}, {{ USERDATA.instance.instances_suspendedReason }}</p>
                 {% else %}
                 <div class="row" id="billingPlansList"></div>
                 {% endif %}
                 {% if USERDATA.instance.instances_billingUser != USERDATA.users_userid and (USERDATA.instance.instances_suspendedReasonType == "billing" or USERDATA.instance.instances_suspendedReasonType == "noplan") %}
                     <p>
-                        As you are not the billing contact for this business, you will need to advise the billing contact to resolve this issue, or contact support.
+                        Bitte wende dich an die zuständige Person für die Abrechnung oder an den Support.
                     </p>
                 {% endif %}
                 {% if USERDATA.instance.instances_billingUser == USERDATA.users_userid and USERDATA.instance.instances_suspendedReasonType == "billing" %}
-                    <a href="{{CONFIG.ROOTURL}}/api/instances/billing/billingPortal.php" class="btn btn-success" target="_blank">Fix issue in Billing Portal</a>
+                    <a href="{{CONFIG.ROOTURL}}/api/instances/billing/billingPortal.php" class="btn btn-success" target="_blank">Problem im Abrechnungsportal beheben</a>
                 {% endif %}
                 {% if "INSTANCES:EDIT"|serverPermissions %}
                     <a href="{{CONFIG.ROOTURL}}/server/instances.php" class="btn btn-success">Edit Server Configuration to un-suspend business</a>
                 {% endif %}
                 {% if CONFIG.LINKS_SUPPORTURL|length > 0 %}
-                    <a href="{{CONFIG.LINKS_SUPPORTURL}}" class="btn btn-default" target="_blank">Contact support</a>
+                    <a href="{{CONFIG.LINKS_SUPPORTURL}}" class="btn btn-default" target="_blank">Support kontaktieren</a>
                 {% endif %}
                 {#
                 <hr/>
-                <p>If you have just created this business, it may be suspended whilst the billing system updates. Please try again in a moment.</p>
+                <p>Bei einem gerade angelegten Unternehmen kann die Abrechnung noch in Bearbeitung sein. Versuche es in Kürze erneut.</p>
                 <a href="javascript:window.location.href=window.location.href" class="btn btn-info">Check billing status again</a>
                 #}
             </div>
@@ -48,7 +48,7 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    Login to another business
+                    Zu einem anderen Unternehmen wechseln
                 </h3>
             </div>
             <div class="card-body">

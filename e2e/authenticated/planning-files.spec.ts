@@ -107,7 +107,7 @@ test("multiple files uploaded through Uppy are all registered before the tab ref
       { name: "First-" + suffix + ".gantt", mimeType: "application/json", buffer: Buffer.from('{"data":[]}') },
       { name: "Second-" + suffix + ".gantt", mimeType: "application/json", buffer: Buffer.from('{"data":[]}') }
     ]);
-    await panel.getByRole("button", { name: /Upload 2 files/ }).click();
+    await panel.getByRole("button", { name: /2 Dateien hochladen/ }).click();
     await page.waitForEvent("load");
     await expect(panel).toContainText("First-" + suffix);
     await expect(panel).toContainText("Second-" + suffix);

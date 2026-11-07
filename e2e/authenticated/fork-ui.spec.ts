@@ -10,21 +10,21 @@ test.beforeEach(async ({ page, tenants: { a, password } }) => {
 test("project comments can be added, edited and deleted in the browser", async ({ page, tenants: { a } }) => {
   const commentText = `Comment from the browser ${Date.now()}`;
   await page.goto(`/project/?id=${a.projectId}`);
-  await page.getByRole("button", { name: "New Comment", exact: true }).click();
+  await page.getByRole("button", { name: "Neuer Kommentar", exact: true }).click();
   await page.locator('.bootbox .note-editable').fill(commentText);
-  await page.locator('.bootbox').getByRole('button', { name: 'Save', exact: true }).click();
+  await page.locator('.bootbox').getByRole('button', { name: 'Speichern', exact: true }).click();
   const body = page.locator('#details-view .timeline-body').filter({ hasText: commentText });
   await expect(body).toBeVisible();
   const item = body.locator('..');
   const id = await item.getAttribute('data-comment-id');
-  await item.getByRole('link', { name: 'Edit', exact: true }).click();
+  await item.getByRole('link', { name: 'Bearbeiten', exact: true }).click();
   await expect(page.locator('.bootbox .note-editable')).toHaveText(commentText);
   await page.locator('.bootbox .note-editable').fill('Changed in the browser');
-  await page.locator('.bootbox').getByRole('button', { name: 'Save', exact: true }).click();
+  await page.locator('.bootbox').getByRole('button', { name: 'Speichern', exact: true }).click();
   const updated = page.locator(`.timeline-item[data-comment-id="${id}"]`);
   await expect(updated.locator('.timeline-body')).toHaveText('Changed in the browser');
-  await updated.getByRole('link', { name: 'Delete', exact: true }).click();
-  await page.locator('.bootbox').getByRole('button', { name: 'OK', exact: true }).click();
+  await updated.getByRole('link', { name: 'Löschen', exact: true }).click();
+  await page.locator('.bootbox').getByRole('button', { name: 'Bestätigen', exact: true }).click();
   await expect(page.locator(`.timeline-item[data-comment-id="${id}"]`)).toHaveCount(0);
   expect(dbQuery('SELECT auditLog_deleted FROM auditLog WHERE auditLog_id = ?', [Number(id)])).toEqual([{ auditLog_deleted: 1 }]);
 });
@@ -47,7 +47,7 @@ test("calendar settings persist unchecked flags and render the personal calendar
     await expect(page.locator('#googleCalendarEmbedUrl')).toHaveValue(url);
     dbQuery("REPLACE INTO config (config_key, config_value) VALUES ('CSP_ENABLED', 'Enabled')");
     const response = await page.goto('/personal_calendar.php');
-    await expect(page.getByTitle('Personal Calendar', { exact: true })).toHaveAttribute('src', url);
+    await expect(page.getByTitle('Mein Kalender', { exact: true })).toHaveAttribute('src', url);
     expect(response?.headers()['content-security-policy']).toMatch(/frame-src[^;]*https:\/\/calendar\.google\.com/);
   } finally {
     dbQuery('UPDATE instances SET instances_calendarConfig = ? WHERE instances_id = ?', [before, a.instanceId]);
@@ -57,19 +57,27 @@ test("calendar settings persist unchecked flags and render the personal calendar
 });
 
 test("project quick-create restores client and location forms", async ({ page, tenants: { a } }) => {
-  await page.goto(`/project/?id=${a.projectId}`);
-  await page.locator('#newClientButton').click();
-  const clientName = `Fork client ${Date.now()}`;
-  await page.locator('.bootbox input').fill(clientName);
-  await page.locator('.bootbox').getByRole('button', { name: 'OK', exact: true }).click();
-  await expect(page.locator('#editProjectClient')).toContainText(clientName);
-  await page.locator('[data-target="#createLocationModal"]').click();
-  const locationName = `Fork venue ${Date.now()}`;
-  await page.locator('#createLocationModal [name="locations_name"]').fill(locationName);
-  const saved = page.waitForResponse(response => response.url().includes('/api/locations/new.php'));
-  await page.locator('#saveNewLocation').click();
-  expect((await saved).status()).toBe(200);
-  await expect(page.locator('#editProjectAddress')).toContainText(locationName);
+  const before = dbQuery<{ clients_id: number | null; locations_id: number | null }>(
+    "SELECT clients_id, locations_id FROM projects WHERE projects_id = ?", [a.projectId]
+  )[0];
+  try {
+    await page.goto(`/project/?id=${a.projectId}`);
+    await page.locator('#newClientButton').click();
+    const clientName = `Fork client ${Date.now()}`;
+    await page.locator('.bootbox input').fill(clientName);
+    await page.locator('.bootbox').getByRole('button', { name: 'Bestätigen', exact: true }).click();
+    await expect(page.locator('#editProjectClient')).toContainText(clientName);
+    await page.locator('[data-target="#createLocationModal"]').click();
+    const locationName = `Fork venue ${Date.now()}`;
+    await page.locator('#createLocationModal [name="locations_name"]').fill(locationName);
+    const saved = page.waitForResponse(response => response.url().includes('/api/locations/new.php'));
+    await page.locator('#saveNewLocation').click();
+    expect((await saved).status()).toBe(200);
+    await expect(page.locator('#editProjectAddress')).toContainText(locationName);
+  } finally {
+    dbQuery("UPDATE projects SET clients_id = ?, locations_id = ? WHERE projects_id = ?",
+      [before.clients_id, before.locations_id, a.projectId]);
+  }
 });
 
 test("manufacturer editing is available for the business's own records", async ({ page, tenants: { a } }) => {

@@ -4,11 +4,23 @@
             <!-- The time line -->
             <div class="timeline">
                 {% set currentDate = '' %}
+                {% set activityPrefixes = {
+                    'CHANGE-MANAGER': ['Set the project manager to ', 'hat die Projektleitung festgelegt: '],
+                    'UPDATE-NAME': ['Set the name to ', 'hat das Projekt umbenannt: '],
+                    'UPDATE-STATUS': ['Set the status to ', 'hat den Status geändert: '],
+                    'CHANGE-CLIENT': ['Set the client to ', 'hat den Kunden geändert: '],
+                    'UPDATE-DESCRIPTION': ['Set the description to ', 'Neue Beschreibung: ']
+                } %}
                 {% for event in project.auditLog %}
+                    {% set detail = event.auditLog_actionData %}
+                    {% set prefix = activityPrefixes[event.auditLog_actionType] ?? null %}
+                    {% if prefix and detail starts with prefix[0] %}
+                        {% set detail = prefix[1] ~ detail|slice(prefix[0]|length) %}
+                    {% endif %}
                     {% if event.auditLog_actionType in ['QUICKCOMMENT', 'INSERT', 'ARCHIVE','UNARCHIVE','CHANGE-MANAGER','UPDATE-NAME','UPDATE-STATUS','CHANGE-DATE','CHANGE-DATE-FINANCE','UPDATE-DESCRIPTION','CHANGE-CLIENT'] %}
                         {% if event.auditLog_timestamp|date("Y-m-d") != currentDate %}
                             <div class="time-label">
-                                <span class="bg-red">{{ event.auditLog_timestamp|date("D jS M Y") }}</span>
+                                <span class="bg-red">{{ event.auditLog_timestamp|date("d.m.Y") }}</span>
                             </div>
                             {% set currentDate = event.auditLog_timestamp|date("Y-m-d") %}
                         {% endif %}
@@ -21,20 +33,20 @@
                                 <i class="fas fa-info bg-gray-light"></i>
                             {% endif %}
                             <div class="timeline-item">
-                                <span class="time"><i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("h:i:sa") }}</span>
+                                <span class="time"><i class="fas fa-clock"></i> {{ event.auditLog_timestamp|date("H:i") }}</span>
                                 <h3 class="timeline-header"><a href="mailto:{{ event.users_email }}">{{ event.users_name1 ~ " " ~ event.users_name2}} </a>
                                     {% if event.auditLog_actionType == "QUICKCOMMENT" %}
-                                        added a comment
+                                        hat einen Kommentar hinzugefügt
                                     {% elseif event.auditLog_actionType == "INSERT" %}
-                                        created the project
+                                        hat das Projekt erstellt
                                     {% elseif event.auditLog_actionType == "ARCHIVE" %}
-                                        archived the project
+                                        hat das Projekt archiviert
                                     {% elseif event.auditLog_actionType == "UNARCHIVE" %}
-                                        removed the project from the archive
+                                        hat das Projekt aus dem Archiv geholt
                                     {% elseif event.auditLog_actionType in ['CHANGE-MANAGER','UPDATE-NAME','UPDATE-STATUS','CHANGE-CLIENT'] %}
-                                        {{ event.auditLog_actionData }}
+                                        {{ detail }}
                                     {% else %}
-                                        edited the project
+                                        hat das Projekt bearbeitet
                                     {% endif %}
                                 </h3>
                                 {% if event.auditLog_actionType == "QUICKCOMMENT" %}
@@ -42,7 +54,7 @@
                                 {% elseif event.auditLog_actionType in ['INSERT', 'ARCHIVE','UNARCHIVE','CHANGE-MANAGER','UPDATE-NAME','UPDATE-STATUS','CHANGE-CLIENT'] %}
                                     {# Blank #}
                                 {% else %}
-                                    <div class="timeline-body" style="font-style: italic;">{{event.auditLog_actionData|nl2br }}</div>
+                                    <div class="timeline-body" style="font-style: italic;">{{ detail|nl2br }}</div>
                                 {% endif %}
                             </div>
                         </div>

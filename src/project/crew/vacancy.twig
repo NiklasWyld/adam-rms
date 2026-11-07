@@ -6,9 +6,9 @@
             <div class="card-header">
                 <ul class="nav nav-pills">
                     {% if referringPage != "project" %}
-                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/project/crew/vacancies.php"><i class="fas fa-arrow-left"></i> Back to <span style="font-weight:bold;">Crew Vacancies</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/project/crew/vacancies.php"><i class="fas fa-arrow-left"></i> Zurück zu <span style="font-weight:bold;">Offene Crew-Stellen</span></a></li>
                     {% endif %}
-                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/project/?id={{ role.projects_id }}#crew-view">{% if referringPage =="project" %}<i class="fas fa-arrow-left"></i> Back to {% endif %}Project <span style="font-weight:bold;">{{ role.projects_name }}</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/project/?id={{ role.projects_id }}#crew-view">{% if referringPage =="project" %}<i class="fas fa-arrow-left"></i> Zurück zu {% endif %}Projekt <span style="font-weight:bold;">{{ role.projects_name }}</span></a></li>
                 </ul>
             </div>
         </div>
@@ -19,19 +19,19 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">
-                    Role Information
+                    Informationen zur Rolle
                 </h3>
             </div>
             <div class="card-body">
                 <div class="text-muted">
-                    <p class="text-sm">Project
+                    <p class="text-sm">Projekt
                         <b class="d-block">
                             {{ role.projects_name }}
                         </b>
                     </p>
                 </div>
                 <div class="text-muted">
-                    <p class="text-sm">Project Manager
+                    <p class="text-sm">Projektleitung
                         <b class="d-block">
                                 {% if "BUSINESS:USERS:VIEW:INDIVIDUAL_USER"|instancePermissions %}<a style="color: inherit; text-decoration: inherit;" href="{{ CONFIG.ROOTURL }}/user.php?id={{ role.projects_manager }}">{% endif %}
                                 {{role.users_name1 ~ " " ~ role.users_name2 ~ " (" ~ role.users_email ~ ")" }}
@@ -41,24 +41,24 @@
                 </div>
                 {% if role.projects_dates_use_start %}
                 <div class="text-muted">
-                    <p class="text-sm">Project Starts
+                    <p class="text-sm">Projektbeginn
                         <b class="d-block">
-                            {{role.projects_dates_use_start ? role.projects_dates_use_start|date("d M Y h:ia") }}
+                            {{role.projects_dates_use_start ? role.projects_dates_use_start|date("d.m.Y H:i") }}
                         </b>
                     </p>
                 </div>
                 {% endif %}
                 {% if role.projects_dates_use_end %}
                 <div class="text-muted">
-                    <p class="text-sm">Project Ends
+                    <p class="text-sm">Projektende
                         <b class="d-block">
-                            {{ role.projects_dates_use_end|date("d M Y h:ia") }}
+                            {{ role.projects_dates_use_end|date("d.m.Y H:i") }}
                         </b>
                     </p>
                 </div>
                 {% endif %}
                 <div class="text-muted">
-                    <p class="text-sm">Role
+                    <p class="text-sm">Rolle
                         <b class="d-block">
                             {{ role.projectsVacantRoles_name }}
                         </b>
@@ -66,22 +66,22 @@
                 </div>
                 {% if role.projectsVacantRoles_deadline %}
                 <div class="text-muted">
-                    <p class="text-sm">Role Deadline
+                    <p class="text-sm">Bewerbungsfrist
                         <b class="d-block">
-                            {{ role.projectsVacantRoles_deadline|date("d M Y h:ia") }}
+                            {{ role.projectsVacantRoles_deadline|date("d.m.Y H:i") }}
                         </b>
                     </p>
                 </div>
                 {% endif %}
                 <div class="text-muted">
-                    <p class="text-sm">Places Available
+                    <p class="text-sm">Verfügbare Plätze
                         <b class="d-block">
                             {{ role.projectsVacantRoles_slots }}
                         </b>
                     </p>
                 </div>
                 <div class="text-muted">
-                    <p class="text-sm">Places Filled
+                    <p class="text-sm">Besetzte Plätze
                         <b class="d-block">
                             {{ role.projectsVacantRoles_slotsFilled }}
                         </b>
@@ -89,11 +89,11 @@
                 </div>                    
                 <hr />
                 {% if role.projectsVacantRoles_description %}
-                    <h4>Description</h4>
+                    <h4>Beschreibung</h4>
                     <p>{{ role.projectsVacantRoles_description|nl2br }}</p>
                 {% endif %}
                 {% if role.projectsVacantRoles_personSpecification %}
-                    <h4>Person Specification</h4>
+                    <h4>Anforderungsprofil</h4>
                     <p>{{ role.projectsVacantRoles_personSpecification|nl2br }}</p>
                 {% endif %}
             </div>
@@ -106,9 +106,9 @@
                 <div class="card-header">
                     <h3 class="card-title">
                         {% if role.projectsVacantRoles_firstComeFirstServed %}
-                        Sign Up
+                        Registrieren
                         {% else %}
-                        Apply
+                        Bewerben
                         {% endif %}
                     </h3>
                 </div>
@@ -122,21 +122,21 @@
                     </div>
                     <div class="input-group" style="margin-bottom: 5px;">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Email</span>
+                            <span class="input-group-text">E-Mail</span>
                         </div>
                         <input type="email" disabled class="form-control" value="{{ USERDATA.users_email }}">
                     </div>
                     {% if role.projectsVacantRoles_collectPhone == 1 %}
                     <div class="input-group" style="margin-bottom: 5px;">
                         <div class="input-group-prepend">
-                            <span class="input-group-text">Phone</span>
+                            <span class="input-group-text">Telefon</span>
                         </div>
                         <input type="tel" class="form-control" name="projectsVacantRolesApplications_phone" value="">
                     </div>
                     {% endif %}
                     {% if role.projectsVacantRoles_questions %}
                         <hr />
-                        <h4>Application Questions</h4>
+                        <h4>Bewerbungsfragen</h4>
                         <div class="applicationQuestions" data-id="{{ role.projectsVacantRoles_id }}">
                         {% for question in role.projectsVacantRoles_questions %}
                             <div class="form-group" style="margin-bottom: 5px;">
@@ -154,7 +154,7 @@
                     {% endif %}
                     {% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and role.projectsVacantRoles_fileUploads == 1 %}
                         <hr />
-                        <h4>Application File Attachments</h4>
+                        <h4>Dateianhänge der Bewerbung</h4>
                         <input type="hidden" name="projectsVacantRolesApplications_files" data-id="{{ role.projectsVacantRoles_id }}" value="" />
 {% embed 'assets/templates/uppy.twig' with {'type': 'VACANTROLEAPPLICATION-FILE', 'paste': true, 'typeId': 18, 'subTypeId':role.projectsVacantRoles_id, 'imagesOnly': false } %}
 
@@ -173,33 +173,33 @@
                         {% endembed %}
                     {% endif %}
                     <hr/>
-                    <h4>Comments</h4>
+                    <h4>Kommentare</h4>
                     <div class="form-group">
-                        <textarea type="text" class="form-control" placeholder="Anything you'd like to add?" name="projectsVacantRolesApplications_applicantComment" rows="3"></textarea>
+                        <textarea type="text" class="form-control" placeholder="Möchtest du noch etwas ergänzen?" name="projectsVacantRolesApplications_applicantComment" rows="3"></textarea>
                     </div>
                     <hr/>
-                    <p>Please check your application carefully before submitting, you cannot modify it after submission</p>
+                    <p>Prüfe deine Bewerbung vor dem Absenden. Danach kannst du sie nicht mehr ändern.</p>
                     {% if role.projectsVacantRoles_privateToPM == 1 %}
-                    <p>This application will only be shared with the Project Manager of the Project who can choose who to share your application with later. Currently the project manager, {{ role.users_name1 ~ " " ~ role.users_name2 }}, has not chosen to share it with anyone, but they could change this or the project manager could change. Please contact them if you have any questions.</p>
+                    <p>Diese Bewerbung geht zunächst nur an die Projektleitung. Die aktuell zuständige Person, {{ role.users_name1 ~ " " ~ role.users_name2 }}, hat die Bewerbung noch nicht freigegeben. Die Freigabe und die Projektleitung können sich ändern. Wende dich bei Fragen an die zuständige Person.</p>
                     {% elseif role.canViewApplications %}
-                    <p>This application will be shared the current project manager and whoever they chose to share it with - please contact them if you have any questions. <br/>Currently they are sharing it with:
+                    <p>Die aktuelle Projektleitung und die von ihr ausgewählten Personen können die Bewerbung sehen. Wende dich bei Fragen an die Projektleitung. <br/>Derzeit können folgende Personen die Bewerbung sehen:
                     <ul>
-                        <li>Project Manager: {{ role.users_name1 ~ " " ~ role.users_name2 }}</li>
+                        <li>Projektleitung: {{ role.users_name1 ~ " " ~ role.users_name2 }}</li>
                         {% for user in role.canViewApplications %}
                             <li>{{ user.users_name1 ~ " " ~ user.users_name2 }}</li>
                         {% endfor %}
                     </ul>
                     </p>
                     {% else %}
-                    <p>This application will be shared with those who have permission to "Manage Crew Recruitment for a Project" in your Business</p>
+                    <p>Personen mit der Berechtigung zur Verwaltung von Crew-Bewerbungen können diese Bewerbung sehen.</p>
                     {% endif %}
                 </div>
                 <div class="card-footer justify-content-between">
                     <button type="submit" class="btn btn-success">
                     {% if role.projectsVacantRoles_firstComeFirstServed %}
-                    Sign Up
+                    Registrieren
                     {% else %}
-                    Apply
+                    Bewerben
                     {% endif %}
                     </button>
                 </div>
@@ -208,14 +208,14 @@
             <div class="card-header">
                 <h3 class="card-title">
                     {% if role.projectsVacantRoles_firstComeFirstServed %}
-                    Sign Up
+                    Registrieren
                     {% else %}
-                    Apply
+                    Bewerben
                     {% endif %}
                 </h3>
             </div>
             <div class="card-body">
-                <p style="font-style: italic;">You have already applied for this role</p>
+                <p style="font-style: italic;">Du hast dich bereits auf diese Rolle beworben.</p>
             </div>
             {% endif %}
         </div>
@@ -237,7 +237,7 @@
             formData.push({"name": "projectsVacantRolesApplications_questionAnswers", "value":JSON.stringify(questions)});
 
             ajaxcall("projects/crew/crewRoles/apply.php", {formData}, function (data) {
-                bootbox.alert("Application Successfully Submitted", function(){
+                bootbox.alert("Bewerbung erfolgreich gesendet", function(){
                     window.location.href = "{{CONFIG.ROOTURL}}/project/crew/vacancies.php";
                 });
             });

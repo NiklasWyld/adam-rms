@@ -6,16 +6,16 @@
         <div class="card-header border-0">
             <h3 class="card-title">
                 <i class="fas fas fa-warehouse mr-1"></i>
-                Assets
+                Material
             </h3>
 
             <div class="card-tools">
                 {% if WIDGETS.checkUser('inventoryValueGraph') %}
-                    <button type="button" class="btn bg-info btn-sm removeWidgetButton" data-widgetname="inventoryValueGraph" data-card-widget="remove" title="Remove from Dashboard">
+                    <button type="button" class="btn bg-info btn-sm removeWidgetButton" data-widgetname="inventoryValueGraph" data-card-widget="remove" title="Aus Übersicht entfernen">
                         <i class="fas fa-times"></i>
                     </button>
                 {% else %}
-                    <button type="button" class="btn bg-info btn-sm addWidgetButton" data-widgetname="inventoryValueGraph" title="Add to Dashboard">
+                    <button type="button" class="btn bg-info btn-sm addWidgetButton" data-widgetname="inventoryValueGraph" title="Zur Übersicht hinzufügen">
                         <i class="fas fa-plus"></i>
                     </button>
                 {% endif %}
@@ -33,7 +33,7 @@
                     {% for key,value in THISWIDGET.timeSeriesValue %}'{{key}}',{% endfor %}],
                 datasets: [
                     {
-                        label               : 'Total Value',
+                        label               : 'Gesamtwert',
                         fill                : false,
                         borderWidth         : 2,
                         lineTension         : 0,
@@ -51,7 +51,7 @@
                         yAxisID: "y-axis-value",
                     },
                     {
-                        label               : 'Total Mass',
+                        label               : 'Gesamtgewicht',
                         fill                : false,
                         borderWidth         : 2,
                         lineTension         : 0,

@@ -11,18 +11,18 @@
             <div class="card">
                 <div class="card-header">
                     <ul class="nav nav-pills">
-                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
                         {% if "BUSINESS:USERS:VIEW:LIST"|instancePermissions %}
-                        <li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/users.php">Users</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/users.php">Benutzer</a></li>
                         {% endif %}
                         {% if "BUSINESS:ROLES_AND_PERMISSIONS:VIEW"|instancePermissions %}
-                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Permissions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Berechtigungen</a></li>
                         {% endif %}
                         {% if "BUSINESS:USER_SIGNUP_CODES:VIEW"|instancePermissions %}
-                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Signup Codes</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Beitrittscodes</a></li>
                         {% endif %}
                         {% if "BUSINESS:SETTINGS:EDIT:TRUSTED_DOMAINS"|instancePermissions %}
-                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Trusted Domains</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Vertrauenswürdige Domains</a></li>
                         {% endif %}
                     </ul>
                 </div>
@@ -30,17 +30,17 @@
             {% if "BUSINESS:USERS:CREATE:ADD_USER_BY_EMAIL"|instancePermissions %}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Add Users</h3>
+                    <h3 class="card-title">Benutzer hinzufügen</h3>
                 </div>
                 <div class="card-body">
                     {% if NOCAPACITY %}
-                    <p>Your current plan does not enable you to add any more users. You have {{ NOCAPACITY.USED }} users, with a limit of {{ NOCAPACITY.CAPACITY }}.</p>
-                    <a href="{{ CONFIG.ROOTURL }}/instances/billing.php" class="btn btn-default">Billing Settings</a>
+                    <p>Dein aktueller Tarif erlaubt keine weiteren Benutzer. Du hast {{ NOCAPACITY.USED }} Benutzer bei einem Limit von {{ NOCAPACITY.CAPACITY }}.</p>
+                    <a href="{{ CONFIG.ROOTURL }}/instances/billing.php" class="btn btn-default">Abrechnungseinstellungen</a>
                     {% else %}
-                    <p>Enter email addresses to search for existing AdamRMS users to add to business</p>
+                    <p>Suche per E-Mail-Adresse nach vorhandenen AdamRMS-Konten, um sie zum Unternehmen hinzuzufügen.</p>
                      <div class="input-group">
                         <select class="form-control" multiple="multiple" id="addUserToInstance"></select>
-                        <button type="button" style="margin-top: 5px;" class="btn btn-default" id="addUserToInstance-button">Add to business</button>
+                        <button type="button" style="margin-top: 5px;" class="btn btn-default" id="addUserToInstance-button">Zum Unternehmen hinzufügen</button>
                     </div>
                     {% endif %}
                 </div>
@@ -48,22 +48,22 @@
             {% endif %}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Users</h3>
+                    <h3 class="card-title">Benutzer</h3>
                     <div class="card-tools pull-right">
-                        <a href="{{ CONFIG.LINKS_USERGUIDEURL }}business/user-management" target="_blank" type="button" class="btn btn-info btn-sm">Help</a>
+                        <a href="{{ CONFIG.LINKS_USERGUIDEURL }}business/user-management" target="_blank" type="button" class="btn btn-info btn-sm">Hilfe</a>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="table table-head-fixed" id="userTable" border="0" style="overflow-x: scroll;">
                         <thead>
                         <tr>
-                            <th data-searchable="false" data-orderable="false">Thumbnail</th>
-                            <th>Username</th>
-                            <th>Firstname</th>
-                            <th>Lastname</th>
-                            <th>Email</th>
-                            <th data-searchable="false">Role</th>
-                            <th data-searchable="false">Role Group</th>
+                            <th data-searchable="false" data-orderable="false">Vorschaubild</th>
+                            <th>Benutzername</th>
+                            <th>Vorname</th>
+                            <th>Nachname</th>
+                            <th>E-Mail</th>
+                            <th data-searchable="false">Rolle</th>
+                            <th data-searchable="false">Rollengruppe</th>
                             <th data-searchable="false" data-orderable="false"></th>
                         </tr>
                         </thead>
@@ -84,10 +84,10 @@
                                     {% endif %}
 
                                     {% if user.users_suspended == '1' %}
-                                        <span class="label label-danger">Suspended</span><br/>
+                                        <span class="label label-danger">Gesperrt</span><br/>
                                     {% endif %}
                                     {% if user.userInstances_archived != null and user.userInstances_archived|date('Y-m-d H:i:s') <= "now"|date('Y-m-d H:i:s') %}
-                                        <span class="badge bg-danger">Archived</span>
+                                        <span class="badge bg-danger">Archiviert</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ user["users_name1"] }}</td>
@@ -99,22 +99,22 @@
                                 <td>
                                     <div class="btn-group">
                                         {% if "BUSINESS:USERS:EDIT:CHANGE_ROLE"|instancePermissions %}
-                                            <button title="Change Role" class="btn btn-default" data-toggle="modal" data-target="#userInstance{{ user.userInstances_id }}Modal"><i
+                                            <button title="Rolle ändern" class="btn btn-default" data-toggle="modal" data-target="#userInstance{{ user.userInstances_id }}Modal"><i
                                                         class="fa fa-pencil-alt"></i></button>
                                         {% endif %}
                                         {% if "BUSINESS:USERS:EDIT:ARCHIVE"|instancePermissions %}
                                             {% if user.userInstances_archived != null and user.userInstances_archived|date('Y-m-d H:i:s') <= "now"|date('Y-m-d H:i:s') %}
-                                                    <button type="button" title="Remove from Archive" data-userid="{{ user.users_userid }}" class="btn btn-success unArchiveFromInstance"><i class="fas fa-archive"></i></button>
+                                                    <button type="button" title="Aus Archiv holen" data-userid="{{ user.users_userid }}" class="btn btn-success unArchiveFromInstance"><i class="fas fa-archive"></i></button>
                                                 {% else %}
                                                 <button
-                                                        type="button" title="Archive" data-userid="{{ user.users_userid }}" class="btn btn-warning archiveFromInstance"><i class="fas fa-archive"></i></button>
+                                                        type="button" title="Archivieren" data-userid="{{ user.users_userid }}" class="btn btn-warning archiveFromInstance"><i class="fas fa-archive"></i></button>
 
 
                                             {% endif %}
                                         {% endif %}
                                         {% if "BUSINESS:USERS:DELETE:REMOVE_FORM_BUSINESS"|instancePermissions %}
                                             <button
-                                                type="button" title="Remove" data-userid="{{ user.users_userid }}" class="btn btn-danger removeFromInstance"><i
+                                                type="button" title="Entfernen" data-userid="{{ user.users_userid }}" class="btn btn-danger removeFromInstance"><i
                                                         class="fa fa-trash"></i></button>
                                         {% endif %}
                                     </div>
@@ -135,16 +135,16 @@
                 <div class="modal-header">
                     <h4 class="modal-title">{{ user["users_name1"] }} {{ user["users_name2"] }} in {{ USERDATA.instance.instances_name }}</h4>
 
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span></button>
                                     </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Role</label>
+                        <label>Rolle</label>
                         <input type="text" class="form-control labelUserInstanceModal" data-userinstanceid="{{ user.userInstances_id }}" value="{{user.userInstances_label}}">
                     </div>
                     <div class="form-group">
-                        <label>Role Group</label>
+                        <label>Rollengruppe</label>
                         <select class="form-control instancePositionUserInstanceModal" data-userinstanceid="{{ user.userInstances_id }}">
                             {% for position in positions %}
                                 <option
@@ -159,8 +159,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary saveUserInstanceModal" data-userinstanceid="{{ user.userInstances_id }}">Save</button>
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-primary saveUserInstanceModal" data-userinstanceid="{{ user.userInstances_id }}">Speichern</button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -173,6 +173,19 @@
     <script>
         $(document).ready(function() {
             $('#userTable').DataTable({
+                language: {
+                    emptyTable: 'Keine Einträge vorhanden',
+                    info: '_START_ bis _END_ von _TOTAL_ Einträgen',
+                    infoEmpty: 'Keine Einträge',
+                    infoFiltered: '(von _MAX_ Einträgen gefiltert)',
+                    lengthMenu: '_MENU_ Einträge anzeigen',
+                    loadingRecords: 'Wird geladen …',
+                    processing: 'Wird verarbeitet …',
+                    search: 'Suchen:',
+                    zeroRecords: 'Keine passenden Einträge',
+                    paginate: { first: 'Erste', last: 'Letzte', next: 'Weiter', previous: 'Zurück' },
+                    aria: { sortAscending: ': aufsteigend sortieren', sortDescending: ': absteigend sortieren' }
+                },
                 "paging": true,
                 "lengthChange": true,
                 "searching": true,
@@ -201,7 +214,7 @@
             {% if "BUSINESS:USERS:EDIT:ARCHIVE"|instancePermissions %}
             $('.archiveFromInstance').on('click', function(e){
                 var userid = $(this).data("userid");
-                bootbox.confirm("Are you sure you wish to archive this user in the business?", function(result){
+                bootbox.confirm("Dieses Mitglied im Unternehmen archivieren?", function(result){
                     if (result) {
                         ajaxcall("instances/archiveUser.php", {"userid": userid}, function() {
                             location.reload();
@@ -211,7 +224,7 @@
             });
             $('.unArchiveFromInstance').on('click', function(e){
                 var userid = $(this).data("userid");
-                bootbox.confirm("Are you sure you wish to add this user back into the business?", function(result){
+                bootbox.confirm("Dieses Mitglied wieder in das Unternehmen aufnehmen?", function(result){
                     if (result) {
                         ajaxcall("instances/archiveUser.php", {"userid": userid}, function() {
                             location.reload();
@@ -237,7 +250,7 @@
                 minimumInputLength: 1,
                 width: '100%',
                 minimumResultsForSearch: 1,
-                placeholder: "Email Addresses",
+                placeholder: "E-Mail-Adressen",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/instances/searchUser.php",
                     dataType: "json",
@@ -267,11 +280,11 @@
             $('#addUserToInstance-button').on('click', function(e){
                 if ($("#addUserToInstance").select2("val").length > 0) {
                     bootbox.prompt({
-                        title: "Role group for new users",
+                        title: "Rollengruppe für neue Mitglieder",
                         inputType: 'select',
                         inputOptions: [
                             {
-                                text: 'Choose one...',
+                                text: 'Bitte auswählen …',
                                 value: '',
                             },
                             {% for position in positions %}
@@ -285,7 +298,7 @@
                             if (result && result.length > 0) {
                                 var rolegroup = result;
                                 bootbox.prompt({
-                                    title: "Role name for new users",
+                                    title: "Rollenname für neue Mitglieder",
                                     value: "User",
                                     callback: function(result) {
                                         if (result && result.length > 0) {

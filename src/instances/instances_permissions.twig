@@ -6,25 +6,25 @@
 		<div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
 					{% if "BUSINESS:USERS:VIEW:LIST"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/users.php">Users</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/users.php">Benutzer</a></li>
 					{% endif %}
 					{% if "BUSINESS:ROLES_AND_PERMISSIONS:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Permissions</a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/permissions.php">Berechtigungen</a></li>
 					{% endif %}
 					{% if "BUSINESS:USER_SIGNUP_CODES:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Signup Codes</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/signupCodes.php">Beitrittscodes</a></li>
 					{% endif %}
 					{% if "BUSINESS:SETTINGS:EDIT:TRUSTED_DOMAINS"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Trusted Domains</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/trustedDomains.php">Vertrauenswürdige Domains</a></li>
 					{% endif %}
 				</ul>
 			</div>
 		</div>
 		<div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Business Permissions</h3>
+				<h3 class="card-title">Unternehmensberechtigungen</h3>
 				{% if "BUSINESS:ROLES_AND_PERMISSIONS:CREATE"|instancePermissions %}
 				<div class="card-tools pull-right">
 					<button type="button" class="btn btn-tool" id="addNewInstancePosition"><i class="fa fa-plus"></i>
@@ -37,9 +37,9 @@
 					<thead>
 						<tr>
 							<th style="font-weight: normal; width:30%">Code</th>
-							<th style="font-weight: normal;">Category</th>
-							<th style="font-weight: normal;">Table</th>
-							<th style="font-weight: normal;">Type</th>
+							<th style="font-weight: normal;">Kategorie</th>
+							<th style="font-weight: normal;">Tabelle</th>
+							<th style="font-weight: normal;">Typ</th>
 							<th style="font-weight: normal;">Element</th>
 							{% for position in positions %}
 							<th style="width: 1px;">{{position.instancePositions_displayName}}</th>
@@ -122,7 +122,7 @@ $(document).ready(function() {
 					$("#loading").hide();
                     location.reload();
 				} else {
-					bootbox.alert(result + "Sorry - Operation could not be completed! Please try again!", function() {
+					bootbox.alert(result + "Die Aktion konnte nicht abgeschlossen werden. Versuche es erneut.", function() {
 						location.reload();
 					});
 				}
@@ -138,14 +138,14 @@ $(document).ready(function() {
 		//show a popup if this is a signup code permission
 		if (checkbox.is(":checked") && cautionText !== null && cautionText.length > 0) {
 			bootbox.confirm({
-				title: "Warning - potential privilege escalation",
-				message: cautionText + "<br /><br />This permission is normally only enabled for administrators in a business. Are you sure you want to enable it?",
+				title: "Achtung: Mögliche Erweiterung von Berechtigungen",
+				message: cautionText + "<br /><br />Diese Berechtigung ist normalerweise der Unternehmensverwaltung vorbehalten. Möchtest du sie freigeben?",
 				buttons: {
 					confirm: {
-						label: 'Yes',
+						label: 'Ja',
 					},
 					cancel: {
-						label: 'No',
+						label: 'Nein',
 					},
 				},
 				callback: function (result) {
@@ -174,7 +174,7 @@ $(document).ready(function() {
 	<script>
 		$(document).ready(function() {
 			$("#addNewInstancePosition").on("click", function () {
-				bootbox.prompt("Enter role group name", function(result){
+				bootbox.prompt("Namen der Rollengruppe eingeben", function(result){
 					if (result) {
 						ajaxcall("permissions/newInstancePosition.php", {"name": result}, function() {
 							location.reload();

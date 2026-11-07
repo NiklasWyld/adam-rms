@@ -5,16 +5,16 @@ $(function () {
     var list = state.list;
     function error(message, form) {
         var target = form ? $(form).find('.form-error') : $('#shopping-error');
-        target.text(message).removeClass('d-none');
+        target.text(adamUiError(message)).removeClass('d-none');
     }
     function call(action, data) {
         return $.ajax({
             url: state.root + '/api/shoppingLists/action.php', method: 'POST', dataType: 'json',
             data: Object.assign({}, data, { action: action, csrf: state.csrf })
         }).then(function (result) {
-            if (!result.result) return $.Deferred().reject(result.error ? result.error.message : 'Unable to save.').promise();
+            if (!result.result) return $.Deferred().reject(result.error ? result.error.message : 'Speichern fehlgeschlagen.').promise();
             return result.response;
-        }, function () { return $.Deferred().reject('Unable to connect. Please try again.').promise(); });
+        }, function () { return $.Deferred().reject('Verbindung fehlgeschlagen. Versuche es erneut.').promise(); });
     }
     function go(id) { window.location.assign(state.root + '/shoppingLists/' + (id ? '?id=' + id : '')); }
     function fields(form, data) {
@@ -36,7 +36,7 @@ $(function () {
     $('#new-list').on('click', function () {
         fields(document.getElementById('list-form'), { status: 'draft' });
         $('#list-status option[value=archived]').prop('disabled', true);
-        $('#list-modal-title').text('New shopping list');
+        $('#list-modal-title').text('Neue Einkaufsliste');
         $('#list-modal').modal('show');
     });
     $('[data-list-edit]').on('click', function () {
@@ -47,18 +47,18 @@ $(function () {
             budget: current.budgetDecimal, status: current.shoppingLists_status, comment: current.shoppingLists_comment
         });
         $('#list-status option[value=archived]').prop('disabled', current.shoppingLists_status !== 'archived');
-        $('#list-modal-title').text('Edit shopping list');
+        $('#list-modal-title').text('Einkaufsliste bearbeiten');
         $('#list-modal').modal('show');
     });
     $('#new-item').on('click', function () {
         fields(document.getElementById('item-form'), { quantity: '1', status: 'planned' });
-        $('#item-modal-title').text('Add item');
+        $('#item-modal-title').text('Artikel hinzufügen');
         $('#item-modal').modal('show');
         preview();
     });
     $('[data-item-edit]').on('click', function () {
         fields(document.getElementById('item-form'), itemData(findItem(this.dataset.itemEdit)));
-        $('#item-modal-title').text('Edit shopping item');
+        $('#item-modal-title').text('Artikel bearbeiten');
         $('#item-modal').modal('show');
         preview();
     });
@@ -83,7 +83,7 @@ $(function () {
             }).fail(function (message) { error(message); $(button).prop('disabled', false); });
         }
         if (action === 'deleteList' || action === 'deleteItem' || action === 'archiveList') {
-            bootbox.confirm(action === 'archiveList' ? 'Archive this shopping list?' : 'Remove this ' + (action === 'deleteItem' ? 'item' : 'shopping list') + '?', function (confirmed) { if (confirmed) run(); });
+            bootbox.confirm(action === 'archiveList' ? 'Diese Einkaufsliste archivieren?' : (action === 'deleteItem' ? 'Diesen Artikel löschen?' : 'Diese Einkaufsliste löschen?'), function (confirmed) { if (confirmed) run(); });
         } else run();
     });
     $('.item-status').on('change', function () {
@@ -127,7 +127,7 @@ $(function () {
         var quantity = Number($('#item-quantity').val().replace(',', '.'));
         var price = Number(priceText);
         var valid = priceText !== '' && quantity > 0 && price >= 0 && Number.isFinite(quantity * price);
-        $('#item-price-preview').text(valid ? 'Estimated line total: ' + new Intl.NumberFormat('en-GB', { style: 'currency', currency: list.shoppingLists_currency }).format(quantity * price) : 'Line total: not priced');
+        $('#item-price-preview').text(valid ? 'Geschätzter Gesamtpreis: ' + new Intl.NumberFormat('de-DE', { style: 'currency', currency: list.shoppingLists_currency }).format(quantity * price) : 'Gesamtpreis: unbekannt');
     }
     $('#item-price, #item-quantity').on('input', preview);
 });

@@ -13,16 +13,16 @@
         <div class="card">
 			<div class="card-header">
 				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Back to Settings</span></a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/navigation.php"><i class="fas fa-arrow-left"></i> Zurück zu den Einstellungen</span></a></li>
 					{% if "PROJECTS:PROJECT_TYPES:VIEW"|instancePermissions %}
-                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/projectTypes.php">Project Types</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/projectTypes.php">Projekttypen</a></li>
                     {% endif %}
 					{% if "PROJECTS:PROJECT_STATUSES:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/projectStatuses.php">Project Statuses</a></li>
+					<li class="nav-item"><a class="nav-link active" href="{{CONFIG.ROOTURL}}/instances/projectStatuses.php">Projektstatus</a></li>
                     {% endif %}
 					{% if "BUSINESS:BUSINESS_SETTINGS:VIEW"|instancePermissions %}
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/asset-status.php">Asset Statuses</a></li>
-					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/invoices.php">Invoices</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/asset-status.php">Materialstatus</a></li>
+					<li class="nav-item"><a class="nav-link" href="{{CONFIG.ROOTURL}}/instances/configuration/invoices.php">Rechnungen</a></li>
                     {% endif %}
 				</ul>
 			</div>
@@ -34,7 +34,7 @@
         <div class="card ">
             <div class="card-header">
                 <h3 class="card-title">
-                    Project Statuses
+                    Projektstatus
                 </h3>
                 <div class="card-tools pull-right">
                     {% if "PROJECTS:PROJECT_STATUSES:CREATE"|instancePermissions %}
@@ -47,10 +47,10 @@
                     <thead>
                         <tr>
                             <th style="width:60px;"></th>
-                            <th style="width:40px;">Icon</th>
-                            <th style="width:40px;">Projects</th>
-                            <th>Name &amp; Style</th>
-                            <th style="width:40px;">Assets Released</th>
+                            <th style="width:40px;">Symbol</th>
+                            <th style="width:40px;">Projekte</th>
+                            <th>Name und Darstellung</th>
+                            <th style="width:40px;">Material freigegeben</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -75,7 +75,7 @@
                                     <br/><small>{{status.projectsStatuses_description}}</small>
                                 {% endif %}
                                 {% if status.projectsStatuses_deleted %}
-                                    <br/><span class="badge badge-info">Status deleted, but used by {{ status.project_count ~ " project" ~ (status.project_count != 1 ? 's': '') }}</span>
+                                    <br/><span class="badge badge-info">Status gelöscht, noch verwendet von {{ status.project_count ~ " project" ~ (status.project_count != 1 ? 's': '') }}</span>
                                 {% endif %}
                             </td>
                             <td class="text-center">
@@ -93,7 +93,7 @@
                                     {% endif %}
                                  </div>
                                  {% if status.projectsStatuses_deleted %}
-                                    <span class="badge badge-danger">Deleted</span>
+                                    <span class="badge badge-danger">Gelöscht</span>
                                  {% endif %}
                               </td>
                         </tr>
@@ -101,8 +101,8 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">Edit {{status.projectsStatuses_name}}</h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <h4 class="modal-title">Bearbeiten {{status.projectsStatuses_name}}</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
@@ -117,13 +117,13 @@
                                             </div>
                                             <div class="input-group" style="margin-bottom: 5px;">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text">Description</span>
+                                                    <span class="input-group-text">Beschreibung</span>
                                                 </div>
                                                 <input type="text" class="form-control" name="projectsStatuses_description" value="{{ status.projectsStatuses_description }}">
                                             </div>
                                             <div class="input-group" style="margin-bottom: 5px;">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text">Icon</span>
+                                                    <span class="input-group-text">Symbol</span>
                                                 </div>
                                                 <select class="form-control rms-icon-picker" name="projectsStatuses_fontAwesome">
                                                     {% if status.projectsStatuses_fontAwesome %}
@@ -133,39 +133,39 @@
                                             </div>
                                             <div class="input-group" style="margin-bottom: 5px;">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text">Text Colour</span>
+                                                    <span class="input-group-text">Textfarbe</span>
                                                 </div>
                                                 <input type="color" class="form-control" name="projectsStatuses_foregroundColour" value="{{ status.projectsStatuses_foregroundColour }}">
                                             </div>
                                             <div class="input-group" style="margin-bottom: 5px;">
                                                 <div class="input-group-prepend">
-                                                    <span class="input-group-text">Background Colour</span>
+                                                    <span class="input-group-text">Hintergrundfarbe</span>
                                                 </div>
                                                 <input type="color" class="form-control" name="projectsStatuses_backgroundColour" value="{{ status.projectsStatuses_backgroundColour }}">
                                             </div>
                                             {% if status.projectsStatuses_assetsReleased != true and status.project_count < 1 %}
                                                 <div class="input-group" style="margin-bottom: 5px;">
                                                     <div class="input-group-prepend">
-                                                        <span class="input-group-text">Release Assets?</span>
+                                                        <span class="input-group-text">Material freigeben?</span>
                                                     </div>
                                                     <input type="checkbox" class="form-control" name="projectsStatuses_assetsReleased"  aria-describedby="assetsReleased" {{status.projectsStatuses_assetsReleased ? "checked": ""}}>
-                                                    <small class="form-text text-muted">If a project's status is "release assets", then assets assigned to those projects can be used by other projects, the project doesn't show in calendars, and crew are released from the project. This is intended for projects that are cancelled.</small>
+                                                    <small class="form-text text-muted">Mit diesem Status kann zugeordnetes Material in anderen Projekten eingesetzt werden. Das Projekt erscheint nicht im Kalender, und die Crew wird freigegeben. Verwende den Status etwa für abgesagte Projekte.</small>
                                                 </div>
                                             {% else %}
                                                 <div class="input-group" style="margin-bottom: 5px;">
                                                     <div class="input-group-prepend">
-                                                        <span class="input-group-text">Release Assets?</span>
+                                                        <span class="input-group-text">Material freigeben?</span>
                                                     </div>
                                                     <input type="hidden" name="projectsStatuses_assetsReleased" value="{{status.projectsStatuses_assetsReleased ? "on": "off"}}">
                                                     <input type="checkbox" class="form-control" aria-describedby="assetsReleased" {{status.projectsStatuses_assetsReleased ? "checked": ""}} disabled>
-                                                    <small class="form-text text-muted">Assets assigned to projects with this status can be used by other projects, the project doesn't show in calendars, and crew are released from the project. You can't modify this setting as the status has already been used by projects, or because assets have already been released.</small>
+                                                    <small class="form-text text-muted">Dieser Status gibt Material und Crew frei und blendet das Projekt im Kalender aus. Die Einstellung ist gesperrt, weil der Status bereits verwendet oder Material freigegeben wurde.</small>
                                                 </div>
                                             {% endif %}
                                         </form>
                                     </div>
                                     <div class="modal-footer justify-content-between">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary saveEdit-button" data-id="{{ status.projectsStatuses_id }}">Save changes</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                                        <button type="button" class="btn btn-primary saveEdit-button" data-id="{{ status.projectsStatuses_id }}">Änderungen speichern</button>
                                     </div>
                                 </div>
                             </div>
@@ -180,8 +180,8 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">New Project Status</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <h4 class="modal-title">Neuer Projektstatus</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -195,40 +195,40 @@
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Description</span>
+                                <span class="input-group-text">Beschreibung</span>
                             </div>
                             <input type="text" class="form-control" name="projectsStatuses_description" >
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Icon</span>
+                                <span class="input-group-text">Symbol</span>
                             </div>
                             <select class="form-control rms-icon-picker" name="projectsStatuses_fontAwesome"></select>
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Text Colour</span>
+                                <span class="input-group-text">Textfarbe</span>
                             </div>
                             <input type="color" class="form-control" name="projectsStatuses_foregroundColour">
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Background Colour</span>
+                                <span class="input-group-text">Hintergrundfarbe</span>
                             </div>
                             <input type="color" class="form-control" name="projectsStatuses_backgroundColour" value="#F5F5F5">
                         </div>
                         <div class="input-group" style="margin-bottom: 5px;">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Release Assets?</span>
+                                <span class="input-group-text">Material freigeben?</span>
                             </div>
                             <input type="checkbox" class="form-control" name="projectsStatuses_assetsReleased"  aria-describedby="assetsReleased">
-                            <small class="form-text text-muted">If a project's status is "release assets", then assets assigned to those projects can be used by other projects, the project doesn't show in calendars, and crew are released from the project. This is intended for projects that are cancelled.</small>
+                            <small class="form-text text-muted">Mit diesem Status kann zugeordnetes Material in anderen Projekten eingesetzt werden. Das Projekt erscheint nicht im Kalender, und die Crew wird freigegeben. Verwende den Status etwa für abgesagte Projekte.</small>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="saveNewCategory">Save changes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-primary" id="saveNewCategory">Änderungen speichern</button>
                 </div>
             </div>
         </div>
@@ -243,7 +243,7 @@
                     theme: "bootstrap4",
                     minimumInputLength: 1,
                     minimumResultsForSearch: 1,
-                    placeholder: "Search for an Icon",
+                    placeholder: "Nach einem Symbol suchen",
                     ajax: {
                         url: "{{ CONFIG.ROOTURL }}/api/icons/getIcons.php",
                         dataType: "json",
@@ -309,15 +309,15 @@
             $(".deleteButton").click(function () {
                 var id = $(this).data("id");
                 bootbox.confirm({
-                    title:"Are you sure?",
-                    message: "Users will not be able to change the status of projects to this status if it is deleted. This will not affect projects that are already set to this status",
+                    title:"Möchtest du fortfahren?",
+                    message: "Nach dem Löschen kann dieser Status nicht mehr ausgewählt werden. Projekte, denen er zugewiesen ist, behalten ihn.",
                     buttons: {
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         },
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         }
                     },

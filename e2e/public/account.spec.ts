@@ -58,7 +58,7 @@ test.describe("password reset", () => {
     const { a } = tenants;
     const code = newCode(a.users.limited.id);
     const confirm = await request.get(`/api/account/passwordReset.php?code=${code}`);
-    expect(await confirm.text()).toContain("Reset My Password");
+    expect(await confirm.text()).toContain("Passwort zurücksetzen");
     expect(user(a.users.limited.id).users_changepass).toBe(0);
 
     const reset = await request.post("/api/account/passwordReset.php", { form: { code }, maxRedirects: 0 });
@@ -76,7 +76,7 @@ test.describe("password reset", () => {
     const { a } = tenants;
     const expired = newCode(a.users.limited.id, new Date(Date.now() - 3 * 24 * 60 * 60 * 1000));
     const response = await request.post("/api/account/passwordReset.php", { form: { code: expired }, maxRedirects: 0 });
-    expect(await response.text()).toContain("Your code has expired");
+    expect(await response.text()).toContain("Dein Link ist abgelaufen");
     const unknown = await request.post("/api/account/passwordReset.php", { form: { code: "e2e-not-a-code" }, maxRedirects: 0 });
     expect(unknown.status()).toBe(302);
     expect(user(a.users.limited.id).users_changepass).toBe(0);

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Custom Categories", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Eigene Kategorien", "BREADCRUMB" => false];
 
 if (!$AUTH->instancePermissionCheck("ASSETS:ASSET_CATEGORIES:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 

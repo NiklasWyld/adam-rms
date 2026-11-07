@@ -1,13 +1,13 @@
 {% extends "login/login_template.twig" %}
 {% block content %}
     <form id="magicLink">
-        <p>Enter your email address and we'll send you a link to log in to this app</p>
-		<input class="form-control form-control-lg" id="email" autocomplete="email" placeholder="Email" type="email" required style="margin-top: 10px; margin-bottom: 10px;" autofocus>
+        <p>Gib deine E-Mail-Adresse ein. Du erhältst einen Link zur Anmeldung.</p>
+		<input class="form-control form-control-lg" id="email" autocomplete="email" placeholder="E-Mail" type="email" required style="margin-top: 10px; margin-bottom: 10px;" autofocus>
 		<div style="width: 100%; text-align:right;">
             {% if signupEnabled %}
-            <a href="?signup" class="btn btn-secondary">Create account</a>
+            <a href="?signup" class="btn btn-secondary">Konto erstellen</a>
             {% endif %}
-            <button class="btn btn-primary" type="submit" value="Submit">Generate Link</button>
+            <button class="btn btn-primary" type="submit" value="Submit">Link erstellen</button>
 		</div>
 	</form>
 	<script>
@@ -17,7 +17,7 @@
         $("#magicLink").submit(function(){
             event.preventDefault();
             if ($("#email").val().length <= 0) {
-                toastr.warning("Please enter something into the email box");
+                toastr.warning("Gib eine E-Mail-Adresse ein.");
             } else {
                 $.ajax({
                     url: "../api/login/magicLogin.php",
@@ -26,13 +26,13 @@
                     data: {"formInput" : $("#email").val(),"redirect": "{{ MAGICLINKURL|escape("js") }}"},
                     success: function(result) {
                         if (result.result) {
-                            toastr.success("Email sent");
+                            toastr.success("E-Mail gesendet");
                     	} else {
-                            toastr.error(result.error.message);
+                            toastr.error(adamUiError(result.error.message));
                         }
                     },
                     error: function(){
-                        toastr.error("Please refresh the page and check your internet connection");
+                        toastr.error("Prüfe deine Internetverbindung und lade die Seite neu.");
                     }
                 });
             }

@@ -3,7 +3,7 @@
 		{% if project.projectsTypes_config_notes == 1 %}
 			<div class="card">
 				<div class="card-header">
-					<h3 class="card-title">Notes</h3>
+					<h3 class="card-title">Notizen</h3>
 				</div>
 				<div class="card-body p-0">
 					<ul class="todo-list">
@@ -14,11 +14,11 @@
 								</span>
 								<span class="text">{{ note.projectsNotes_title }}</span>
 								<div class="tools">
-									<a href="{{ CONFIG.ROOTURL }}/project/noteExport.php?id={{ note.projectsNotes_id }}" style="color: #495057; padding-right: 10px;" target="_blank" title="Print Note">
+									<a href="{{ CONFIG.ROOTURL }}/project/noteExport.php?id={{ note.projectsNotes_id }}" style="color: #495057; padding-right: 10px;" target="_blank" title="Notiz drucken">
 										<i class="fas fa-print"></i>
 									</a>
 									{% if "PROJECTS:PROJECT_NOTES:EDIT:NOTES"|instancePermissions %}
-										<a href="#" data-toggle="modal" data-target="#noteModal{{ note.projectsNotes_id }}" style="color: #495057;" title="Edit File">
+										<a href="#" data-toggle="modal" data-target="#noteModal{{ note.projectsNotes_id }}" style="color: #495057;" title="Datei bearbeiten">
 											<i class="fas fa-pencil-alt"></i>
 										</a>
 									{% endif %}
@@ -30,7 +30,7 @@
 				<div class="card-footer">
 					<div class="btn-group float-right">
 						{% if "PROJECTS:PROJECT_NOTES:CREATE:NOTES"|instancePermissions and project.projectsTypes_config_notes == 1 %}
-							<button type="button" class="btn btn-default" id="newProjectNote">Create Note</button>
+							<button type="button" class="btn btn-default" id="newProjectNote">Notiz erstellen</button>
 						{% endif %}
 					</div>
 				</div>
@@ -39,7 +39,7 @@
 		{% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and project.projectsTypes_config_files == 1 %}
 			<div class="card">
 				<div class="card-header">
-					<h3 class="card-title">File Attachments</h3>
+					<h3 class="card-title">Dateianhänge</h3>
 					<div class="card-tools">
 						<a data-toggle="modal" data-target="#projectFilesModal" type="button" class="btn btn-tool">
 							<i class="fas fa-external-link-alt"></i>
@@ -57,9 +57,9 @@
 									<span class="text">
 										{{ file.s3files_name }}
 									</span>
-									<i class="fas fa-info-circle" data-toggle="popover" title="File Details" data-content="Generated {{ file.s3files_meta_uploaded|date("d M Y G:i") }}. file size {{ file.s3files_meta_size|formatsize }}. file type {{ file.s3files_extension }}"></i>
+									<i class="fas fa-info-circle" data-toggle="popover" title="Dateidetails" data-content="Erstellt am {{ file.s3files_meta_uploaded|date("d.m.Y H:i") }} · Dateigröße {{ file.s3files_meta_size|formatsize }} · Dateityp {{ file.s3files_extension }}"></i>
 									<div class="tools">
-										<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Download File">
+										<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Datei herunterladen">
 											<i class="fas fa-cloud-download-alt"></i>
 										</a>
 									</div>
@@ -75,7 +75,7 @@
 	<div class="col-sm-12 col-md-12 {% if project.projectsTypes_config_files == 1 or project.projectsTypes_config_notes == 1 %}col-lg-6{% else %}col-lg-12{% endif %}">
 		<div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Invoices</h3>
+				<h3 class="card-title">Rechnungen</h3>
 				{% if invoices %}
 					<div class="card-tools">
 						<a data-toggle="modal" data-target="#projectInvoicesModal" type="button" class="btn btn-tool">
@@ -94,11 +94,11 @@
 							<span class="text">
 								{{ file.s3files_name }}
 								-
-								{{ file.s3files_meta_uploaded|date("d M Y G:i") }}
+								{{ file.s3files_meta_uploaded|date("d.m.Y H:i") }}
 							</span>
-							<i class="fas fa-info-circle" data-toggle="popover" title="File Details" data-content="Generated {{ file.s3files_meta_uploaded|date("d M Y G:i") }}. file size {{ file.s3files_meta_size|formatsize }}. file type {{ file.s3files_extension }}"></i>
+							<i class="fas fa-info-circle" data-toggle="popover" title="Dateidetails" data-content="Erstellt am {{ file.s3files_meta_uploaded|date("d.m.Y H:i") }} · Dateigröße {{ file.s3files_meta_size|formatsize }} · Dateityp {{ file.s3files_extension }}"></i>
 							<div class="tools">
-								<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Download File">
+								<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Datei herunterladen">
 									<i class="fas fa-cloud-download-alt"></i>
 								</a>
 							</div>
@@ -109,14 +109,14 @@
 			<div class="card-footer">
 				<div class="btn-group float-right">
 					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#pdfGenerateModal">
-						Create Invoice
+						Rechnung erstellen
 					</button>
 				</div>
 			</div>
 		</div>
 		<div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Quotes</h3>
+				<h3 class="card-title">Angebote</h3>
 				{% if quotes %}
 					<div class="card-tools">
 						<a data-toggle="modal" data-target="#projectQuotesModal" type="button" class="btn btn-tool">
@@ -135,11 +135,11 @@
 							<span class="text">
 								{{ file.s3files_name }}
 								-
-								{{ file.s3files_meta_uploaded|date("d M Y G:i") }}
+								{{ file.s3files_meta_uploaded|date("d.m.Y H:i") }}
 							</span>
-							<i class="fas fa-info-circle" data-toggle="popover" title="File Details" data-content="Generated {{ file.s3files_meta_uploaded|date("d M Y G:i") }}. file size {{ file.s3files_meta_size|formatsize }}. file type {{ file.s3files_extension }}"></i>
+							<i class="fas fa-info-circle" data-toggle="popover" title="Dateidetails" data-content="Erstellt am {{ file.s3files_meta_uploaded|date("d.m.Y H:i") }} · Dateigröße {{ file.s3files_meta_size|formatsize }} · Dateityp {{ file.s3files_extension }}"></i>
 							<div class="tools">
-								<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Download File">
+								<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Datei herunterladen">
 									<i class="fas fa-cloud-download-alt"></i>
 								</a>
 							</div>
@@ -150,14 +150,14 @@
 			<div class="card-footer">
 				<div class="btn-group float-right">
 					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#pdfGenerateModal" data-quote="true">
-						Create Quote
+						Angebot erstellen
 					</button>
 				</div>
 			</div>
 		</div>
         <div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Delivery Notes</h3>
+				<h3 class="card-title">Lieferscheine</h3>
 				{% if deliveryNotes %}
 					<div class="card-tools">
 						<a data-toggle="modal" data-target="#projectDeliveryNotesModal" type="button" class="btn btn-tool">
@@ -176,11 +176,11 @@
 							<span class="text">
 								{{ file.s3files_name }}
 								-
-								{{ file.s3files_meta_uploaded|date("d M Y G:i") }}
+								{{ file.s3files_meta_uploaded|date("d.m.Y H:i") }}
 							</span>
-							<i class="fas fa-info-circle" data-toggle="popover" title="File Details" data-content="Generated {{ file.s3files_meta_uploaded|date("d M Y G:i") }}. file size {{ file.s3files_meta_size|formatsize }}. file type {{ file.s3files_extension }}"></i>
+							<i class="fas fa-info-circle" data-toggle="popover" title="Dateidetails" data-content="Erstellt am {{ file.s3files_meta_uploaded|date("d.m.Y H:i") }} · Dateigröße {{ file.s3files_meta_size|formatsize }} · Dateityp {{ file.s3files_extension }}"></i>
 							<div class="tools">
-								<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Download File">
+								<a href="{{ file.s3files_id|s3URL }}" style="color: #495057;" target="_blank" title="Datei herunterladen">
 									<i class="fas fa-cloud-download-alt"></i>
 								</a>
 							</div>
@@ -191,7 +191,7 @@
 			<div class="card-footer">
 				<div class="btn-group float-right">
 					<button type="button" class="btn btn-default" data-toggle="modal" data-target="#pdfGenerateModal" data-delivery-note="true">
-						Create Delivery Note
+						Lieferschein erstellen
 					</button>
 				</div>
 			</div>

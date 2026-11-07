@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 
 if (!$AUTH->instancePermissionCheck("LOCATIONS:VIEW")) die($TWIG->render('404.twig', $PAGEDATA));
 
-$PAGEDATA['pageConfig'] = ["TITLE" => (isset($_GET['archive']) ? "Archived " : "") . "Locations", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => (isset($_GET['archive']) ? "Archivierte Standorte" : "Standorte"), "BREADCRUMB" => false];
 
 if (isset($_GET['q'])) $PAGEDATA['search'] = $bCMS->sanitizeString($_GET['q']);
 else $PAGEDATA['search'] = null;

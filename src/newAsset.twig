@@ -9,11 +9,11 @@
     <div class="col-md-12 col-lg-6 offset-lg-3">
         <div class="card box-solid">
             <div class="card-header">
-                <h3 class="card-title">Cannot create assets</h3>
+                <h3 class="card-title">Material kann nicht angelegt werden</h3>
             </div>
             <div class="card-body">
-                <p>Your current plan does not enable you to create any more assets. You have {{ NOASSETCAPACITY.USED }} assets, with a limit of {{ NOASSETCAPACITY.CAPACITY }}.</p>
-                <a href="{{ CONFIG.ROOTURL }}/instances/billing.php" class="btn btn-default">Billing Settings</a>
+                <p>Dein aktueller Tarif erlaubt kein weiteres Material. Aktueller Bestand: {{ NOASSETCAPACITY.USED }} Geräte, maximal {{ NOASSETCAPACITY.CAPACITY }}.</p>
+                <a href="{{ CONFIG.ROOTURL }}/instances/billing.php" class="btn btn-default">Abrechnungseinstellungen</a>
             </div>
         </div>
     </div>
@@ -23,16 +23,16 @@
     <div class="col-md-12 col-lg-6 offset-lg-3"> 
         <div class="card box-solid">
             <div class="card-header">
-                <h3 class="card-title">Add new Asset</h3>
+                <h3 class="card-title">Neues Material anlegen</h3>
                 <div class="card-tools pull-right">
-<a href="{{ CONFIG.LINKS_USERGUIDEURL }}assets/new-assets" target="_blank" type="button" class="btn btn-info btn-sm">Help</a>
+<a href="{{ CONFIG.LINKS_USERGUIDEURL }}assets/new-assets" target="_blank" type="button" class="btn btn-info btn-sm">Hilfe</a>
 
                 </div>
             </div>
             <div class="card-body">
                 <form id="addNewForm">
                 <div class="form-group">
-                    <label>Manufacturer</label>
+                    <label>Hersteller</label>
                     <select class="form-control  select2bs4" id="manufacturer">
                         {% for manufacturer in manufacturers %}
                             <option {%  if manufacturer.manufacturers_id == 1 %} selected {% endif %} value="{{ manufacturer.manufacturers_id }}">{{ manufacturer.manufacturers_name }}</option>
@@ -44,18 +44,18 @@
                         
                         <p>
                             {% if "ASSETS:MANUFACTURERS:CREATE"|instancePermissions %}
-                                <a href="/manufacturers.php">Add new manufacturer</a> |&nbsp;
+                                <a href="/manufacturers.php">Hersteller anlegen</a> |&nbsp;
                             {% endif %}
-                            <a href="#" id="unknownManufacturerShortlink">Manufacturer unknown</a>
+                            <a href="#" id="unknownManufacturerShortlink">Hersteller unbekannt</a>
                         </p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Asset Type</label>
+                    <label>Materialtyp</label>
                     <select class="form-control  select2bs4" id="assetType" placeholder=""></select>
                     {% if "ASSETS:ASSET_TYPES:CREATE"|instancePermissions %}
                     <div style="text-align: right">
-                        <p><a href="#" id="addNewType">Add new type</a></p>
+                        <p><a href="#" id="addNewType">Materialtyp anlegen</a></p>
                     </div>
                     {% endif %}
                 </div>
@@ -66,17 +66,17 @@
                         <input type="text" class="form-control" name="assetTypes_name" id="addNewType-name" />
                     </div>
                     <div class="input-group">
-                        <div class="input-group-prepend"><span class="input-group-text">Description</span></div>
+                        <div class="input-group-prepend"><span class="input-group-text">Beschreibung</span></div>
                         <textarea class="form-control" rows="3" name="assetTypes_description" id="addNewType-description"  placeholder=""></textarea>
                     </div>
                     <div class="input-group">
-                        <div class="input-group-prepend"><span class="input-group-text">Product Link</span></div>
+                        <div class="input-group-prepend"><span class="input-group-text">Produktlink</span></div>
                         <input type="url" class="form-control" name="assetTypes_productLink" id="addNewType-productLink" maxlength="499" />
                     </div>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
-                              Mass
+                              Gewicht
                             </span>
                         </div>
                         <input type="number" step="0.001" min="0" name="assetTypes_mass" class="form-control" id="addNewType-mass" />
@@ -87,7 +87,7 @@
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
-                              Value - {{ moneySymbol() }}
+                              Wert – {{ moneySymbol() }}
                             </span>
                         </div>
                         <input type="number" step="0.001" min="0" name="assetTypes_value" class="form-control" id="addNewType-value" />
@@ -96,28 +96,28 @@
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
-                              Day Rate - {{ moneySymbol() }}
+                              Tagessatz – {{ moneySymbol() }}
                             </span>
                         </div>
                         <input type="number" step="0.001" min="0" name="assetTypes_dayRate" class="form-control" id="addNewType-dayRate" />
                         <div class="input-group-append">
-                            <div class="input-group-text" id="addNewType-dayRate-guide">Guide 2% of value</div>
+                            <div class="input-group-text" id="addNewType-dayRate-guide">Richtwert 2 % des Werts</div>
                         </div>
                     </div>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">
-                              Weekly Rate - {{ moneySymbol() }}
+                              Wochensatz – {{ moneySymbol() }}
                             </span>
                         </div>
                         <input type="number" step="0.001" min="0" name="assetTypes_weekRate" class="form-control" id="addNewType-weekRate" />
                         <div class="input-group-append">
-                            <div class="input-group-text" id="addNewType-weekRate-guide">Guide 6% of value</div>
+                            <div class="input-group-text" id="addNewType-weekRate-guide">Richtwert 6 % des Werts</div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Category</label>
+                        <label>Kategorie</label>
                         <select class="form-control  select2bs4" id="category" name="assetCategories_id">
                             {% for category in categories %}
                                 <option value="{{ category.assetCategories_id }}">{{ category.assetCategoriesGroups_name }} - {{ category.assetCategories_name }}</option>
@@ -126,12 +126,12 @@
                     </div>
 
                     <div class="callout callout-info">
-                        <p>Definable fields are specific attributes for assets of this type - for a lighting fixture this might be the lens fitted</p>
+                        <p>Eigene Felder erfassen Merkmale dieses Materialtyps, etwa die verbaute Linse eines Scheinwerfers.</p>
                     </div>
 
                 </div>
                     <div class="input-group" id="assetNotes" style="display:none;">
-                    <div class="input-group-prepend"><span class="input-group-text">Asset Notes</span></div>
+                    <div class="input-group-prepend"><span class="input-group-text">Materialnotizen</span></div>
                     <textarea class="form-control" rows="2" name="assets_notes" placeholder=""></textarea>
                 </div>
                 <div class="input-group definableFieldsGroup" data-fieldcount="1">
@@ -175,17 +175,17 @@
                     <input type="text" class="definableFieldsInput form-control" name="asset_definableFields_10"  data-fieldcount="10" />
                 </div>
                 <div class="form-group" id="assetGroupsDiv">
-                    <label>Asset Groups</label>
+                    <label>Materialgruppen</label>
                     <select class="form-control" id="assetGroups" multiple></select>
                 </div>
                 <div class="form-group" id="assetTagDiv">
-                    <label>Asset Tag</label>
-                    <input type="text" class="form-control" id="assetTag" placeholder="Autogenerated by default" />
+                    <label>Materialkennung</label>
+                    <input type="text" class="form-control" id="assetTag" placeholder="Wird standardmäßig automatisch vergeben" />
                 </div>
                 </form>
             </div>
             <div class="card-footer">
-                <button class="btn btn-default float-right" id="saveButton">Save</button>
+                <button class="btn btn-default float-right" id="saveButton">Speichern</button>
             </div>
             <div class="overlay">
                 <i class="fas fa-2x fa-sync-alt"></i>
@@ -221,7 +221,7 @@
                 minimumInputLength: 0,
                 width: '100%',
                 minimumResultsForSearch: 1,
-                placeholder: "Select a manufacturer then search for asset types",
+                placeholder: "Wähle einen Hersteller und suche anschließend nach Materialtypen.",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/assets/searchType.php",
                     dataType: "json",
@@ -283,7 +283,7 @@
                 $([0,1,2,3,4,5,6,7,8,9]).each(function (count, value) {
                     count = count+1;
                     $(".definableFieldsGroup[data-fieldcount='" + count + "']").show();
-                    $(".definableFieldsLabel[data-fieldcount='" + count + "']").text("Definable field " + count);
+                    $(".definableFieldsLabel[data-fieldcount='" + count + "']").text("Benutzerdefiniertes Feld " + count);
                 })
             });
 
@@ -303,7 +303,7 @@
                     var assetGroups = $("#assetGroups").select2("val");
                     formData.push({"name": "assets_assetGroups", "value":assetGroups.join(',')});
                     ajaxcall("assets/newAssetFromType.php", {formData}, function (data) {
-                        $("#saveButton").text("Add Another");
+                        $("#saveButton").text("Weiteres hinzufügen");
                         $('#assetTag').val("");
                         Toast.fire({
                             type: 'success',
@@ -320,7 +320,7 @@
                         });
                         Toast.fire({
                             type: 'success',
-                            title: 'Asset Type Created'
+                            title: 'Materialtyp angelegt'
                         });
                     }, false);
                 }
@@ -338,7 +338,7 @@
                 minimumInputLength: 1,
                 width: '100%',
                 minimumResultsForSearch: 1,
-                placeholder: "Enter group name to search",
+                placeholder: "Gruppennamen eingeben",
                 ajax: {
                     url: "{{ CONFIG.ROOTURL }}/api/groups/search.php",
                     dataType: "json",

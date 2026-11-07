@@ -3,7 +3,7 @@ require_once __DIR__ . '/../common/headSecure.php';
 use Money\Currency;
 use Money\Money;
 
-$PAGEDATA['pageConfig'] = ["TITLE" => "Groups", "BREADCRUMB" => false];
+$PAGEDATA['pageConfig'] = ["TITLE" => "Gruppen", "BREADCRUMB" => false];
 
 if (isset($_GET['q'])) $PAGEDATA['search'] = $bCMS->sanitizeString($_GET['q']);
 else $PAGEDATA['search'] = null;

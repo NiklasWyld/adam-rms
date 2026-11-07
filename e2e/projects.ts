@@ -106,15 +106,22 @@ export async function expectFinances(session: Session, t: Tenant, projectId: num
   expect(cacheRows(projectId), "data.php found no mismatch to correct").toBe(rowsBefore);
 }
 
-/**
- * The totals table on a project's invoice or quote (project/projectInvoice.php builds the PDF in the browser, from
- * the same numbers as data.php), as { label: amount as printed }.
- */
+/** The amounts passed to the German invoice or offer PDF. */
 export async function documentSummary(session: Session, projectId: number, type: "invoice" | "quote") {
-  const page = await session.page(`/project/projectInvoice.php?id=${projectId}&type=${type}&finance=1`);
+  const page = await session.page(
+    "/project/projectInvoice.php?" + new URLSearchParams({ id: String(projectId), type, finance: "1", draft: "1", invoiceTaxCase: "standard" }),
+  );
   expect(page.status, `opening the ${type}`).toBe(200);
+  if (type === "invoice") {
+    const data = page.body.match(/id="project-pdf-data">([^<]+)<\/script>/);
+    expect(data, "invoice PDF data").not.toBeNull();
+    return JSON.parse(data![1]).invoice.totals;
+  }
+
   const summary: Record<string, string> = {};
-  const row = /\{ text: "([^"]+)"(?:, style: \{[^}]*\})? \},\s*\{ text: "([^"]*)", style: \{ alignment: 'right' \} \}/g;
-  for (const [, label, value] of page.body.matchAll(row)) summary[label] = JSON.parse(`"${value}"`);
+  const row = /\[(?:'([^']+)'|\{ text: '([^']+)', bold: true \}), \{ text: "([^"]+)", alignment: 'right'(?:, bold: true)? \}\]/g;
+  for (const [, label, boldLabel, value] of page.body.matchAll(row)) {
+    summary[label ?? boldLabel] = JSON.parse(`"${value}"`);
+  }
   return summary;
 }

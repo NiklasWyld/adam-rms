@@ -1,7 +1,7 @@
 {% if project.projectsStatuses_assetsReleased %} 
     <div class="alert alert-danger">
-        <h5>Assets not locked - assets are released</h5>
-        Assets assigned to this project are not exclusive (because of its status) and can be assigned to other projects that clash with this one. Update project status before confirming with client
+        <h5>Material ist freigegeben</h5>
+        Der aktuelle Projektstatus erlaubt parallele Materialzuordnungen. Ändere den Projektstatus, bevor du dem Kunden zusagst.
     </div>
 {% endif %}
 {% for assetAssignment in FINANCIALS.assetsAssigned %}
@@ -17,7 +17,7 @@
     <div class="card-header p-0 border-bottom-0 card-tabs">
         <ul class="nav nav-tabs" id="asset-list-tabs-tab" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="asset-list-tabs-home-tab" data-toggle="pill" href="#asset-list-tabs-home" role="tab" aria-controls="asset-list-tabs-home" aria-selected="true"><b>Total</b></a>
+                <a class="nav-link active" id="asset-list-tabs-home-tab" data-toggle="pill" href="#asset-list-tabs-home" role="tab" aria-controls="asset-list-tabs-home" aria-selected="true"><b>Gesamt</b></a>
             </li>
             {% if FINANCIALS.assetsAssigned|length > 0 %}
             <li class="nav-item">
@@ -26,37 +26,37 @@
             {% endif %}
             {% for instance in FINANCIALS.assetsAssignedSUB %}
                 <li class="nav-item">
-                    <a class="nav-link" id="asset-list-tab-instance{{ instance['instance'].instances_id }}" data-toggle="pill" href="#asset-list-tabs-instance{{ instance['instance'].instances_id }}" role="tab" aria-controls="asset-list-tabs-instance{{ instance['instance'].instances_id }}" aria-selected="false">{{  instance['instance'].instances_name }} Assets</a>
+                    <a class="nav-link" id="asset-list-tab-instance{{ instance['instance'].instances_id }}" data-toggle="pill" href="#asset-list-tabs-instance{{ instance['instance'].instances_id }}" role="tab" aria-controls="asset-list-tabs-instance{{ instance['instance'].instances_id }}" aria-selected="false">{{  instance['instance'].instances_name }} Material</a>
                 </li>
             {% endfor %}
             <li class="pt-2 px-3">
                 <div class="card-tools">
                     {% if "PROJECTS:PROJECT_ASSETS:EDIT:ASSIGNMNET_COMMENT"|instancePermissions %}
-                        <button type="button" class="btn btn-tool" title="Set comment for assignment" id="setAssetAssignmentComment">
+                        <button type="button" class="btn btn-tool" title="Kommentar zur Zuordnung setzen" id="setAssetAssignmentComment">
                             <i class="far fa-comment"></i></button>
                     {% endif %}
                     {% if "PROJECTS:PROJECT_ASSETS:EDIT:DISCOUNT"|instancePermissions and project.projectsTypes_config_finance == 1 %}
-                        <button type="button" class="btn btn-tool" title="Set discount" id="setAssetAssignmentDiscount">
+                        <button type="button" class="btn btn-tool" title="Rabatt festlegen" id="setAssetAssignmentDiscount">
                             <i class="fas fa-percent"></i></button>
                     {% endif %}
                     {% if "PROJECTS:PROJECT_ASSETS:EDIT:CUSTOM_PRICE"|instancePermissions and project.projectsTypes_config_finance == 1 %}
-                        <button type="button" class="btn btn-tool" title="Set custom price" id="setAssetAssignmentPrice">
+                        <button type="button" class="btn btn-tool" title="Individuellen Preis festlegen" id="setAssetAssignmentPrice">
                             <i class="fas fa-coins"></i></button>
                     {% endif %}
                     {% if "PROJECTS:PROJECT_ASSETS:EDIT:ASSIGNMENT_STATUS"|instancePermissions %}
-                        <button type="button" class="btn btn-tool" title="Set status" id="setAllAssetStatus">
+                        <button type="button" class="btn btn-tool" title="Status setzen" id="setAllAssetStatus">
                             <i class="fas fa-clipboard-check"></i></button>
                     {% endif %}
                     {% if "PROJECTS:PROJECT_ASSETS:CREATE:ASSIGN_AND_UNASSIGN"|instancePermissions %}
-                        <button type="button" class="btn btn-tool" title="Swap Asset" id="swapAsset">
+                        <button type="button" class="btn btn-tool" title="Material tauschen" id="swapAsset">
                             <i class="fas fa-sync"></i>
                         </button>
-                        <button type="button" class="btn btn-tool" title="Remove assets" id="setAssetAssignmentDelete">
+                        <button type="button" class="btn btn-tool" title="Material entfernen" id="setAssetAssignmentDelete">
                             <i class="fas fa-trash"></i></button>
                     {% endif %}
-                    <button type="button" class="btn btn-tool" title="Expand All" id="expandAll">
-                        <i class="fas fa-angle-down"></i> Expand</button>
-<a type="button" class="btn btn-tool" href="{{ CONFIG.LINKS_USERGUIDEURL }}projects/assets" target="_blank">Help</a>
+                    <button type="button" class="btn btn-tool" title="Alle ausklappen" id="expandAll">
+                        <i class="fas fa-angle-down"></i> Ausklappen</button>
+<a type="button" class="btn btn-tool" href="{{ CONFIG.LINKS_USERGUIDEURL }}projects/assets" target="_blank">Hilfe</a>
 
                 </div>
             </li>
@@ -65,12 +65,12 @@
     <div class="card-body p-0">
         <div class="tab-content" id="asset-list-tabs-tabContent">
             <div class="tab-pane fade show active p-3" id="asset-list-tabs-home" role="tabpanel" aria-labelledby="asset-list-tabs-home-tab">
-                <p style="font-style: italic;">To view assets assigned to this project, select a business above</p>
-                <p>{{ (FINANCIALS.assetsAssigned|length + FINANCIALS.assetsAssignedSUB|length) }} Asset{{ (FINANCIALS.assetsAssigned|length + FINANCIALS.assetsAssignedSUB|length) != 1 ? 's' }} assigned to {{ project.projects_name }} ({{FINANCIALS.mass|mass }})</p>
+                <p style="font-style: italic;">Wähle oben ein Unternehmen, um das zugeordnete Material anzuzeigen.</p>
+                <p>{{ (FINANCIALS.assetsAssigned|length + FINANCIALS.assetsAssignedSUB|length) }} Material{{ (FINANCIALS.assetsAssigned|length + FINANCIALS.assetsAssignedSUB|length) != 1 ? 's' }} zugeordnet zu {{ project.projects_name }} ({{FINANCIALS.mass|mass }})</p>
                 {% if project.projectsTypes_config_finance == 1 %}
-                    <p>Project duration set as {{ FINANCIALS['priceMaths']["weeks"] }} week{{ FINANCIALS['priceMaths']["weeks"] != 1 ? 's' : '' }} and {{ FINANCIALS['priceMaths']["days"] }} day{{ FINANCIALS['priceMaths']["days"] != 1 ? 's' : ''}} for asset pricing purposes.
+                    <p>Für die Materialabrechnung gilt eine Projektdauer von {{ FINANCIALS['priceMaths']["weeks"] }} Woche{{ FINANCIALS['priceMaths']["weeks"] != 1 ? 'en' : '' }} und {{ FINANCIALS['priceMaths']["days"] }} Kennung{{ FINANCIALS['priceMaths']["days"] != 1 ? 's' : ''}} für die Preisberechnung.
                     {% if "PROJECTS:EDIT:DATES"|instancePermissions %}
-                    <a href="{{ CONFIG.ROOTURL }}/project/?id={{ project.projects_id }}">Change project duration</a>.
+                    <a href="{{ CONFIG.ROOTURL }}/project/?id={{ project.projects_id }}">Projektdauer ändern</a>.
                     {% endif %}
                     </p>
                 {% endif %}
@@ -181,8 +181,8 @@
             var selected = getSelected();
             if (selected.length > 0) {
                 bootbox.prompt({
-                    title: "Set Comment",
-                    message: "This will override any existing comments set in this project for the assets selected",
+                    title: "Kommentar festlegen",
+                    message: "Der Kommentar ersetzt die bisherigen Projektkommentare zum ausgewählten Material.",
                     inputType: 'text',
                     callback: function (result) {
                         if (result) {
@@ -203,8 +203,8 @@
             var selected = getSelected();
             if (selected.length > 0) {
                 bootbox.prompt({
-                    title: "Set Custom Price",
-                    message: "This will override the automatic calculation of the hire cost normally based on the length of the project and instead fix it to value set here<br/>Setting a custom price of 0 will remove any custom prices set<br/><br/>This will override any existing custom prices set in this project for the assets selected",
+                    title: "Eigenen Preis festlegen",
+                    message: "Der eingegebene Preis ersetzt die automatische Berechnung der Mietkosten anhand der Projektdauer.<br/>Gib 0 ein, um den individuellen Preis zurückzusetzen.<br/><br/>Vorhandene individuelle Preise für das ausgewählte Material werden in diesem Projekt ersetzt.",
                     inputType: 'number',
                     min: 0,
                     step: 0.01,
@@ -227,8 +227,8 @@
             var selected = getSelected();
             if (selected.length > 0) {
                 bootbox.prompt({
-                    title: "Set Discount",
-                    message: "Discounts the selected assets by a percentage.<br /><br />E.g. Inputting 20 would multiply the price by 0.8, inputting 100 would set the price to 0, or inputting 0 would be full price.<br />This will override any existing discounts set in this project for the assets selected.",
+                    title: "Rabatt festlegen",
+                    message: "Gewährt einen prozentualen Rabatt auf das ausgewählte Material.<br /><br />Beispiel: 20 bedeutet 20 % Rabatt, 100 macht die Position kostenlos und 0 lässt den Preis unverändert.<br />Vorhandene Rabatte für das ausgewählte Material werden in diesem Projekt ersetzt.",
                     inputType: 'number',
                     min: 0,
                     max: 100,
@@ -252,14 +252,14 @@
             var selected = getSelected();
             if (selected.length > 0) {
                 bootbox.confirm({
-                    message: "Are you sure you wish to remove these assets from the project? This will have billing implications",
+                    message: "Das ausgewählte Material aus dem Projekt entfernen? Das wirkt sich auf die Abrechnung aus.",
                     buttons: {
                         cancel: {
-                            label: 'No',
+                            label: 'Nein',
                             className: 'btn-success'
                         },
                         confirm: {
-                            label: 'Yes',
+                            label: 'Ja',
                             className: 'btn-danger'
                         }
                     },
@@ -280,12 +280,12 @@
             if (selected.length < 1) {
                 Toast.fire({
                     type: 'error',
-                    title: 'Please select an asset.'
+                    title: 'Wähle Material aus.'
                 });
             } else if (selected.length > 1) {
                 Toast.fire({
                     type: 'error',
-                    title: 'Please select just one asset.'
+                    title: 'Wähle genau einen Materialposten aus.'
                 });
             } else {
                 //we have some assets, lets swap them
@@ -303,8 +303,8 @@
                             })
                         )
                         bootbox.prompt({
-                            title: "Swap Asset",
-                            message: "Replace asset with: ",
+                            title: "Material austauschen",
+                            message: "Material ersetzen durch: ",
                             inputType: 'select',
                             inputOptions: alternatives,
                             callback: function (result) {
@@ -325,7 +325,7 @@
                         //no assets exist, so let user know
                         Toast.fire({
                             type: 'info',
-                            title: ' No assets available to swap!'
+                            title: ' Kein Ersatzmaterial verfügbar.'
                         });
                     }
                 });

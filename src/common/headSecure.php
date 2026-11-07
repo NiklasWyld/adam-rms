@@ -56,18 +56,18 @@ if ($AUTH->data['users_emailVerified'] == 1) {
 } else $PAGEDATA['instancesAvailableToJoinAsTrustedDomains'] = [];
 
 if ($CONFIG['LINKS_TERMSOFSERVICEURL'] and ($PAGEDATA['USERDATA']['users_termsAccepted'] == 0 or $PAGEDATA['USERDATA']['users_termsAccepted'] == null)) {
-    $PAGEDATA['pageConfig'] = ["TITLE" => "Accept Terms", "BREADCRUMB" => false, "NOMENU" => true];
+    $PAGEDATA['pageConfig'] = ["TITLE" => "Nutzungsbedingungen akzeptieren", "BREADCRUMB" => false, "NOMENU" => true];
     die($TWIG->render('index_acceptTerms.twig', $PAGEDATA));
 } elseif ($PAGEDATA['USERDATA']['users_emailVerified'] == 0 and $CONFIGCLASS->get('EMAILS_ENABLED') === "Enabled" and !($AUTH->serverPermissionCheck("CONFIG:SET") and str_ends_with(getcwd(), "server"))) {
-    $PAGEDATA['pageConfig'] = ["TITLE" => "Verify Email Address", "BREADCRUMB" => false, "NOMENU" => true];
+    $PAGEDATA['pageConfig'] = ["TITLE" => "E-Mail-Adresse bestätigen", "BREADCRUMB" => false, "NOMENU" => true];
     $PAGEDATA['fromEmail'] = $CONFIGCLASS->get('EMAILS_FROMEMAIL');
     die($TWIG->render('index_emailVerified.twig', $PAGEDATA));
 } elseif ($PAGEDATA['USERDATA']['users_changepass'] == 1) {
-    $PAGEDATA['pageConfig'] = ["TITLE" => "Change Password", "BREADCRUMB" => false, "NOMENU" => true];
+    $PAGEDATA['pageConfig'] = ["TITLE" => "Passwort ändern", "BREADCRUMB" => false, "NOMENU" => true];
     die($TWIG->render('index_forceChangePassword.twig', $PAGEDATA));
 } elseif ($AUTH->data['instance']) {
     if ($AUTH->data['instance']['instances_suspended'] == 1 and !str_ends_with(getcwd(), "server")) {
-        $PAGEDATA['pageConfig'] = ["TITLE" => "Business Suspended", "BREADCRUMB" => false, "NOMENU" => true];
+        $PAGEDATA['pageConfig'] = ["TITLE" => "Unternehmen gesperrt", "BREADCRUMB" => false, "NOMENU" => true];
         die($TWIG->render('index_instanceBillingIssue.twig', $PAGEDATA));
     }
     //get all projects
@@ -126,10 +126,10 @@ if ($CONFIG['LINKS_TERMSOFSERVICEURL'] and ($PAGEDATA['USERDATA']['users_termsAc
         header("Location: " . $CONFIG['ROOTURL'] . "/server/instances.php");
         exit;
     } else {
-        $PAGEDATA['pageConfig'] = ["TITLE" => "No Businesses", "BREADCRUMB" => false, "NOMENU" => true];
+        $PAGEDATA['pageConfig'] = ["TITLE" => "Kein Unternehmen", "BREADCRUMB" => false, "NOMENU" => true];
         die($TWIG->render('index_noInstances.twig', $PAGEDATA));
     }
 } else {
-    $PAGEDATA['pageConfig'] = ["TITLE" => "No Businesses", "BREADCRUMB" => false, "NOMENU" => true];
+    $PAGEDATA['pageConfig'] = ["TITLE" => "Kein Unternehmen", "BREADCRUMB" => false, "NOMENU" => true];
     die($TWIG->render('index_noInstances.twig', $PAGEDATA));
 }
