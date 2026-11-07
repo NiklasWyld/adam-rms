@@ -11,10 +11,6 @@ try {
     http_response_code(404);
     die($TWIG->render('404.twig', $PAGEDATA));
 }
-$PAGEDATA['INSTANCELOGO'] = false;
-if ($AUTH->data['instance']['instances_logo']) {
-    try { $PAGEDATA['INSTANCELOGO'] = $bCMS->s3DataUri($AUTH->data['instance']['instances_logo']); }
-    catch (Throwable $error) { error_log('Channel planning logo unavailable.'); }
-}
+$PAGEDATA['INSTANCELOGO'] = PdfFormat::businessLogo($DBLIB, $bCMS, $AUTH->data['instance']);
 header('Cache-Control: no-store');
 echo $TWIG->render('project/channelPlanningExport.twig', $PAGEDATA);

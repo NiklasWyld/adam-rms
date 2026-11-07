@@ -731,103 +731,143 @@
                         <input type="hidden" name="pdf" value="true">
                         <input type="hidden" name="type" value="">
                         <input type="hidden" name="id" value="{{ project.projects_id }}">
+                        <fieldset id="invoice-pdf-fields" hidden disabled class="mb-3">
+                            <legend class="h5">Rechnungsangaben</legend>
+                            <p>Trage die bereits vergebene Rechnungsnummer und den tatsächlichen Leistungszeitraum ein. Die PDF-Datei ist eine sonstige Rechnung im PDF-Format.</p>
+                            <div class="form-group">
+                                <label for="invoice-number">Rechnungsnummer</label>
+                                <input id="invoice-number" name="invoiceNumber" class="form-control" maxlength="64">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-sm-6">
+                                    <label for="invoice-date">Rechnungsdatum</label>
+                                    <input type="date" id="invoice-date" name="invoiceDate" class="form-control" value="{{ 'now'|date('Y-m-d') }}">
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="invoice-due">Fällig am (optional)</label>
+                                    <input type="date" id="invoice-due" name="invoiceDue" class="form-control">
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="invoice-service-start">Leistungsdatum / Beginn</label>
+                                    <input type="date" id="invoice-service-start" name="serviceStart" class="form-control">
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="invoice-service-end">Ende (optional)</label>
+                                    <input type="date" id="invoice-service-end" name="serviceEnd" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="invoice-tax-case">Steuerfall für alle Positionen</label>
+                                <select id="invoice-tax-case" name="invoiceTaxCase" class="form-control">
+                                    <option value="">Bitte auswählen</option>
+                                    <option value="standard">Inland, 19 % Umsatzsteuer</option>
+                                    <option value="reduced">Inland, 7 % Umsatzsteuer</option>
+                                    <option value="smallBusiness">Steuerbefreiung nach § 19 UStG</option>
+                                    <option value="other">Anderer Steuerfall (Entwurf)</option>
+                                </select>
+                            </div>
+                            <div class="form-check">
+                                <input id="invoice-confirmed" type="checkbox" name="invoiceConfirmed" value="1" class="form-check-input">
+                                <label for="invoice-confirmed" class="form-check-label">Ich habe beide vollständigen Anschriften und den Steuerfall geprüft. Alle erfassten Preise sind Nettobeträge. Es handelt sich um eine inländische Rechnung mit einheitlicher Besteuerung ohne weitere gesetzliche Pflichtvermerke.</label>
+                            </div>
+                        </fieldset>
                         <div class="form-group">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="instancelogo" {% if USERDATA.instance.instances_logo %}checked{% else %}disabled{% endif %}>
-                                <label class="form-check-label">Business Logo</label>
+                                <label class="form-check-label">Firmenlogo</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="addresses" checked>
-                                <label class="form-check-label">Addresses</label>
+                                <label class="form-check-label">Anschriften</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="pmdetails" checked>
-                                <label class="form-check-label">Project Manager</label>
+                                <label class="form-check-label">Projektleitung</label>
                             </div>
                             {% if project.projectsTypes_config_assets == 1 %}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="totalmass" checked>
-                                    <label class="form-check-label">Total Mass</label>
+                                    <label class="form-check-label">Gesamtgewicht</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="totalvalue" checked>
-                                    <label class="form-check-label">Total Value</label>
+                                    <label class="form-check-label">Gesamtwert</label>
                                 </div>
                             {% endif %}
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="venue" checked>
-                                <label class="form-check-label">Venue</label>
+                                <label class="form-check-label">Veranstaltungsort</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="invoiceNotes" checked>
-                                <label class="form-check-label">Invoice Notes</label>
+                                <label class="form-check-label">Abrechnungshinweise</label>
                             </div>
                             {% if project.projectsTypes_config_assets == 1 %}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="assets" checked>
-                                    <label class="form-check-label">Equipment List</label>
+                                    <label class="form-check-label">Materialliste</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="showAll">
-                                    <label class="form-check-label">Individual Items in Equipment List</label>
+                                    <label class="form-check-label">Einzelgeräte in der Materialliste</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="flagsBlocks" checked>
-                                    <label class="form-check-label">Flags &amp; Blocks in Equipment List</label>
+                                    <label class="form-check-label">Markierungen und Sperren</label>
                                 </div>
 
 
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="checkboxes">
-                                    <label class="form-check-label">Equipment Checkboxes</label>
+                                    <label class="form-check-label">Abhakfelder</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="comments">
-                                    <label class="form-check-label">Equipment Comments</label>
+                                    <label class="form-check-label">Materialbemerkungen</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="masses" checked>
-                                    <label class="form-check-label">Equipment Masses</label>
+                                    <label class="form-check-label">Gewichte</label>
                                 </div>
                             {% endif %}
                             {% if "PROJECTS:PROJECT_PAYMENTS:VIEW"|instancePermissions and project.projectsTypes_config_finance == 1  %}
                                 <hr/>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="finance" checked>
-                                    <label class="form-check-label">Financial Totals</label>
+                                    <label class="form-check-label">Beträge</label>
                                 </div>
                                 {% if project.projectsTypes_config_assets == 1 %}
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="prices" checked>
-                                        <label class="form-check-label">Prices</label>
+                                        <label class="form-check-label">Preise</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="discounts" checked>
-                                        <label class="form-check-label">Equipment Discounts</label>
+                                        <label class="form-check-label">Materialpreise nach Rabatt</label>
                                     </div>
                                 {% endif %}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="subHires" checked>
-                                    <label class="form-check-label">Additional Hires</label>
+                                    <label class="form-check-label">Zumietungen</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="sales" checked>
-                                    <label class="form-check-label">Sales</label>
+                                    <label class="form-check-label">Verkäufe</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="staff" checked>
-                                    <label class="form-check-label">Staff</label>
+                                    <label class="form-check-label">Personal</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="paymentTerms" checked>
-                                    <label class="form-check-label">Invoice/Quotation Footer</label>
+                                    <label class="form-check-label">Zahlungs- und Angebotsbedingungen</label>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="submit" name="draft" value="true" class="btn btn-default">Draft Printout</button>
-                        <button type="submit" name="upload" value="true" class="btn btn-success">Generate PDF</button>
+                        <button type="submit" name="draft" value="true" class="btn btn-default">Entwurf herunterladen</button>
+                        <button type="submit" name="upload" value="true" class="btn btn-success">PDF erstellen</button>
                     </div>
                 </div>
             </form>
@@ -837,7 +877,7 @@
         $(document).ready(function () {
             $('#pdfGenerateModal').on('show.bs.modal', function (e) {
                  if ($(e.relatedTarget).data('delivery-note')){
-                    $("#pdfGenerateModal .modal-title").text("Create Delivery Note");
+                    $("#pdfGenerateModal .modal-title").text("Lieferschein erstellen");
                     $('#pdfGenerateModal input[name="type"]').val("deliveryNote");
                     $('#pdfGenerateModal input[name="finance"]').prop('checked', false).parent().hide();
                     $('#pdfGenerateModal input[name="prices"]').prop('checked', false).parent().hide();
@@ -849,13 +889,17 @@
                     $('#pdfGenerateModal input[name="discounts"]').prop('checked', true).parent().show();
                     $('#pdfGenerateModal input[name="flagsBlocks"]').prop('checked', false).parent().show();
                     if ($(e.relatedTarget).data('quote')) {
-                        $("#pdfGenerateModal .modal-title").text("Create Quote");
+                        $("#pdfGenerateModal .modal-title").text("Angebot erstellen");
                         $('#pdfGenerateModal input[name="type"]').val("quote");
                     } else {
-                        $("#pdfGenerateModal .modal-title").text("Create Invoice");
+                        $("#pdfGenerateModal .modal-title").text("Rechnung erstellen");
                         $('#pdfGenerateModal input[name="type"]').val("invoice");
                     }
                 }
+                const invoice = this.querySelector('input[name="type"]').value === 'invoice';
+                const fields = document.getElementById('invoice-pdf-fields');
+                fields.hidden = !invoice;
+                fields.disabled = !invoice;
             });
             $("#assetAssignmentCheckboxAll").click(function () {
                 $(".assetAssignmentCheckbox").prop('checked', $(this).prop('checked'));

@@ -201,6 +201,13 @@ $TWIG->addFilter(new \Twig\TwigFilter('money', function ($variable,$currency = f
     $moneyFormatter = new IntlMoneyFormatter($numberFormatter, $currencies);
     return $moneyFormatter->format($variable);
 }));
+require_once __DIR__ . '/PdfFormat.php';
+$TWIG->addFilter(new \Twig\TwigFilter('pdfMoney', [PdfFormat::class, 'money']));
+$TWIG->addFilter(new \Twig\TwigFilter('pdfPlainHtml', static function (?string $value): string {
+    $lines = preg_replace('~</(?:p|li|div)>|<br\s*/?>~i', "\n", $value ?? '');
+    return trim(html_entity_decode(strip_tags($lines), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+}));
+$TWIG->addFilter(new \Twig\TwigFilter('pdfMass', static fn($value): string => number_format((float)$value, 2, ',', '.') . ' kg'));
 $TWIG->addFilter(new \Twig\TwigFilter('moneyDecimal', function ($variable,$currency = false) {
     global $AUTH;
     if ($variable === null) return null;

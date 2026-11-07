@@ -11,15 +11,11 @@ try {
     $PAGEDATA['taskPlan']['tasks'] = TaskPlanning::filter($PAGEDATA['taskPlan']['tasks'], $filters);
     $PAGEDATA['taskPlan']['group'] = $filters['group'] ?? 'category';
     $PAGEDATA['taskPlan']['includeChecklists'] = ($_GET['checklists'] ?? '1') === '1';
-    $PAGEDATA['taskPlan']['title'] = $project ? $PAGEDATA['taskPlan']['project']['projects_name'] : 'My Tasks';
+    $PAGEDATA['taskPlan']['title'] = $project ? $PAGEDATA['taskPlan']['project']['projects_name'] : 'Meine Aufgaben';
     $PAGEDATA['taskPlan']['filtered'] = !empty(array_filter(array_intersect_key($filters, array_flip(['search', 'from', 'to', 'categories', 'assignees', 'priorities', 'statuses']))));
 } catch (InvalidArgumentException | OutOfBoundsException $e) {
     http_response_code(404); die($TWIG->render('404.twig', $PAGEDATA));
 }
-$PAGEDATA['INSTANCELOGO'] = false;
-if ($AUTH->data['instance']['instances_logo']) {
-    try { $PAGEDATA['INSTANCELOGO'] = $bCMS->s3DataUri($AUTH->data['instance']['instances_logo']); }
-    catch (Throwable $e) { error_log('Task planning logo unavailable.'); }
-}
+$PAGEDATA['INSTANCELOGO'] = PdfFormat::businessLogo($DBLIB, $bCMS, $AUTH->data['instance']);
 header('Cache-Control: no-store');
 echo $TWIG->render('taskPlanning/export.twig', $PAGEDATA);

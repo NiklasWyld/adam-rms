@@ -1,40 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<style>
-			body {
-				font-size: 16px;
-				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-			}
-			table {
-				width: 100%;
-			}
-			table td {
-				padding: 5px;
-				vertical-align: top;
-			}
-		</style>
-		<title>{{ note['projectsNotes_title'] }}
-			-
-			{{ project['projects_name'] }}</title>
-		<script>
-			window.onload = function () {
-window.print();
-}
-		</script>
-	</head>
-	<body>
-		<div align="center" style="width: 100%; text-align: center;">
-			{% if USERDATA.instance.instances_logo %}
-				<img src="{{ USERDATA.instance.instances_logo|s3URL("medium") }}" style="width: 200px; padding:20px;"/>
-			{% endif %}
-			<h1>{{USERDATA['instance']['instances_name']}}</h1>
-			<h2>{{ note['projectsNotes_title'] }}</h2>
-			<h3>{{ project['projects_name'] }}</h3>
-			<hr/>
-		</div>
-		{{ note.projectsNotes_text|raw }}
-		<hr/>
-		<p>Exported {{ "now"|date("j M Y h:i:sa") }} from {{ CONFIG.PROJECT_NAME }}</p>
-	</body>
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Projektnotiz - {{ note.projectsNotes_title }} - {{ project.projects_name }}</title>
+    <link rel="stylesheet" href="{{ CONFIG.ROOTURL }}/static-assets/css/pdfPrint.css">
+    <script>window.addEventListener('load', () => window.print());</script>
+</head>
+<body class="pdf-print-report">
+    <header class="pdf-print-header">
+        {% if USERDATA.instance.instances_logo %}
+            <img src="{{ USERDATA.instance.instances_logo|s3URL('medium') }}" alt="Firmenlogo">
+        {% endif %}
+        <p>{{ USERDATA.instance.instances_name }}</p>
+        <h1>{{ note.projectsNotes_title }}</h1>
+        <p>Projektnotiz · {{ project.projects_name }} · Projekt-Nr. {{ project.projects_id }}</p>
+    </header>
+    <main class="pdf-print-content">{{ note.projectsNotes_text|raw }}</main>
+    <footer class="pdf-print-footer">
+        <div>Exportiert am {{ 'now'|date('d.m.Y, H:i', 'Europe/Berlin') }} · {{ CONFIG.PROJECT_NAME }}</div>
+        <div>{{ [USERDATA.instance.instances_phone, USERDATA.instance.instances_email, USERDATA.instance.instances_website]|filter(value => value)|join(' · ') }}</div>
+    </footer>
+</body>
 </html>

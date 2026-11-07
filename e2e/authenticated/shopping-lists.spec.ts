@@ -289,7 +289,7 @@ test("mobile forms work, malicious text remains inert in page and PDF, filters l
 for (const count of [0, 2, 65]) {
   test("actual A4 PDF export with " + count + " items, Unicode, long text and repeated headers", async ({ page, asA }, testInfo) => {
     test.setTimeout(120_000);
-    const id = await create(asA, "Beschaffung Bühne ÄÖÜ ß " + count, { description: "Schülerveranstaltung: Licht & Ton", budget: "100000", comment: "Allgemeiner Kommentar: Rücksprache mit der Schulleitung." });
+    const id = await create(asA, "Beschaffung Bühne ÄÖÜ ß " + count, { description: "Schülerveranstaltung: Licht & Ton", budget: "100000", comment: "Allgemeine Anmerkung: Rücksprache mit der Schulleitung." });
     for (let n = 0; n < count; n++) {
       await add(asA, id, { name: "Artikel " + (n + 1) + " Bühnenzubehör", quantity: "2.5", unitPrice: "1.01",
         reason: n === 0 ? ("Längere Begründung für zuverlässige Übertragung zwischen Bühne und Mischpult. ".repeat(45)) : item.reason,
@@ -310,12 +310,12 @@ for (const count of [0, 2, 65]) {
     if (fs.existsSync("/usr/bin/pdftotext")) {
       const text = execFileSync("pdftotext", ["-layout", file, "-"], { encoding: "utf8" }).replace(/\u200b/g, "");
       expect(text).toContain("Beschaffung Bühne ÄÖÜ ß");
-      expect(text).toContain("Allgemeiner Kommentar");
-      expect(text).toContain("Estimated total");
+      expect(text).toContain("Allgemeine Anmerkung");
+      expect(text).toContain("Voraussichtliche Gesamtkosten");
       if (count) expect(text).toContain("Ermöglicht");
       if (count === 65) {
         expect(text).toContain("Artikel 65");
-        expect(text.match(/Item \/ manufacturer \/ model/g)!.length).toBeGreaterThan(2);
+        expect(text.match(/Artikel \/ Hersteller \/ Modell/g)!.length).toBeGreaterThan(2);
       }
       const info = execFileSync("pdfinfo", [file], { encoding: "utf8" });
       expect(info).toContain("595.28 x 841.89 pts (A4)");

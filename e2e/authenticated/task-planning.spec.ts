@@ -231,10 +231,10 @@ test("PDF downloads A4, filtered/all, empty and multiple pages with checklists a
     const download=page.waitForEvent("download");await page.goto(exportUrl(filters));await (await download).saveAs("/tmp/task-plan-"+type+".pdf");
     const info=execFileSync("pdfinfo",["/tmp/task-plan-"+type+".pdf"],{encoding:"utf8"});expect(info).toMatch(/595.28 x 841.89 pts \(A4\)/);
     const text=execFileSync("pdftotext",["-layout","/tmp/task-plan-"+type+".pdf","-"],{encoding:"utf8"});
-    if(type!=="empty"){expect(text).toContain(tag+" Ton");expect(text).toContain("Mikrofone verkabeln");expect(text).toContain("Urgent");}
+    if(type!=="empty"){expect(text).toContain(tag+" Ton");expect(text).toContain("Mikrofone verkabeln");expect(text).toContain("Dringend");}
     if(type==="filtered")expect(text).not.toContain(tag+" Licht");
     if(type==="all")expect(text).toContain(tag+" Licht");
-    if(type==="empty")expect(text).toContain("No tasks match");
+    if(type==="empty")expect(text).toContain("Keine Aufgaben in dieser Auswahl");
     await expect(page.locator("#pdf-error")).toBeEmpty();
   }
   await add(asA,p,Array.from({length:18},(_,i)=>({title:tag+" Long PDF "+i,category:"Long",description:"Ausführlicher Aufgabenplan mit Platz für Details. ".repeat(12),day:"2027-07-12"})));

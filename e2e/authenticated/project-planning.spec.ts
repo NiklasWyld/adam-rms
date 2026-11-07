@@ -243,9 +243,9 @@ for (const count of [0, 32, 70]) {
     expect(fs.readFileSync(file).subarray(0, 5).toString()).toBe("%PDF-");
     await expect(page.locator("#channel-pdf-error")).toBeEmpty();
     const text = execFileSync("pdftotext", ["-layout", file, "-"], { encoding: "utf8" }).replace(/\u200b/g, "");
-    expect(text).toContain("Channel Planning");
-    expect(text).toContain("Inputs (" + count + ")");
-    expect(text).toContain("Outputs (10)");
+    expect(text).toContain("Kanalplan");
+    expect(text).toContain("Eingänge (" + count + ")");
+    expect(text).toContain("Ausgänge (10)");
     expect(text).toContain("Monitor 10");
     expect(text).toContain("Letzter Ausgang");
     if (count) {
@@ -255,7 +255,7 @@ for (const count of [0, 32, 70]) {
       expect((text.match(/X/g) || []).length).toBe(3500);
       expect((text.match(/Längere/g) || []).length).toBe(90);
     }
-    if (count === 70) expect(text.match(/Connection \/ source/g)!.length).toBeGreaterThan(2);
+    if (count === 70) expect(text.match(/Anschluss \/ Quelle/g)!.length).toBeGreaterThan(2);
     const info = execFileSync("pdfinfo", [file], { encoding: "utf8" });
     expect(info).toContain("841.89 x 595.28 pts (A4)");
     expect(errors).toEqual([]);
@@ -311,8 +311,8 @@ for (const count of [0, 32, 70]) {
     expect(info).toMatch(/Pages:\s+1\b/);
     expect(info).toContain("595.28 x 841.89 pts (A4)");
     const text = execFileSync("pdftotext", ["-layout", file, "-"], { encoding: "utf8" }).replace(/\u200b/g, "");
-    expect(text).toContain("Inputs (" + count + ")");
-    expect(text).toContain("Outputs (10)");
+    expect(text).toContain("Eingänge (" + count + ")");
+    expect(text).toContain("Ausgänge (10)");
     expect(text).toContain("Main L");
     expect(text).toContain("Letzter Ausgang");
     if (count) {
@@ -331,8 +331,8 @@ for (const count of [0, 32, 70]) {
     await testInfo.attach("One-sheet PDF", { path: file, contentType: "application/pdf" });
     if (count === 32) {
       // Switching layouts must replace the ready download, preserving the detailed export.
-      await page.getByLabel("PDF layout", { exact: true }).selectOption("detail");
-      await expect(page.locator("#channel-pdf-status")).toHaveText("Your detailed PDF is ready.");
+      await page.getByLabel("PDF-Layout", { exact: true }).selectOption("detail");
+      await expect(page.locator("#channel-pdf-status")).toHaveText("Die Detailansicht ist bereit.");
       const detail = page.waitForEvent("download");
       await page.locator("#channel-pdf-download").click();
       const detailFile = testInfo.outputPath("channel-detail-after-single.pdf");
@@ -349,7 +349,7 @@ for (const count of [0, 32, 70]) {
       const popup = await popupPromise;
       await popup.waitForURL(/layout=single/);
       await expect(popup.locator("#channel-pdf-layout")).toHaveValue("single");
-      await expect(popup.locator("#channel-pdf-status")).toHaveText("Your one-page A4 portrait PDF is ready.");
+      await expect(popup.locator("#channel-pdf-status")).toHaveText("Die Einblattansicht ist bereit.");
       await popup.close();
     }
   });

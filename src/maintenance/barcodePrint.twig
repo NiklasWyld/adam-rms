@@ -1,4 +1,11 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Materialetiketten - {{ USERDATA.instance.instances_name }}</title>
+<link rel="stylesheet" href="{{ CONFIG.ROOTURL }}/static-assets/css/pdfPrint.css">
 <style>
+    @page { size: A4; margin: 0; }
     body {
         font-size: {{ GET.numStickers == "8cable" ? '9' : '18' }}px;
         font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
@@ -25,21 +32,19 @@
     }
 
     .border {
+        break-inside: avoid;
         border: 1px solid #000;
     }
 </style>
 
-<script>
-    window.onload = function () {
-        //window.print();
-    }
-</script>
+</head>
 <body>
     <div class="container">
-        {% for i in range(0,(assets|length - 1)) %}
+        {% for asset in assets %}
             <div class="item border">
-                {% include 'maintenance/individualBarcode.twig' with {asset: assets[i],GET:GET} %}
+                {% include 'maintenance/individualBarcode.twig' with {asset: asset,GET:GET} %}
             </div>
         {% endfor %}
     </div>
 </body>
+</html>

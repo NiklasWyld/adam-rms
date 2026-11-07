@@ -1,0 +1,19 @@
+@page { size: A4; margin: 18mm 20mm; }
+body { color: #20313f; font: 10pt/1.45 Arial, sans-serif; }
+.pdf-print-header { border-bottom: 1pt solid #dce4e9; padding-bottom: 4mm; margin-bottom: 6mm; }
+.pdf-print-header img { display: block; max-width: 45mm; max-height: 18mm; margin-bottom: 3mm; }
+.pdf-print-header h1 { font-size: 22pt; line-height: 1.15; margin: 2mm 0; }
+.pdf-print-header p { margin: 1mm 0; }
+.pdf-print-content { overflow-wrap: anywhere; }
+.pdf-print-content img { max-width: 100%; height: auto; }
+.pdf-print-content table { width: 100%; border-collapse: collapse; }
+.pdf-print-content th, .pdf-print-content td { padding: 1.5mm; vertical-align: top; border-bottom: .5pt solid #dce4e9; }
+.pdf-print-content thead { display: table-header-group; }
+.pdf-print-content h2, .pdf-print-content h3 { break-after: avoid; }
+.pdf-print-footer { border-top: .5pt solid #dce4e9; margin-top: 8mm; padding-top: 3mm; color: #526171; font-size: 8pt; }
+.pdf-print-report { page: report; }
+@page report {
+    size: A4;
+    margin: 18mm 20mm;
+    @bottom-right { content: "Seite " counter(page) " von " counter(pages); color: #526171; font: 8pt Arial, sans-serif; }
+}

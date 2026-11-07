@@ -1,0 +1,9 @@
+{% set business = USERDATA.instance %}
+<script type="application/json" id="pdf-business">{{ {
+    name: business.instances_name,
+    address: business.instances_address,
+    email: business.instances_email,
+    phone: business.instances_phone,
+    website: business.instances_website,
+    logo: INSTANCELOGO|default(null)
+}|json_encode(15)|raw }}</script>

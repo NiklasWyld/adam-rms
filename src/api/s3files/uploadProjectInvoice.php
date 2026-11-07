@@ -1,80 +1,96 @@
 <?php
 require_once __DIR__ . '/../apiHeadSecure.php';
-if (!$AUTH->instancePermissionCheck("PROJECTS:VIEW") or !isset($_POST['id']) or $CONFIG['FILES_ENABLED'] !== "Enabled") finish(false);
+require_once __DIR__ . '/../../common/libs/ProjectInvoicePdf.php';
 
-$DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']); //Only this business's projects
-$DBLIB->where("projects_deleted", 0);
-$DBLIB->where("projects_id", $_POST['id']);
-if (!$DBLIB->getOne("projects", ["projects_id"])) finish(false);
-if (isset($_FILES['file'])) {
-    $temp_file_location = $_FILES['file']['tmp_name'];
-    $s3 = new Aws\S3\S3Client([
-        'version' => 'latest',
-        'region' => $CONFIGCLASS->get('AWS_S3_REGION'),
-        'endpoint' => $CONFIGCLASS->get('AWS_S3_SERVER_ENDPOINT'),
-        'use_path_style_endpoint' => $CONFIGCLASS->get('AWS_S3_ENDPOINT_PATHSTYLE') === 'Enabled',
-        'credentials' => array(
-            'key' => $CONFIGCLASS->get('AWS_S3_KEY'),
-            'secret' => $CONFIGCLASS->get('AWS_S3_SECRET'),
-        )
-    ]);
-    $isQuote = $_POST['quote'] == "true";
-    $filenamePrefix = "invoice";
-    $s3Path = "uploads/PROJECT_INVOICES";
-    $fileType = 20;
-    $originalName = "invoice.pdf";
+$business = (int)$AUTH->data['instance']['instances_id'];
+$id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$version = filter_var($_POST['fileNumber'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$type = $_POST['type'] ?? null;
+if (!$AUTH->instancePermissionCheck('PROJECTS:VIEW') || !$id || !$version || !is_string($type) ||
+    !isset(ProjectInvoicePdf::TYPES[$type]) || $CONFIG['FILES_ENABLED'] !== 'Enabled' ||
+    $AUTH->data['instance']['instances_storageEnabled'] != 1) finish(false);
 
-    switch ($_POST['type']) {
-        case 'quote':
-            $filenamePrefix = "quote";
-            $s3Path = "uploads/PROJECT_QUOTES";
-            $fileType = 21;
-            $originalName = "quote.pdf";
-            break;
-        case 'deliveryNote':
-            $filenamePrefix = "delivery-note";
-            $s3Path = "uploads/PROJECT_DELIVERY_NOTES";
-            $fileType = 22;
-            $originalName = "delivery-note.pdf";
-            break;
-        default:
-            break;
+$DBLIB->where('instances_id', $business);
+$DBLIB->where('projects_deleted', 0);
+$DBLIB->where('projects_id', $id);
+if (!$DBLIB->has('projects')) finish(false);
+
+$number = null;
+if ($type === 'invoice') {
+    $token = $_POST['invoiceToken'] ?? '';
+    $grant = is_string($token) ? ($_SESSION['projectInvoicePdf'][$token] ?? null) : null;
+    if (!$AUTH->instancePermissionCheck('PROJECTS:PROJECT_PAYMENTS:VIEW') || !$grant ||
+        $grant['expires'] < time() || $grant['business'] !== $business || $grant['project'] !== $id ||
+        $grant['user'] !== (int)$AUTH->data['users_userid']) {
+        finish(false, ['code' => 'INVOICE-VALIDATION', 'message' => 'Die Rechnung konnte nicht geprüft werden. Bitte erzeuge sie erneut.']);
     }
-
-    $filename = sprintf("%s-", $filenamePrefix) . time() . "-" . (floor(rand())) . "." . "pdf";
-    $result = $s3->putObject([
-        'Bucket' => $CONFIGCLASS->get('AWS_S3_BUCKET'),
-        'Key'    => $s3Path . "/" . $filename,
-        'SourceFile' => $temp_file_location
-    ]);
-    $code = $result['@metadata']['statusCode'];
-    $uri = $result['@metadata']['effectiveUri'];
-    if ($code === 200) {
-        $fileData = [
-            "s3files_extension" => "pdf",
-            "s3files_path" => $s3Path,
-            "s3files_meta_size" => $_FILES['file']['size'],
-            "s3files_meta_type" => $fileType,
-            "s3files_meta_subType" => $_POST['id'],
-            "users_userid" => $AUTH->data['users_userid'],
-            "s3files_original_name" => $originalName,
-            "s3files_filename" => pathinfo($filename, PATHINFO_FILENAME),
-            "s3files_name" => "v" . $bCMS->sanitizeString($_POST['fileNumber']),
-            "s3files_meta_public" => 0,
-            "instances_id" => $AUTH->data['instance']['instances_id']
-        ];
-        $id = $DBLIB->insert("s3files", $fileData);
-        echo $DBLIB->getLastError();
-        if (!$id) finish(false, ["code" => null, "message" => "Error"]);
-        else finish(true, null, ["id" => $id, "resize" => false, "url" => $CONFIG['ROOTURL'] . '/api/file/?r=true&f=' . $id]);
-    } else finish(false, ["code" => null, "message" => "S3 Upload Error"]);
+    $number = $grant['number'];
 }
-finish(false, ["code" => null, "message" => "HTTP Upload Error"]);
+
+$file = $_FILES['file'] ?? null;
+if (!$file || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name']) ||
+    (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']) !== 'application/pdf') {
+    finish(false, ['code' => 'PDF-UPLOAD', 'message' => 'Die übermittelte Datei ist kein gültiges PDF.']);
+}
+
+$document = ProjectInvoicePdf::TYPES[$type];
+$filename = $document['file'] . '-' . bin2hex(random_bytes(16));
+$key = $document['path'] . '/' . $filename . '.pdf';
+$bucket = $CONFIGCLASS->get('AWS_S3_BUCKET');
+$s3 = new Aws\S3\S3Client([
+    'version' => 'latest',
+    'region' => $CONFIGCLASS->get('AWS_S3_REGION'),
+    'endpoint' => $CONFIGCLASS->get('AWS_S3_SERVER_ENDPOINT'),
+    'use_path_style_endpoint' => $CONFIGCLASS->get('AWS_S3_ENDPOINT_PATHSTYLE') === 'Enabled',
+    'credentials' => [
+        'key' => $CONFIGCLASS->get('AWS_S3_KEY'),
+        'secret' => $CONFIGCLASS->get('AWS_S3_SECRET'),
+    ],
+]);
+
+// Reserve the invoice number with the file row before uploading. A failed upload releases it.
+$DBLIB->startTransaction();
+$stored = false;
+try {
+    $fileId = $DBLIB->insert('s3files', [
+        's3files_extension' => 'pdf',
+        's3files_path' => $document['path'],
+        's3files_meta_size' => $file['size'],
+        's3files_meta_type' => $document['id'],
+        's3files_meta_subType' => $id,
+        'users_userid' => $AUTH->data['users_userid'],
+        's3files_original_name' => $document['file'] . '.pdf',
+        's3files_filename' => $filename,
+        's3files_name' => 'v' . $version,
+        's3files_meta_public' => 0,
+        'instances_id' => $business,
+        's3files_invoice_number' => $number,
+    ]);
+    if (!$fileId) {
+        $duplicate = $number !== null && (int)$DBLIB->getLastErrno() === 1062;
+        $DBLIB->rollback();
+        finish(false, ['code' => 'PDF-SAVE', 'message' => $duplicate ?
+            'Diese Rechnungsnummer wurde bereits verwendet.' : 'Der Dateieintrag konnte nicht angelegt werden.']);
+    }
+    $s3->putObject(['Bucket' => $bucket, 'Key' => $key, 'SourceFile' => $file['tmp_name'], 'ContentType' => 'application/pdf']);
+    $stored = true;
+    if (!$DBLIB->commit()) throw new RuntimeException('PDF file entry could not be committed.');
+} catch (Throwable $error) {
+    $DBLIB->rollback();
+    if ($stored) {
+        try { $s3->deleteObject(['Bucket' => $bucket, 'Key' => $key]); }
+        catch (Throwable $cleanupError) { error_log('Project PDF cleanup failed.'); }
+    }
+    error_log('Project PDF upload failed: ' . get_class($error));
+    finish(false, ['code' => 'PDF-SAVE', 'message' => 'Das PDF konnte nicht gespeichert werden.']);
+}
+if ($number !== null) unset($_SESSION['projectInvoicePdf'][$token]);
+finish(true, null, ['id' => $fileId, 'resize' => false, 'url' => $CONFIG['ROOTURL'] . '/api/file/?r=true&f=' . $fileId]);
 /** @OA\Post(
  *     path="/s3files/uploadProjectInvoice.php", 
  *     summary="Upload Project Invoice", 
  *     description="Upload a project invoice  
-Requires Instance Permission PROJECTS:VIEW
+Requires Instance Permission PROJECTS:VIEW. Invoices additionally require finance access and a valid export token.
 ", 
  *     operationId="uploadProjectInvoice", 
  *     tags={"s3files"}, 

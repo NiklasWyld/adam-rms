@@ -49,6 +49,21 @@
                             <label>Website</label>
                             <input type="url" class="form-control" value="{{ USERDATA.instance.instances_website }}" name="instances_website" placeholder="https://">
                         </div>
+                        <hr>
+                        <h4>Angaben für PDF-Rechnungen</h4>
+                        <p class="text-muted">Name und Anschrift oben werden als Absender übernommen. Bitte hinterlege den vollständigen Firmennamen und die vollständige Postanschrift.</p>
+                        <div class="form-group">
+                            <label for="pdf-tax-number">Steuernummer</label>
+                            <input id="pdf-tax-number" type="text" maxlength="40" class="form-control" name="instances_pdf_taxNumber" value="{{ USERDATA.instance.instances_pdf_taxNumber }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-vat-id">Umsatzsteuer-Identifikationsnummer (USt-IdNr.)</label>
+                            <input id="pdf-vat-id" type="text" maxlength="20" class="form-control" name="instances_pdf_vatId" value="{{ USERDATA.instance.instances_pdf_vatId }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="pdf-bank-details">Bankverbindung und Verwendungszweck (optional)</label>
+                            <textarea id="pdf-bank-details" maxlength="500" rows="3" class="form-control" name="instances_pdf_bankDetails">{{ USERDATA.instance.instances_pdf_bankDetails }}</textarea>
+                        </div>
                 </div>
                 <div class="card-footer">
                     {% if "BUSINESS:BUSINESS_SETTINGS:EDIT"|instancePermissions %}

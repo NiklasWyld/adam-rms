@@ -1,37 +1,32 @@
-<body>
-    <div class="container">
-        <table border="1">
-            <tr>
-                <th>
-                    Asset ID
-                </th>
-                <th>
-                    Asset Type
-                </th>
-                <th>
-                    Barcode
-                </th>
-                <th>
-                    Barcode Type
-                </th>   
-            </tr>
-
-        {% for i in range(0,(assets|length - 1)) %}
-            <tr>
-                <td>
-                    {{ assets[i].isAsset ? assets[i].assets_tag : '<i>Not yet associated with asset</i>' }}
-                </td>
-                <td>
-                     {{ assets[i].isAsset ? assets[i].assetTypes_name : '<i>Not yet associated with asset</i>' }}
-                </td>
-                <td>
-                    {{ assets[i].barcode.assetsBarcodes_value }}
-                </td>
-                <td>
-                    {{ assets[i].barcode.assetsBarcodes_type }}
-                </td>
-            </tr>
-        {% endfor %}
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Barcodeliste - {{ USERDATA.instance.instances_name }}</title>
+    <link rel="stylesheet" href="{{ CONFIG.ROOTURL }}/static-assets/css/pdfPrint.css">
+</head>
+<body class="pdf-print-report">
+    <header class="pdf-print-header">
+        {% if CONFIG.FILES_ENABLED == 'Enabled' and USERDATA.instance.instances_storageEnabled == 1 and USERDATA.instance.instances_logo %}
+            <img src="{{ USERDATA.instance.instances_logo|s3URL('medium') }}" alt="Firmenlogo">
+        {% endif %}
+        <p>{{ USERDATA.instance.instances_name }}</p>
+        <h1>Barcodeliste</h1>
+    </header>
+    <main class="pdf-print-content">
+        <table>
+            <thead><tr><th>Material-ID</th><th>Materialtyp</th><th>Barcode</th><th>Barcodetyp</th></tr></thead>
+            <tbody>
+                {% for asset in assets %}
+                    <tr>
+                        <td>{{ asset.isAsset ? asset.assets_tag : 'Noch keinem Material zugeordnet' }}</td>
+                        <td>{{ asset.isAsset ? asset.assetTypes_name : 'Noch keinem Material zugeordnet' }}</td>
+                        <td>{{ asset.barcode.assetsBarcodes_value }}</td>
+                        <td>{{ asset.barcode.assetsBarcodes_type }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         </table>
-    </div>
+    </main>
 </body>
+</html>

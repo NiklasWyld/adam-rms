@@ -1,26 +1,24 @@
-<style>
-    body {
-        text-align: center;
-    }
-    h1,h2,h3 {
-        margin-bottom: 2px;
-        margin-top:2px;
-    }
-</style>
-<script>
-    window.onload = function () {
-        window.print();
-    }
-</script>
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Standortetikett - {{ location.locations_name }}</title>
+    <link rel="stylesheet" href="{{ CONFIG.ROOTURL }}/static-assets/css/pdfPrint.css">
+    <style>
+        body { text-align: center; }
+        h1, h2, p { margin: 2mm 0; }
+        .brand { max-width: 40mm; max-height: 20mm; }
+        .barcode { max-width: 80%; margin: 4mm; }
+    </style>
+    <script>window.addEventListener('load', () => window.print());</script>
+</head>
 <body>
-    {% if CONFIG.FILES_ENABLED == "Enabled" and USERDATA.instance.instances_storageEnabled == 1 and USERDATA.instance.instances_logo %}
-    <img src="{{ USERDATA.instance.instances_logo|s3URL("medium") }}" style="width: 40%;margin-bottom: 4px;">
+    {% if CONFIG.FILES_ENABLED == 'Enabled' and USERDATA.instance.instances_storageEnabled == 1 and USERDATA.instance.instances_logo %}
+        <img class="brand" src="{{ USERDATA.instance.instances_logo|s3URL('medium') }}" alt="Firmenlogo">
     {% endif %}
-    <!--<img src="{{ CONFIG.ROOTURL}}/static-assets/img/logosmall.png" style="width: 40%;" />-->
-    <h3>{{ USERDATA.instance.instances_name }}</h3>
-    <img src="{{ CONFIG.ROOTURL }}/api/assets/barcodes/?barcode={{ barcode.locationsBarcodes_value }}&size=200&width=4&type={{ barcode.locationsBarcodes_type }}" alt="Barcode" style="height: 40%;max-width:80%;margin:10px;">
+    <p>{{ USERDATA.instance.instances_name }}</p>
+    <img class="barcode" src="{{ CONFIG.ROOTURL }}/api/assets/barcodes/?barcode={{ barcode.locationsBarcodes_value|url_encode }}&amp;size=200&amp;width=4&amp;type={{ barcode.locationsBarcodes_type|url_encode }}" alt="Standortbarcode">
     <h1>{{ location.locations_name }}</h1>
-    {% if location.clients_name %}
-        <h2>{{ location.clients_name }}</h2>
-    {% endif %}
+    {% if location.clients_name %}<h2>{{ location.clients_name }}</h2>{% endif %}
 </body>
+</html>

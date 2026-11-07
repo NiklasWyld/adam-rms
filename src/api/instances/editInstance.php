@@ -12,8 +12,17 @@ foreach ($_POST['formData'] as $item) {
 if (isset($array['instances_termsAndPayment'])) $array['instances_termsAndPayment'] = $bCMS->cleanString($array['instances_termsAndPayment']);
 if (isset($array['instances_quoteTerms'])) $array['instances_quoteTerms'] = $bCMS->cleanString($array['instances_quoteTerms']);
 
+foreach (['instances_pdf_taxNumber' => 40, 'instances_pdf_vatId' => 20, 'instances_pdf_bankDetails' => 500] as $key => $limit) {
+    if (isset($array[$key])) {
+        if (!is_string($array[$key]) || mb_strlen($array[$key]) > $limit || preg_match('/[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]/', $array[$key])) {
+            finish(false, ['code' => 'PARAM-ERROR', 'message' => 'Ungültige Angaben für die PDF-Rechnung.']);
+        }
+        $array[$key] = trim($array[$key]) ?: null;
+    }
+}
+
 $DBLIB->where("instances_id",$AUTH->data['instance']["instances_id"]);
-$result = $DBLIB->update("instances", array_intersect_key( $array, array_flip( ["instances_name","instances_address","instances_phone","instances_email","instances_website","instances_weekStartDates","instances_logo","instances_emailHeader","instances_termsAndPayment", "instances_quoteTerms", "instances_cableColours"] ) ));
+$result = $DBLIB->update("instances", array_intersect_key( $array, array_flip( ["instances_name","instances_address","instances_phone","instances_email","instances_website","instances_weekStartDates","instances_logo","instances_emailHeader","instances_termsAndPayment", "instances_quoteTerms", "instances_cableColours", "instances_pdf_taxNumber", "instances_pdf_vatId", "instances_pdf_bankDetails"] ) ));
 echo $DBLIB->getLastError();
 if (!$result) finish(false, ["code" => "UPDATE-FAIL", "message"=> "Could not update instance"]);
 else {

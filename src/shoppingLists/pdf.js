@@ -1,89 +1,66 @@
-/* Shares pdfMake and embedded Roboto fonts with AdamRMS project exports. */
-(function () {
+(() => {
     'use strict';
-    var data = JSON.parse(document.getElementById('shopping-pdf-data').textContent), list = data.list;
-    var meta = data.meta;
-    function text(value) { return value == null ? '' : String(value); }
-    function wrap(value) { return text(value).replace(/(\S{28})(?=\S)/g, '$1\u200b'); }
-    function amount(value) {
-        value = text(value);
-        return { text: value, fontSize: value.length > 16 ? 6 : (value.length > 12 ? 7 : 9) };
-    }
-    var heading = ['No.', 'Item / manufacturer / model', 'Quantity', 'Unit price', 'Line total', 'Necessity'];
-    var body = [heading.map(function (label) { return { text: label, bold: true, color: '#ffffff', fillColor: '#34495e', margin: [0, 4, 0, 4] }; })];
-    list.items.forEach(function (item, index) {
-        body.push([
-            text(index + 1),
+    const pdf = window.AdamPdf;
+    const { list, exported } = pdf.read('shopping-pdf-data');
+    const source = pdf.business();
+    const name = list.shoppingLists_name;
+    const content = [
+        pdf.cover(source, 'Einkaufsliste', name),
+        { text: 'Status: ' + pdf.labels.shopping[list.shoppingLists_status] + '  ·  Währung: ' + list.shoppingLists_currency },
+        { text: 'Erstellt: ' + pdf.date(list.shoppingLists_created) + (list.creator ? '  ·  Von: ' + list.creator : '') +
+            '\nExportiert: ' + exported, style: 'muted', margin: [0, 4, 0, 10] }
+    ];
+    if (list.shoppingLists_description) content.push({ text: pdf.wrap(list.shoppingLists_description), margin: [0, 0, 0, 10] });
+
+    const groups = new Map();
+    list.items.forEach((item, index) => {
+        const category = item.category || 'Ohne Kategorie';
+        if (!groups.has(category)) groups.set(category, []);
+        groups.get(category).push({ item, index });
+    });
+    if (!list.items.length) content.push({ text: 'Diese Einkaufsliste enthält keine Artikel.', margin: [0, 6, 0, 12] });
+    for (const [category, entries] of groups) {
+        content.push(pdf.heading(category));
+        const rows = entries.map(({ item, index }) => [
+            String(index + 1),
             { stack: [
-                { text: wrap(item.shoppingListItems_name), bold: true },
-                { text: wrap([item.manufacturer, item.shoppingListItems_model].filter(Boolean).join(' / ')), color: '#586574', fontSize: 8 },
-                { text: wrap(item.category), color: '#586574', fontSize: 8 },
-                { text: meta.itemStatuses[item.shoppingListItems_status] + (item.shoppingListItems_status === 'rejected' ? ' (excluded)' : ''), color: '#586574', fontSize: 8, margin: [0, 3, 0, 0] }
+                { text: pdf.wrap(item.shoppingListItems_name), bold: true },
+                { text: pdf.wrap([item.manufacturer, item.shoppingListItems_model].filter(Boolean).join(' / ')), style: 'muted' }
             ] },
-            { text: text(item.shoppingListItems_quantity).replace(/\.?0+$/, '') + (item.shoppingListItems_unit ? '\n' + text(item.shoppingListItems_unit).replace(/(\S{8})(?=\S)/g, '$1\u200b') : ''), fontSize: 8 },
-            amount(item.unitPriceFormatted), amount(item.totalFormatted), meta.priorities[item.shoppingListItems_priority]
+            { text: pdf.number(item.shoppingListItems_quantity, { maximumFractionDigits: 3 }) +
+                (item.shoppingListItems_unit ? '\n' + pdf.wrap(item.shoppingListItems_unit) : ''), alignment: 'right' },
+            { text: item.unitPriceFormatted, alignment: 'right' },
+            { text: item.totalFormatted, alignment: 'right' },
+            pdf.labels.necessity[item.shoppingListItems_priority] + '\n' + pdf.labels.shoppingItem[item.shoppingListItems_status] +
+                (item.shoppingListItems_status === 'rejected' ? ' (ausgenommen)' : '')
         ]);
-    });
-    if (!list.items.length) body.push([{ text: 'No items in this list.', colSpan: 6, margin: [0, 8, 0, 8] }, {}, {}, {}, {}, {}]);
-    var content = [];
-    if (data.logo && /^data:image\/(png|jpeg|jpg);base64,/i.test(data.logo)) content.push({ image: data.logo, fit: [160, 65], margin: [0, 0, 0, 14] });
-    content.push(
-        { text: data.business, color: '#586574', fontSize: 11, margin: [0, 0, 0, 8] },
-        { text: wrap(list.shoppingLists_name), fontSize: 23, bold: true, margin: [0, 0, 0, 8] },
-        { text: 'Shopping list / planned purchases', color: '#586574', margin: [0, 0, 0, 10] },
-        { text: wrap(list.shoppingLists_description), margin: [0, 0, 0, 10] },
-        { text: 'Created: ' + list.shoppingLists_created + ' | By: ' + list.creator + '\nExported: ' + data.exported + '\nStatus: ' + meta.statuses[list.shoppingLists_status] + ' | Currency: ' + list.shoppingLists_currency, fontSize: 9, margin: [0, 0, 0, 12] }
-    );
-    if (list.budgetFormatted !== null) content.push({ text: 'Budget: ' + list.budgetFormatted, bold: true, margin: [0, 0, 0, 12] });
-    // Compact rows stay together; long descriptions/justifications flow freely in the details section.
-    content.push({ table: { headerRows: 1, dontBreakRows: true, widths: [20, '*', 48, 60, 60, 52], body: body },
-        layout: { fillColor: function (row) { return row > 0 && row % 2 === 0 ? '#f3f5f7' : null; },
-            hLineColor: function () { return '#dde2e6'; }, vLineWidth: function () { return 0; },
-            paddingTop: function () { return 7; }, paddingBottom: function () { return 7; } }, margin: [0, 4, 0, 16] });
-    content.push({ unbreakable: true, stack: [
-        { text: 'Estimated total: ' + list.totalFormatted, bold: true, fontSize: 14, alignment: 'right', margin: [0, 6, 0, 6] },
-        { text: list.budgetFormatted !== null ? 'Budget: ' + list.budgetFormatted + ' | Remaining: ' + list.remainingFormatted : 'No budget specified', alignment: 'right', color: list.overBudget ? '#a32323' : '#586574' },
-        { text: list.missingPrices + ' unpriced items; ' + list.excludedItems + ' rejected items excluded.\nEach line is quantity × unit price, rounded half up to the currency subunit. All other statuses are included. Taxes and delivery are included only if entered in the prices or as separate items.', fontSize: 8, color: '#586574', margin: [0, 10, 0, 0] }
-    ] });
-    if (list.shoppingLists_comment) content.push({ text: 'General comment', bold: true, headlineLevel: 1, margin: [0, 18, 0, 5] }, { text: wrap(list.shoppingLists_comment) });
-    if (list.items.length) content.push({ text: 'Justifications and item details', fontSize: 16, bold: true, pageBreak: 'before', margin: [0, 0, 0, 14] });
-    list.items.forEach(function (item, index) {
-        content.push(
-            { text: text(index + 1) + '. ' + wrap(item.shoppingListItems_name), bold: true, headlineLevel: 1, margin: [0, index ? 14 : 0, 0, 5] },
-            { text: 'Necessity: ' + meta.priorities[item.shoppingListItems_priority] + ' | Status: ' + meta.itemStatuses[item.shoppingListItems_status], color: '#586574', margin: [0, 0, 0, 5] },
-            { text: 'Justification: ' + (wrap(item.shoppingListItems_reason) || 'Not specified'), margin: [0, 0, 0, 5] }
-        );
-        if (item.shoppingListItems_description) content.push({ text: wrap(item.shoppingListItems_description), margin: [0, 0, 0, 5] });
-        var supplier = [item.shoppingListItems_supplier, item.shoppingListItems_sku].filter(Boolean).join(' / ');
-        if (supplier) content.push({ text: 'Supplier / article number: ' + wrap(supplier), fontSize: 8, margin: [0, 0, 0, 4] });
-        if (item.shoppingListItems_url) content.push({ text: wrap(item.shoppingListItems_url), link: item.shoppingListItems_url, color: '#315a85', fontSize: 8, margin: [0, 0, 0, 4] });
-        if (item.shoppingListItems_notes) content.push({ text: 'Notes: ' + wrap(item.shoppingListItems_notes), fontSize: 8, margin: [0, 0, 0, 4] });
-    });
-    var definition = {
-        pageSize: 'A4', pageMargins: [36, 42, 36, 48], defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.15 },
-        info: { title: list.shoppingLists_name, author: data.business, subject: 'Planned procurement - independent of inventory' },
-        content: content,
-        // Keep section/item headings with following content without making long justifications unbreakable.
-        pageBreakBefore: function (node, following) { return node.headlineLevel === 1 && following.length === 0; },
-        footer: function (page, pages) { return { columns: [
-            { text: 'AdamRMS | Shopping list #' + list.shoppingLists_id, width: '*' },
-            { text: page + ' / ' + pages, alignment: 'right', width: 60 }
-        ], margin: [36, 16, 36, 0], fontSize: 8, color: '#586574' }; }
-    };
-    window.shoppingPdfDefinition = definition;
-    function createPdf() {
-        if (typeof pdfMake === 'undefined' || !pdfMake.vfs || !pdfMake.vfs['Roboto-Regular.ttf']) throw new Error('The PDF library or fonts could not be loaded. Check your connection and try again.');
-        return pdfMake.createPdf(definition);
+        content.push(pdf.table(['Pos.', 'Artikel / Hersteller / Modell', 'Menge', 'Einzelpreis', 'Gesamt', 'Bedarf / Status'],
+            [22, '*', 46, 69, 69, 73], rows, { dontBreakRows: true, keepWithHeaderRows: 1 }));
     }
-    function failed(error) { document.getElementById('pdf-error').textContent = error.message || 'Unable to generate PDF. Please reload and try again.'; }
-    var filename = list.shoppingLists_name.replace(/[\/\\:*?"<>|\x00-\x1f]/g, '_').slice(0, 100) + '.pdf';
-    document.getElementById('download-pdf').onclick = function () { try { createPdf().download(filename); } catch (error) { failed(error); } };
-    document.getElementById('open-pdf').onclick = function () { try { createPdf().open(); } catch (error) { failed(error); } };
-    try {
-        createPdf();
-        document.getElementById('download-pdf').disabled = false;
-        document.getElementById('open-pdf').disabled = false;
-        document.getElementById('pdf-status').textContent = 'Your PDF is ready. If the download does not start, use the button below.';
-        createPdf().download(filename);
-    } catch (error) { failed(error); }
-}());
+    content.push({ unbreakable: true, stack: [
+        { text: 'Voraussichtliche Gesamtkosten: ' + list.totalFormatted, fontSize: 13, bold: true, alignment: 'right' },
+        { text: list.budgetFormatted === null ? 'Kein Budget hinterlegt' : 'Budget: ' + list.budgetFormatted +
+            '  ·  Restbudget: ' + list.remainingFormatted, alignment: 'right', color: list.overBudget ? '#a32323' : '#526171', margin: [0, 4, 0, 0] },
+        { text: 'Positionen ohne Preis: ' + list.missingPrices + '. Abgelehnte und ausgenommene Positionen: ' + list.excludedItems +
+            '. Positionssummen ergeben sich aus Menge × Einzelpreis, kaufmännisch gerundet. Steuern und Versand sind enthalten, wenn sie im Preis oder als eigene Position erfasst sind.',
+            style: 'muted', margin: [0, 8, 0, 0] }
+    ] });
+    if (list.shoppingLists_comment) content.push(pdf.heading('Allgemeine Anmerkung'), { text: pdf.wrap(list.shoppingLists_comment) });
+
+    const details = list.items.map((item, index) => ({ item, index })).filter(({ item }) =>
+        ['reason', 'description', 'supplier', 'sku', 'url', 'notes'].some(key => item['shoppingListItems_' + key]));
+    if (details.length) content.push(pdf.heading('Begründungen und Artikeldetails', { pageBreak: 'before' }));
+    for (const { item, index } of details) {
+        content.push(pdf.heading((index + 1) + '. ' + item.shoppingListItems_name, { fontSize: 10 }));
+        const values = { reason: 'Begründung', description: 'Beschreibung', supplier: 'Lieferant', sku: 'Artikelnummer', notes: 'Notizen' };
+        for (const [key, label] of Object.entries(values)) {
+            const value = item['shoppingListItems_' + key];
+            if (value) content.push({ text: [{ text: label + ': ', bold: true }, pdf.wrap(value)], margin: [0, 0, 0, 4] });
+        }
+        const url = item.shoppingListItems_url;
+        if (url) content.push({ text: pdf.wrap(url), link: /^https?:\/\//i.test(url) ? url : undefined, color: '#315a85' });
+    }
+    const doc = pdf.definition({ source, title: 'Einkaufsliste - ' + name, content });
+    window.shoppingPdfDefinition = doc;
+    pdf.downloadPage(doc, pdf.filename('Einkaufsliste', name));
+})();
