@@ -210,15 +210,15 @@ test("mobile channel editing and untrusted text remain safe in both table and PD
   expect(await page.evaluate(() => (window as any).channelXss)).toBeUndefined();
 });
 
-test("stage and shift tabs use clear external fallbacks and preserve the normal project file controls", async ({ page, asA, tenants }) => {
+test("the native shift tab preserves the external tools and existing project file controls", async ({ page, asA, tenants }) => {
   await browser(page, asA);
   await page.goto("/project/?id=" + tenants.a.projectId + "#stage-planning-view");
   await expect(page.locator("#stage-planning-view")).toBeVisible();
   await expect(page.locator("#stage-planning-view")).toContainText("Dateiablage ist deaktiviert");
   await expect(page.locator("#stage-planning-view a[target=_blank]").first()).toHaveAttribute("href", "https://ridermaker.com");
   await page.locator('#nav-bar a[href="#shift-planning-view"]').click();
-  await expect(page.locator("#shift-planning-view")).toContainText("Pro-Abo");
-  await expect(page.locator("#shift-planning-view a[target=_blank]").first()).toHaveAttribute("href", "https://www.onlinegantt.com/#/gantt");
+  await expect(page.getByRole("button", { name: "Neue Schicht", exact: true })).toBeEnabled();
+  await expect(page.getByRole("link", { name: "Online Gantt" })).toHaveAttribute("href", "https://www.onlinegantt.com/#/gantt");
   expect(await page.locator('iframe[src*="ridermaker"],iframe[src*="onlinegantt"]').count()).toBe(0);
   await page.screenshot({ path: "test-results/shift-planning.png", fullPage: true });
 });

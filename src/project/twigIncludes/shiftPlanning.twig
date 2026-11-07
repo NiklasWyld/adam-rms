@@ -1,0 +1,87 @@
+<section id="shift-planner" class="card" aria-label="Schichtplanung" data-ui
+         data-endpoint="{{ CONFIG.ROOTURL }}/api/projects/shiftPlanning.php" data-project="{{ project.projects_id }}"
+         data-today="{{ 'now'|date('Y-m-d') }}" data-project-start="{{ project.projects_dates_use_start ? project.projects_dates_use_start|date('Y-m-d') : '' }}">
+    <div class="card-header shift-toolbar">
+        <div class="shift-range">
+            <label for="shift-from">Von <input class="form-control form-control-sm" id="shift-from" type="date" disabled></label>
+            <label for="shift-to">Bis <input class="form-control form-control-sm" id="shift-to" type="date" disabled></label>
+        </div>
+        <div class="shift-actions">
+            <button type="button" class="btn btn-default btn-sm" id="shift-all" disabled>Alle Tage</button>
+            <a class="btn btn-default btn-sm" href="{{ CONFIG.ROOTURL }}/project/shiftPlanningExport.php?id={{ project.projects_id }}" target="_blank" rel="noopener">PDF exportieren</a>
+            {% if 'PROJECTS:PROJECT_CREW:CREATE'|instancePermissions and 'PROJECTS:PROJECT_CREW:EDIT'|instancePermissions and not project.projects_archived %}
+                <button type="button" class="btn btn-primary btn-sm" id="shift-add" disabled>Neue Schicht</button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="px-3 py-2" id="shift-status" role="status">Schichtplan wird geladen …</div>
+        <div class="px-3 py-2" id="shift-load-error" hidden>
+            <span class="text-danger" role="alert"></span>
+            <button class="btn btn-link btn-sm" type="button">Erneut laden</button>
+        </div>
+        <div id="shift-days"></div>
+    </div>
+
+    <div class="modal fade" id="shift-editor" tabindex="-1" role="dialog" aria-labelledby="shift-editor-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable" role="document">
+            <form class="modal-content" id="shift-form">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="shift-editor-title">Schicht</h2>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <fieldset id="shift-fields">
+                        <div class="form-group">
+                            <label for="shift-title">Bezeichnung</label>
+                            <input class="form-control" id="shift-title" name="title" maxlength="180" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-sm-6">
+                                <label for="shift-start">Beginn</label>
+                                <input class="form-control" id="shift-start" name="start" type="datetime-local" required>
+                            </div>
+                            <div class="form-group col-sm-6">
+                                <label for="shift-end">Ende</label>
+                                <input class="form-control" id="shift-end" name="end" type="datetime-local" required>
+                            </div>
+                        </div>
+                        <div class="form-group" id="shift-member-picker">
+                            <label for="shift-members">Personen zuordnen</label>
+                            <select class="form-control" id="shift-members" multiple></select>
+                        </div>
+                        <div class="form-group" id="shift-copy-crew" hidden>
+                            <label for="shift-crew-source">Besetzung übernehmen</label>
+                            <select class="form-control form-control-sm" id="shift-crew-source"></select>
+                        </div>
+                        <div id="shift-roles"></div>
+                        <details id="shift-details">
+                            <summary>Aufgaben, Treffpunkt und Notizen</summary>
+                            <div class="form-group mt-2">
+                                <label for="shift-tasks">Allgemeine Aufgaben</label>
+                                <textarea class="form-control" id="shift-tasks" name="tasks" rows="2" maxlength="4000"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="shift-meeting">Treffpunkt</label>
+                                <input class="form-control" id="shift-meeting" name="meetingPoint" maxlength="255">
+                            </div>
+                            <div class="form-group mb-0">
+                                <label for="shift-notes">Notizen</label>
+                                <textarea class="form-control" id="shift-notes" name="notes" rows="2" maxlength="4000"></textarea>
+                            </div>
+                        </details>
+                    </fieldset>
+                </div>
+                <div class="px-3" id="shift-editor-warning" aria-live="polite" hidden></div>
+                <div class="alert alert-danger mx-3 mb-0" id="shift-editor-error" role="alert" hidden></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger mr-auto" id="shift-delete" hidden>Löschen</button>
+                    <button type="button" class="btn btn-default" id="shift-duplicate" hidden>Duplizieren</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
+                    <button type="submit" class="btn btn-primary" id="shift-save" hidden>Speichern</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script src="{{ CONFIG.ROOTURL }}/project/shiftPlanning.js"></script>

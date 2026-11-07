@@ -1,0 +1,52 @@
+#shift-planner [hidden] { display: none !important; }
+#shift-planner .shift-toolbar,
+#shift-planner .shift-range,
+#shift-planner .shift-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: .5rem;
+}
+#shift-planner .shift-toolbar { justify-content: space-between; gap: .75rem; }
+#shift-planner .shift-toolbar::after { display: none; }
+#shift-planner .shift-range label { margin: 0; font-size: .875rem; }
+#shift-planner .shift-day-title { padding: .65rem 1rem; margin: 0; font-size: .95rem; }
+#shift-planner .shift-day + .shift-day { border-top: 1px solid var(--gray, #6c757d); }
+#shift-planner .shift-entry {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    width: 100%;
+    gap: .25rem 1rem;
+    padding: .65rem 1rem;
+    border: 0;
+    border-top: 1px solid rgba(127, 127, 127, .22);
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    overflow-wrap: anywhere;
+}
+#shift-planner .shift-entry:hover { background: rgba(127, 127, 127, .08); }
+#shift-planner .shift-entry:focus-visible { outline: 2px solid var(--primary, #007bff); outline-offset: -2px; }
+#shift-planner .shift-time { font-variant-numeric: tabular-nums; }
+#shift-planner .shift-warning { color: inherit; }
+#shift-planner .shift-warning i { color: var(--warning, #ffc107); }
+#shift-planner .shift-role {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .5rem;
+    overflow-wrap: anywhere;
+}
+#shift-planner #shift-roles:not(:empty) { margin-bottom: 1rem; }
+#shift-planner .select2-selection__choice { white-space: normal; overflow-wrap: anywhere; }
+#shift-planner .select2-container { max-width: 100%; }
+#shift-planner summary { cursor: pointer; }
+@media (max-width: 575.98px) {
+    #shift-planner .shift-range { width: 100%; }
+    #shift-planner .shift-range label { flex: 1; min-width: 0; }
+    #shift-planner .shift-entry { grid-template-columns: minmax(0, 1fr); }
+    #shift-planner .shift-toolbar .btn { min-height: 44px; display: inline-flex; align-items: center; }
+    #shift-planner .shift-toolbar .form-control { min-height: 44px; }
+    #shift-planner .shift-role { grid-template-columns: minmax(0, 1fr); gap: .125rem; }
+}

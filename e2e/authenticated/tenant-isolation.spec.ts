@@ -51,6 +51,7 @@ type PageCase = { file: string; label?: string; url: (t: Tenant) => string; show
 
 const readCases: ReadCase[] = [
   { endpoint: "/api/rooms/action.php", params: (t) => ({ projects_id: t.projectId }), shows: (t) => `${t.marker} project` },
+  { endpoint: "/api/projects/shiftPlanning.php", params: (t) => ({ projects_id: t.projectId }), shows: (t) => `${t.marker} project` },
   { endpoint: "/api/shoppingLists/action.php", params: (t) => ({ id: t.shoppingListId }), method: "GET" },
   { endpoint: "/api/projects/list.php", params: () => ({}) },
   { endpoint: "/api/projects/data.php", params: (t) => ({ id: t.projectId }), shows: (t) => `${t.marker} project description` },
@@ -86,6 +87,7 @@ const pageCases: PageCase[] = [
   { file: "shoppingLists/index.php", url: (t) => `/shoppingLists/?id=${t.shoppingListId}`, shows: (t) => `${t.marker} shopping list` },
   { file: "shoppingLists/export.php", url: (t) => `/shoppingLists/export.php?id=${t.shoppingListId}`, shows: (t) => `${t.marker} shopping list` },
   { file: "project/index.php", url: (t) => `/project/?id=${t.projectId}`, shows: (t) => `${t.marker} project description` },
+  { file: "project/shiftPlanningExport.php", url: (t) => "/project/shiftPlanningExport.php?id=" + t.projectId, shows: (t) => t.marker + " project" },
   { file: "project/noteExport.php", url: (t) => `/project/noteExport.php?id=${t.projectId}`, shows: (t) => `${t.marker} note` },
   { file: "project/projectInvoice.php", url: (t) => `/project/projectInvoice.php?id=${t.projectId}`, shows: (t) => `${t.marker} project` }, // the PDF data is embedded as JSON
   { file: "project/crew/vacantCrew.php", url: (t) => `/project/crew/vacantCrew.php?id=${t.projectId}`, shows: (t) => `${t.marker} vacancy` },

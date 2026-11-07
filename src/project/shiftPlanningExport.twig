@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ shiftPlan.project.projects_name }} - Schichtplanung (PDF)</title>
+    {% include 'assets/templates/pdf/scripts.twig' %}
+    <style>body{font:16px/1.6 system-ui,sans-serif;color:#263238;background:#f4f6f9;margin:0;padding:40px 20px}main{max-width:700px;margin:40px auto;background:white;border:1px solid #dee2e6;border-radius:6px;padding:32px}button,a{font:inherit}button{cursor:pointer;padding:8px 16px;margin:0 8px 12px 0}h1{font-size:24px;overflow-wrap:anywhere}#pdf-error{color:#a32323}</style>
+</head>
+<body><main>
+    <h1>{{ shiftPlan.project.projects_name }}</h1>
+    <p id="pdf-status" role="status">PDF wird erstellt …</p>
+    <p id="pdf-error" role="alert"></p>
+    <button id="download-pdf" disabled>PDF herunterladen</button><button id="open-pdf" disabled>PDF öffnen</button>
+    <p><a href="{{ CONFIG.ROOTURL }}/project/?id={{ shiftPlan.project.projects_id }}#shift-planning-view">Zur Schichtplanung</a></p>
+</main>
+{% include 'assets/templates/pdf/business.twig' %}
+<script type="application/json" id="shift-pdf-data">{{ {project: shiftPlan.project, shifts: shiftPlan.shifts}|json_encode(15)|raw }}</script>
+<script src="{{ CONFIG.ROOTURL }}/project/shiftPlanningPdf.js"></script>
+</body></html>

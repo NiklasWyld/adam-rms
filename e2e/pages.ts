@@ -78,6 +78,7 @@ export const businessPages: PageCase[] = [
   { url: (t) => `/project/?id=${t.projectId}#shift-planning-view` },
   { url: (t) => `/project/?id=${t.projectId}#channel-planning-view` },
   { url: (t) => `/project/channelPlanningExport.php?id=${t.projectId}` },
+  { url: (t) => `/project/shiftPlanningExport.php?id=${t.projectId}` },
   { url: (t) => `/project/?id=${t.projectId}&list` },
   { url: (t) => `/project/?id=${t.subProjectId}` },
   { url: (t) => `/project/noteExport.php?id=${t.projectId}` },
