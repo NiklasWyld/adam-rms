@@ -47,4 +47,28 @@ if ($AUTH->data['instance']["instancePositions_id"] && $AUTH->data['instance']["
 
 $PAGEDATA['WIDGETS'] = new statsWidgets(explode(",", $AUTH->data['users_widgets']), false);
 
+if ($AUTH->instancePermissionCheck('PROJECTS:VIEW')) {
+    $now = new DateTimeImmutable();
+    $today = $now->setTime(0, 0);
+    $DBLIB->join('projectsStatuses', 'projectsStatuses.projectsStatuses_id=projects.projectsStatuses_id AND projectsStatuses.instances_id=projects.instances_id', 'LEFT');
+    $DBLIB->where('projects.instances_id', $AUTH->data['instance']['instances_id']);
+    $DBLIB->where('projects.projects_deleted', 0);
+    $DBLIB->where('projects.projects_archived', 0);
+    $DBLIB->where('COALESCE(projectsStatuses.projectsStatuses_assetsReleased, 0)', 0);
+    $DBLIB->where('projects.projects_dates_use_start', $now->format('Y-m-d H:i:s'), '>=');
+    $DBLIB->orderBy('projects.projects_dates_use_start', 'ASC');
+    $DBLIB->orderBy('projects.projects_id', 'ASC');
+    $PAGEDATA['upcomingEvents'] = $DBLIB->get('projects', 3, ['projects_id', 'projects_name', 'projects_dates_use_start']);
+    foreach ($PAGEDATA['upcomingEvents'] as &$event) {
+        $start = new DateTimeImmutable($event['projects_dates_use_start']);
+        $days = $today->diff($start->setTime(0, 0))->days;
+        $event['countdown'] = match ($days) {
+            0 => 'Heute',
+            1 => 'Morgen',
+            default => 'In ' . $days . ' Tagen',
+        };
+    }
+    unset($event);
+}
+
 echo $TWIG->render('dashboard.twig', $PAGEDATA);

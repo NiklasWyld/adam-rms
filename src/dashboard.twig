@@ -3,6 +3,9 @@
 {% block content %}
 
     <div class="card-columns">
+        {% if upcomingEvents is defined %}
+            {% include 'assets/widgets/upcomingEvents.twig' %}
+        {% endif %}
         {% set widgets = WIDGETS.getAllDashboard() %}
         {% for widget in widgets %}
             {% embed 'assets/widgets/' ~ widget ~ '.twig' %}

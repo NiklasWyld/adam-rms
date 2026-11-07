@@ -1,0 +1,23 @@
+<section class="card" aria-labelledby="upcoming-events-title">
+    <div class="card-header">
+        <h2 class="card-title" id="upcoming-events-title">Nächste Veranstaltungen</h2>
+    </div>
+    {% if upcomingEvents %}
+        <div class="list-group list-group-flush">
+            {% for event in upcomingEvents %}
+                <a class="list-group-item list-group-item-action py-2 text-break" href="{{ CONFIG.ROOTURL }}/project/?id={{ event.projects_id }}">
+                    <strong>{{ event.projects_name }}</strong>
+                    <small class="d-flex flex-wrap justify-content-between text-muted">
+                        <time datetime="{{ event.projects_dates_use_start|date('c') }}">{{ event.projects_dates_use_start|date('d.m.Y, H:i') }}</time>
+                        <span class="ml-2">{{ event.countdown }}</span>
+                    </small>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card-body py-2 text-muted">Keine anstehenden Veranstaltungen.</div>
+    {% endif %}
+    <div class="card-footer bg-transparent py-2">
+        <a class="small" href="{{ CONFIG.ROOTURL }}/project/list.php">Alle Projekte ansehen</a>
+    </div>
+</section>
