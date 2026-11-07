@@ -212,6 +212,15 @@ class bID
         if (in_array($permissionKey, $this->data['instance']['permissions'])) return true;
         else return false;
     }
+    public function canAssignInstancePosition(array $position): bool {
+        global $instanceActions;
+        foreach (explode(',', $position['instancePositions_actions'] ?? '') as $action) {
+            $action = trim($action);
+            if (isset($instanceActions[$action]) && !$this->instancePermissionCheck($action)) return false;
+        }
+        return true;
+    }
+
     public function setInstance($instanceId) {
         global $DBLIB;
         if (!$this->login) return false; //Not logged in

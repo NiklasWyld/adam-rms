@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../common/headSecure.php';
+require_once __DIR__ . '/../common/libs/InstanceUserAccounts.php';
 
 $PAGEDATA['pageConfig'] = ["TITLE" => "Benutzer im Unternehmen", "BREADCRUMB" => false];
 
@@ -23,7 +24,17 @@ foreach ($users as $user) {
 
 $DBLIB->orderBy("instancePositions_rank", "ASC");
 $DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']);
-$PAGEDATA['positions'] = $DBLIB->get("instancePositions", null, ["instancePositions_id", "instancePositions_displayName"]);
+$PAGEDATA['positions'] = $DBLIB->get("instancePositions", null, ["instancePositions_id", "instancePositions_displayName", "instancePositions_deleted", "instancePositions_actions"]);
+if ($AUTH->instancePermissionCheck("BUSINESS:USERS:CREATE:ADD_USER_BY_EMAIL")) {
+    $PAGEDATA['accountPositions'] = array_filter($PAGEDATA['positions'], fn($position) =>
+        !$position['instancePositions_deleted'] && $AUTH->canAssignInstancePosition($position)
+    );
+    $_SESSION['instanceUserAccountsCsrf'] ??= bin2hex(random_bytes(32));
+    $PAGEDATA['instanceUserAccountsCsrf'] = $_SESSION['instanceUserAccountsCsrf'];
+    if (InstanceUserAccounts::canResetPasswords($AUTH)) {
+        $PAGEDATA['passwordResetUsers'] = InstanceUserAccounts::resettableUsers($DBLIB, $AUTH);
+    }
+}
 
 $DBLIB->where("instances_id", $AUTH->data['instance']['instances_id']);
 $userCapacity = $DBLIB->getvalue("instances", "instances_userLimit");

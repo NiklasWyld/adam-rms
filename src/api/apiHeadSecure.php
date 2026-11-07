@@ -14,7 +14,7 @@ if (!$CONFIG['DEV']) {
 
 $PAGEDATA['AUTH'] = $GLOBALS['AUTH'];
 $PAGEDATA['USERDATA'] = $GLOBALS['AUTH']->data;
-$PAGEDATA['USERDATA']['users_email_md5'] = md5($PAGEDATA['USERDATA']['users_email']);
+$PAGEDATA['USERDATA']['users_email_md5'] = md5($PAGEDATA['USERDATA']['users_email'] ?? '');
 
 $analyticsPayload = $bCMS->sanitizeLoggedPayload($_POST);
 $DBLIB->insert("analyticsEvents", [

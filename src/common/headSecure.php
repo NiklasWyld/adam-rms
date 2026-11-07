@@ -24,7 +24,7 @@ if (!$CONFIG['DEV']) {
 
 $PAGEDATA['AUTH'] = $AUTH;
 $PAGEDATA['USERDATA'] = $AUTH->data;
-$PAGEDATA['USERDATA']['users_email_md5'] = md5($PAGEDATA['USERDATA']['users_email']);
+$PAGEDATA['USERDATA']['users_email_md5'] = md5($PAGEDATA['USERDATA']['users_email'] ?? '');
 
 $analyticsPayload = count($_GET) > 0 ? $bCMS->sanitizeLoggedPayload($_GET) : null;
 $DBLIB->insert("analyticsEvents", [
@@ -58,7 +58,7 @@ if ($AUTH->data['users_emailVerified'] == 1) {
 if ($CONFIG['LINKS_TERMSOFSERVICEURL'] and ($PAGEDATA['USERDATA']['users_termsAccepted'] == 0 or $PAGEDATA['USERDATA']['users_termsAccepted'] == null)) {
     $PAGEDATA['pageConfig'] = ["TITLE" => "Nutzungsbedingungen akzeptieren", "BREADCRUMB" => false, "NOMENU" => true];
     die($TWIG->render('index_acceptTerms.twig', $PAGEDATA));
-} elseif ($PAGEDATA['USERDATA']['users_emailVerified'] == 0 and $CONFIGCLASS->get('EMAILS_ENABLED') === "Enabled" and !($AUTH->serverPermissionCheck("CONFIG:SET") and str_ends_with(getcwd(), "server"))) {
+} elseif ($PAGEDATA['USERDATA']['users_email'] !== null and $PAGEDATA['USERDATA']['users_emailVerified'] == 0 and $CONFIGCLASS->get('EMAILS_ENABLED') === "Enabled" and !($AUTH->serverPermissionCheck("CONFIG:SET") and str_ends_with(getcwd(), "server"))) {
     $PAGEDATA['pageConfig'] = ["TITLE" => "E-Mail-Adresse bestätigen", "BREADCRUMB" => false, "NOMENU" => true];
     $PAGEDATA['fromEmail'] = $CONFIGCLASS->get('EMAILS_FROMEMAIL');
     die($TWIG->render('index_emailVerified.twig', $PAGEDATA));

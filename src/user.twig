@@ -115,7 +115,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>E-Mail-Adresse:</label>
-                                        <input type="email" class="form-control" name="users_email" required value="{{user['users_email']}}" />
+                                        <input type="email" class="form-control" name="users_email" {% if user.users_email %}required{% endif %} value="{{user['users_email']}}" />
                                     </div>
                                     <p>Hinterlege Links zu sozialen Netzwerken, die auf deinem Profil angezeigt werden sollen.</p>
                                     <label>Facebook</label>

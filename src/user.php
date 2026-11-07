@@ -35,7 +35,7 @@ if ($PAGEDATA['user']['users_calendarHash'] == null) {
    //Generate a calendar hash
    $PAGEDATA['user']['users_calendarHash'] = $randomString;
 }
-$PAGEDATA['user']['users_email_md5'] = md5($PAGEDATA['user']['users_email']);
+$PAGEDATA['user']['users_email_md5'] = md5($PAGEDATA['user']['users_email'] ?? '');
 
 //Main Crew Roles
 $DBLIB->where("crewAssignments.users_userid", $PAGEDATA['user']['users_userid']);

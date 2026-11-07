@@ -28,9 +28,55 @@
                 </div>
             </div>
             {% if "BUSINESS:USERS:CREATE:ADD_USER_BY_EMAIL"|instancePermissions %}
+            {% if not NOCAPACITY and accountPositions %}
+            <section class="card" aria-labelledby="create-instance-user-title">
+                <div class="card-header">
+                    <h3 class="card-title" id="create-instance-user-title">Neues Benutzerkonto anlegen</h3>
+                </div>
+                <form class="card-body" id="create-instance-user" method="post" action="{{ CONFIG.ROOTURL }}/api/instances/createUser.php">
+                    <input type="hidden" name="csrf_token" value="{{ instanceUserAccountsCsrf }}">
+                    <input type="hidden" name="company_id" value="{{ USERDATA.instance.instances_id }}">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="create-user-first-name">Vorname</label>
+                            <input class="form-control" id="create-user-first-name" name="name1" maxlength="100" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="create-user-last-name">Nachname <span class="text-muted font-weight-normal">(optional)</span></label>
+                            <input class="form-control" id="create-user-last-name" name="name2" maxlength="100">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="create-user-username">Benutzername</label>
+                            <input class="form-control" id="create-user-username" name="username" autocomplete="off" autocapitalize="none" spellcheck="false"
+                                   minlength="3" maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9._\-]{2,63}" aria-describedby="create-user-username-help" required>
+                            <small class="form-text text-muted" id="create-user-username-help">3–64 Zeichen. Erlaubt sind A–Z, 0–9, Punkt, Unterstrich und Bindestrich.</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="create-user-password">Startpasswort</label>
+                            <input class="form-control" id="create-user-password" name="password" type="password" autocomplete="new-password"
+                                   minlength="12" maxlength="1024" aria-describedby="create-user-password-help" required>
+                            <small class="form-text text-muted" id="create-user-password-help">Mindestens 12 Zeichen. Beim ersten Login wird ein eigenes Passwort gewählt.</small>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="create-user-role">Rollengruppe</label>
+                            <select class="form-control" id="create-user-role" name="position" required>
+                                <option value="">Bitte auswählen …</option>
+                                {% for position in accountPositions %}
+                                    <option value="{{ position.instancePositions_id }}">{{ position.instancePositions_displayName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <p class="alert alert-danger" id="create-instance-user-error" role="alert" hidden></p>
+                    <button class="btn btn-primary" type="submit">Konto anlegen</button>
+                </form>
+            </section>
+            {% endif %}
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Benutzer hinzufügen</h3>
+                    <h3 class="card-title">Vorhandenen Benutzer hinzufügen</h3>
                 </div>
                 <div class="card-body">
                     {% if NOCAPACITY %}
@@ -54,6 +100,9 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    {% if passwordResetUsers %}
+                    <p class="alert alert-success" id="reset-user-password-success" role="status" hidden></p>
+                    {% endif %}
                     <table class="table table-head-fixed" id="userTable" border="0" style="overflow-x: scroll;">
                         <thead>
                         <tr>
@@ -98,6 +147,13 @@
                                 <td>{{ user.instancePositions_displayName }}</td>
                                 <td>
                                     <div class="btn-group">
+                                        {% if passwordResetUsers[user.users_userid]|default(false) %}
+                                            <button type="button" class="btn btn-default" title="Passwort zurücksetzen" aria-label="Passwort zurücksetzen"
+                                                    data-toggle="modal" data-target="#reset-user-password-modal" data-user-id="{{ user.users_userid }}"
+                                                    data-user-name="{{ (user.users_name1 ~ ' ' ~ user.users_name2)|trim }}{% if user.users_username %} ({{ user.users_username }}){% endif %}">
+                                                <i class="fas fa-key" aria-hidden="true"></i>
+                                            </button>
+                                        {% endif %}
                                         {% if "BUSINESS:USERS:EDIT:CHANGE_ROLE"|instancePermissions %}
                                             <button title="Rolle ändern" class="btn btn-default" data-toggle="modal" data-target="#userInstance{{ user.userInstances_id }}Modal"><i
                                                         class="fa fa-pencil-alt"></i></button>
@@ -169,6 +225,35 @@
     </div>
     <!-- /.modal -->
     {% endfor %}
+    {% endif %}
+    {% if passwordResetUsers %}
+    <div class="modal fade" id="reset-user-password-modal" tabindex="-1" role="dialog" aria-labelledby="reset-user-password-title" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" id="reset-user-password" method="post" action="{{ CONFIG.ROOTURL }}/api/instances/resetUserPassword.php">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="reset-user-password-title">Passwort zurücksetzen</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Schließen"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p class="font-weight-bold" id="reset-user-password-name"></p>
+                    <input type="hidden" name="csrf_token" value="{{ instanceUserAccountsCsrf }}">
+                    <input type="hidden" name="company_id" value="{{ USERDATA.instance.instances_id }}">
+                    <input type="hidden" name="user_id" value="">
+                    <div class="form-group">
+                        <label for="reset-user-password-input">Neues Startpasswort</label>
+                        <input class="form-control" id="reset-user-password-input" name="password" type="password" autocomplete="new-password"
+                               minlength="12" maxlength="1024" aria-describedby="reset-user-password-help" required>
+                        <small class="form-text text-muted" id="reset-user-password-help">Mindestens 12 Zeichen. Der Benutzer wird abgemeldet und wählt beim nächsten Login ein eigenes Passwort.</small>
+                    </div>
+                    <p class="alert alert-danger mb-0" role="alert" hidden></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Passwort zurücksetzen</button>
+                </div>
+            </form>
+        </div>
+    </div>
     {% endif %}
     <script>
         $(document).ready(function() {
@@ -243,6 +328,61 @@
             });
             {% endif %}
             {% if "BUSINESS:USERS:CREATE:ADD_USER_BY_EMAIL"|instancePermissions %}
+            function submitInstanceAccountForm(form, fallbackMessage, onSuccess) {
+                form?.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    const button = form.querySelector('button[type="submit"]');
+                    const error = form.querySelector('[role="alert"]');
+                    if (button.disabled) return;
+                    button.disabled = true;
+                    error.hidden = true;
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: new URLSearchParams(new FormData(form))
+                        });
+                        const result = await response.json();
+                        if (result.result) {
+                            form.reset();
+                            button.disabled = false;
+                            onSuccess();
+                            return;
+                        }
+                        error.textContent = result.error?.message || fallbackMessage;
+                    } catch {
+                        error.textContent = fallbackMessage + ' Bitte versuche es erneut.';
+                    }
+                    error.hidden = false;
+                    button.disabled = false;
+                });
+            }
+
+            submitInstanceAccountForm(document.getElementById('create-instance-user'),
+                'Das Konto konnte nicht angelegt werden.', () => window.location.reload());
+
+            {% if passwordResetUsers %}
+            const resetForm = document.getElementById('reset-user-password');
+            const resetModal = $('#reset-user-password-modal');
+            const resetStatus = document.getElementById('reset-user-password-success');
+            resetModal.on('show.bs.modal', event => {
+                resetForm.reset();
+                resetForm.querySelector('[role="alert"]').hidden = true;
+                resetForm.elements.user_id.value = event.relatedTarget.dataset.userId;
+                document.getElementById('reset-user-password-name').textContent = event.relatedTarget.dataset.userName;
+                resetStatus.hidden = true;
+            });
+            resetModal.on('shown.bs.modal', () => resetForm.elements.password.focus());
+            resetModal.on('hide.bs.modal', event => {
+                if (resetForm.querySelector('button[type="submit"]').disabled) event.preventDefault();
+            });
+            resetModal.on('hidden.bs.modal', () => resetForm.reset());
+            submitInstanceAccountForm(resetForm, 'Das Passwort konnte nicht zurückgesetzt werden.', () => {
+                resetModal.modal('hide');
+                resetStatus.textContent = 'Das Passwort wurde zurückgesetzt.';
+                resetStatus.hidden = false;
+            });
+            {% endif %}
+
             $("#addUserToInstance").select2({
                 tags: false,
                 multiple: true,

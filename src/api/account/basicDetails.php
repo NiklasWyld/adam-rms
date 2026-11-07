@@ -17,7 +17,8 @@ $DBLIB->where("users.users_userid", $userid);
 $currentUserData = $DBLIB->getone("users", ["users.*"]);
 if (!$currentUserData) finish(false, ["message" => "User not found error"]);
 
-$array["users_email"] = strtolower($array["users_email"]);
+$array["users_email"] = strtolower($array["users_email"] ?? "");
+if ($array["users_email"] === "" && $currentUserData["users_email"] === null) $array["users_email"] = null;
 $array["users_username"] = strtolower($array["users_username"]);
 
 // Restrict the fields that can be edited
